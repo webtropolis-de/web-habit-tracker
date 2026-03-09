@@ -1,0 +1,286 @@
+body {
+  margin: 0;
+  font-family:
+    "Inter", sans-serif; /* Falls du die Schriftart hast, sonst Standard */
+  background: linear-gradient(135deg, #1e1e2f 0%, #121212 100%);
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  max-width: 1000px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.logo {
+  width: "200px";
+  margin-bottom: "20px";
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 3em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/*  Design Eingabefeld */
+.habit-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: white;
+  font-size: 1.1rem;
+  width: 300px;
+  outline: none;
+}
+
+/* Fokus Border */
+.habit-input:focus {
+  border-color: #007bff;
+}
+
+/* Ordnet Feld und Button waagerecht nebeneinander an */
+.input-container {
+  display: flex; /* Setzt die Elemente in eine Reihe */
+  gap: 10px; /* Macht genau 10px Platz zwischen Feld und Button */
+  margin-bottom: 20px; /* Macht etwas Platz nach unten zum Kontroll-Text */
+}
+
+/* Das Design für unseren Hinzufügen-Button */
+.add-button {
+  background: #007bff;
+  padding: 12px 25px;
+  border-radius: 12px;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+/* Ein kleiner Effekt, wenn man mit der Maus über den Button fährt (Hover) */
+.add-button:hover {
+  background-color: #0056b3; /* Ein etwas dunkleres Blau */
+}
+
+/* Das Design für den unsichtbaren Rahmen der Liste */
+.habit-list {
+  list-style-type: none; /* Das entfernt die hässlichen schwarzen Punkte */
+  padding: 0; /* Nimmt den Standard-Abstand weg */
+  margin-top: 30px; /* Macht etwas Platz nach oben zum Eingabefeld */
+}
+
+/* Das Design für die einzelnen Karten (die Vorbereitung für deinen Zähler) */
+.habit-item {
+  background-color: #919191; /* Ein sehr helles, modernes Grau */
+  padding: 15px 20px; /* Schön viel Platz im Inneren */
+  margin-bottom: 15px; /* Abstand zur nächsten Karte darunter */
+  border-radius: 8px; /* Abgerundete Ecken wie beim Eingabefeld */
+  border-left: 6px solid #007bff; /* Ein blauer Rand auf der linken Seite als Akzent */
+  font-size: 20px; /* Schön groß und lesbar */
+  font-weight: bold; /* Etwas dickere Schrift */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ein ganz weicher 3D-Schatten */
+}
+
+.delete-button {
+  margin-left: 20px;
+  background-color: #ff4d4d; /* Ein kräftiges Rot */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-button:hover {
+  background-color: #cc0000; /* Dunkler beim Drüberfahren */
+}
+
+/* Das Gitter-Layout für die Karten */
+.habit-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(250px, 1fr)
+  ); /* Karten nebeneinander */
+  gap: 20px;
+  list-style: none;
+  padding: 0;
+  margin-top: 30px;
+}
+
+/* Die einzelne Karte als schicke Box */
+.habit-card {
+  background: rgba(255, 255, 255, 0.05); /* Fast transparent */
+  backdrop-filter: blur(10px); /* Glas-Effekt */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.habit-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #007bff;
+}
+
+.habit-name {
+  color: #fff;
+  font-size: 1.4rem;
+  margin: 10px 0;
+}
+
+.habit-days {
+  color: #00d4ff; /* Ein helleres, leuchtendes Blau */
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+/* Container für die Buttons unten auf der Karte */
+.button-group {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+/* Reset Button Style */
+.reset-button {
+  background-color: #ffc107; /* Gelb/Orange für Warnung */
+  color: #333;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.reset-button,
+.delete-button {
+  flex: 1; /* Beide Buttons gleich breit */
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-button:hover {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border-color: #ffc107;
+}
+
+.delete-button:hover {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.plus-button {
+  width: 100%;
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  margin-bottom: 20px;
+}
+
+.plus-button:hover {
+  background-color: #218838;
+}
+
+.plus-button:active {
+  transform: scale(0.95); /* Kleiner Effekt beim Draufdrücken */
+}
+
+/* Der graue Hintergrund des Balkens */
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin: 10px 0;
+  overflow: hidden; /* Damit der Balken innen nicht übersteht */
+}
+
+/* Der farbige Füllstand */
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00d4ff, #007bff);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  transition: width 0.5s ease-in-out; /* Macht das Füllen geschmeidig */
+}
+
+/* Der Text unter dem Balken */
+.progress-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 20px;
+}
+
+.goal-input {
+  width: 180px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  color: white;
+  font-size: 1.1rem;
+  margin-left: 10px;
+  outline: none;
+}
+
+.goal-input:focus {
+  border-color: #007bff;
+}
+
+/* Container für die Eingabefelder oben */
+.input-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  flex-wrap: wrap; /* Für mobile Ansicht */
+  gap: 10px;
+}
