@@ -103,9 +103,9 @@ function App() {
       <input
         className="goal-input"
         type="number"
-        placeholder="Ziel (Tage)"
         value={zielWert}
         onChange={(e) => setZielWert(e.target.value)}
+        placeholder="Ziel"
       />
 
       <button onClick={habbithinzufuegen} className="add-button">
