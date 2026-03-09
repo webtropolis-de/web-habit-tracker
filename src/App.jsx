@@ -60,7 +60,7 @@ function App() {
     setHabits(neueListe);
   };
 
-  // Tag hinzufügen (+1)
+  // +1 Funktion
   const tagHinzufuegen = (indexZumAendern) => {
     // aktuelle Liste kopieren
     const neueListe = [...habits];
@@ -81,7 +81,7 @@ function App() {
 
   // ------------------------------------------------------------//
 
-  // 4. HTML Bildschirmausgabe
+  // 4. HTML
   return (
     <div>
       <img
@@ -111,8 +111,6 @@ function App() {
       <button onClick={habbithinzufuegen} className="add-button">
         Hinzufügen
       </button>
-
-      <p>Aktueller Text im Speicher: {eingabeWert}</p>
 
       <ul className="habit-grid">
         {" "}
