@@ -284,3 +284,59 @@ body {
   flex-wrap: wrap; /* Für mobile Ansicht */
   gap: 10px;
 }
+
+.icon-input {
+  width: 50px;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: white;
+  border-radius: 8px;
+  padding: 8px;
+  margin-right: 8px;
+}
+
+.emoji-section {
+  position: relative;
+  display: inline-block;
+  margin-right: 0px;
+  margin-left: 10px;
+  top: 4px;
+}
+
+.emoji-trigger-btn {
+  font-size: 1.5rem;
+  padding: 10px;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 25%; /* Macht den Button rund */
+  cursor: pointer;
+  transition: border-color 0.3s;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emoji-trigger-btn:hover {
+  border-color: #00bfff;
+}
+
+.emoji-picker-container {
+  position: absolute;
+  top: 60px; /* Erscheint unter dem Button */
+  left: 0;
+  z-index: 1000; /* Damit er über den Karten liegt */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.emoji-overlay {
+  position: fixed; /* Deckt den ganzen Bildschirm ab */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999; /* Direkt unter dem Picker (der hat 1000) */
+  background: transparent; /* Unsichtbar */
+}

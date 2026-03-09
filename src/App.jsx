@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css"; // Stylesheet importieren
 import logo from "./assets/logo.png"; // Logo importieren
+import EmojiPicker from "emoji-picker-react"; // Emoji Picker
 
 function App() {
   // Speicher deklarieren
   const [eingabeWert, setInputValue] = useState("");
   const [zielWert, setZielWert] = useState("");
-
+  const [zeigePicker, setZeigePicker] = useState(false);
+  const [icon, setIcon] = useState("🔥"); // Standard-Emoji
   const [habits, setHabits] = useState(() => {
     const gespeicherteDaten = localStorage.getItem("meineHabits");
     if (gespeicherteDaten) {
@@ -26,6 +28,7 @@ function App() {
       {
         name: eingabeWert,
         days: 0,
+        icon: icon,
         goal: Number(zielWert),
       },
     ]);
@@ -72,6 +75,12 @@ function App() {
     setHabits(neueListe);
   };
 
+  // Emojis speichern
+  const onEmojiClick = (emojiData) => {
+    setIcon(emojiData.emoji);
+    setZeigePicker(false);
+  };
+
   // ------------------------------------------------------------//
 
   // 3. Automatischer Speichervorgang (useEffect)
@@ -100,6 +109,29 @@ function App() {
         onChange={(e) => setInputValue(e.target.value)}
       />
 
+      <div className="emoji-section">
+        <button
+          type="button"
+          className="emoji-trigger-btn"
+          onClick={() => setZeigePicker(!zeigePicker)}
+        >
+          {icon}
+        </button>
+
+        {/* Wenn der Picker offen ist, zeigen wir ZUERST einen unsichtbaren Klick-Fänger an */}
+        {zeigePicker && (
+          <>
+            <div
+              className="emoji-overlay"
+              onClick={() => setZeigePicker(false)}
+            />
+            <div className="emoji-picker-container">
+              <EmojiPicker onEmojiClick={onEmojiClick} theme="dark" />
+            </div>
+          </>
+        )}
+      </div>
+
       <input
         className="goal-input"
         type="number"
@@ -116,12 +148,14 @@ function App() {
         {" "}
         {habits.map((habit, index) => (
           <li key={index} className="habit-card">
-            <div className="habit-icon">🔥</div> {/* Das Icon */}
+            <div className="habit-icon">{habit.icon || "🔥"}</div>
             <h3 className="habit-name">{habit.name}</h3>
             <div className="progress-container">
               <div
                 className="progress-bar"
-                style={{ width: `${Math.min((habit.days / 30) * 100, 100)}%` }}
+                style={{
+                  width: `${Math.min((habit.days / habit.goal) * 100, 100)}%`,
+                }}
               ></div>
             </div>
             <p className="progress-text">
