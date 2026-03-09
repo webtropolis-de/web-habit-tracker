@@ -29,8 +29,6 @@ function App() {
       return [];
     }
   });
-  // Welches Habit wird gerade bearbeitet? (null = keins)
-  const [editIndex, setEditIndex] = useState(null);
 
   // -------------------------Funktionen-----------------------------------//
 
