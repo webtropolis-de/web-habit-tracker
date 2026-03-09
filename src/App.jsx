@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import "./App.css"; // Stylesheet importieren
 import logo from "./assets/logo.png"; // Logo importieren
 import EmojiPicker from "emoji-picker-react"; // Emoji Picker
+import { supabase } from "./supabaseClient";
 
 // Zufallssprüche Array
 const sprueche = [
@@ -33,37 +34,51 @@ function App() {
   // -------------------------Funktionen-----------------------------------//
 
   // Habbit hinzufügen
-  const habbithinzufuegen = () => {
-    //Nichts tun, wenn das Feld leer ist
+  const habbithinzufuegen = async () => {
     if (eingabeWert.trim() === "") return;
-    setHabits([
-      ...habits,
-      {
-        name: eingabeWert,
-        days: 0,
-        icon: icon,
-        goal: Number(zielWert),
-        erstelltAm: new Date().toLocaleDateString(),
-      },
-    ]);
-    setInputValue("");
+
+    const neuesHabit = {
+      name: eingabeWert,
+      days: 0,
+      icon: icon,
+      goal: Number(zielWert),
+      // erstelltAm: new Date().toLocaleDateString(),
+    };
+
+    // AB IN DIE CLOUD!
+    const { error } = await supabase.from("habits").insert([neuesHabit]);
+
+    if (!error) {
+      // Wenn in der Cloud alles okay ist, aktualisieren wir auch unseren Screen
+      setHabits([...habits, neuesHabit]);
+      setInputValue("");
+    } else {
+      alert("Fehler beim Speichern in der Cloud!");
+    }
   };
 
   // Habbit löschen mit confirm
-  const habitLoeschen = (indexZumLoeschen) => {
+  const habitLoeschen = async (idVonDatenbank, indexInListe) => {
     const wirklichLoeschen = window.confirm(
       "Möchtest du dieses Habit wirklich löschen?",
     );
 
-    if (wirklichLoeschen == false) {
-      return;
-    }
-    // Wir filtern die Liste: Behalte alle Einträge, deren Position (i) NICHT
-    // die Position ist, die wir löschen wollen (indexZumLoeschen).
-    const neueListe = habits.filter((_, i) => i !== indexZumLoeschen);
+    if (!wirklichLoeschen) return;
 
-    // Die neue Liste im Speicher ablegen
-    setHabits(neueListe);
+    // 1. In Supabase löschen (wir suchen nach der ID)
+    const { error } = await supabase
+      .from("habits")
+      .delete()
+      .eq("id", idVonDatenbank);
+
+    if (error) {
+      console.error("Fehler beim Löschen:", error.message);
+      alert("Konnte nicht in der Datenbank gelöscht werden.");
+    } else {
+      // 2. Erst wenn es in der Cloud weg ist, löschen wir es lokal aus dem State
+      const neueListe = habits.filter((_, i) => i !== indexInListe);
+      setHabits(neueListe);
+    }
   };
 
   // Reset Funktion
@@ -124,14 +139,22 @@ function App() {
 
   // ------------------------------------------------------------//
 
-  // 3. Automatischer Speichervorgang (useEffect)
+  // Automatischer Speichervorgang (useEffect) Local Storage + DB
+  // Daten beim Start aus Supabase laden
   useEffect(() => {
-    localStorage.setItem("meineHabits", JSON.stringify(habits));
-  }, [habits]);
+    const datenLaden = async () => {
+      const { data, error } = await supabase.from("habits").select("*");
+      if (error) console.log("Fehler beim Laden:", error);
+      else if (data) setHabits(data);
+    };
 
+    datenLaden();
+  }, []);
+  // Daten bei jeder Änderung in Supabase SPEICHERN (optionaler Zwischenschritt)
+  // Hinweis: Wir bauen das gleich direkt in deine Funktionen ein, das ist sauberer!
   // ------------------------------------------------------------//
 
-  // 4. HTML
+  //HTML
 
   return (
     <div className="App">
@@ -259,7 +282,7 @@ function App() {
                     Reset
                   </button>
                   <button
-                    onClick={() => habitLoeschen(index)}
+                    onClick={() => habitLoeschen(habit.id, index)}
                     className="delete-button fade-effekt"
                   >
                     Löschen
