@@ -29,6 +29,8 @@ function App() {
       return [];
     }
   });
+  // Welches Habit wird gerade bearbeitet? (null = keins)
+  const [editIndex, setEditIndex] = useState(null);
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -103,6 +105,23 @@ function App() {
       setHabits([]);
       window.confirm("Der Tracker wurde zurückgesetzt!");
     }
+  };
+
+  const berechnenWochen = (gesamtTage) => {
+    //Berechne die Wochen
+    const wochen = Math.floor(gesamtTage / 7);
+    // Berechne die restlichen Tage
+    const tage = gesamtTage % 7;
+    //Antwort-Satz
+    return (
+      wochen +
+      " " +
+      (wochen == 1 ? "Woche" : "Wochen") +
+      " und " +
+      tage +
+      " " +
+      (tage == 1 ? "Tag" : "Tage")
+    );
   };
 
   // ------------------------------------------------------------//
@@ -193,20 +212,38 @@ function App() {
 
           <ul className="habit-grid">
             {habits.map((habit, index) => (
-              <li key={habit.id || index} className="habit-card fade-in-view">
+              <li
+                key={habit.id || index}
+                className={
+                  "habit-card fade-in-view" +
+                  (habit.days >= habit.goal ? " erledigt" : "")
+                }
+              >
                 <div className="habit-icon">{habit.icon || "🔥"}</div>
+                {habit.days >= habit.goal && (
+                  <span className="success-badge">⭐ Ziel erreicht!</span>
+                )}
                 <h3 className="habit-name">{habit.name}</h3>
+
                 <div className="progress-container">
+                  {/* 1. Der wachsende Balken im Hintergrund */}
                   <div
                     className="progress-bar"
                     style={{
                       width: `${Math.min((habit.days / (habit.goal || 1)) * 100, 100)}%`,
                     }}
                   ></div>
+
+                  {/* 2. Die Prozentzahl schwebt IMMER mittig im Container */}
+                  <span className="progress-percentage">
+                    {Math.round((habit.days / (habit.goal || 1)) * 100)}%
+                  </span>
                 </div>
+
                 <p className="progress-text">
                   {habit.days} / {habit.goal} Tage
                 </p>
+
                 <p className="start-date">
                   Start: {habit.erstelltAm || "Unbekannt"}
                 </p>
@@ -239,8 +276,10 @@ function App() {
         <div className="stats-view fade-effekt" key="stats-view">
           <h1>Deine Erfolge 🏆</h1>
           <div className="stats-card">
-            <p>Insgesamt geschaffte Tage:</p>
-            <h2>{habits.reduce((sum, h) => sum + h.days, 0)} Tage</h2>
+            <p>Insgesamt geschaffte Tage </p>
+            <h2>
+              {berechnenWochen(habits.reduce((sum, h) => sum + h.days, 0))}
+            </h2>
           </div>
           <p>Hier bauen wir bald die Monats-Grafik ein!</p>
           <button onClick={allesloeschen} className="danger-button ">
