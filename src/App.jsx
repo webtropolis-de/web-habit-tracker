@@ -22,14 +22,8 @@ function App() {
   const [zielWert, setZielWert] = useState("");
   const [zeigePicker, setZeigePicker] = useState(false);
   const [icon, setIcon] = useState("🔥"); // Standard-Emoji
-  const [habits, setHabits] = useState(() => {
-    const gespeicherteDaten = localStorage.getItem("meineHabits");
-    if (gespeicherteDaten) {
-      return JSON.parse(gespeicherteDaten);
-    } else {
-      return [];
-    }
-  });
+
+  const [habits, setHabits] = useState([]);
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -42,17 +36,21 @@ function App() {
       days: 0,
       icon: icon,
       goal: Number(zielWert),
-      // erstelltAm: new Date().toLocaleDateString(),
     };
 
-    // AB IN DIE CLOUD!
-    const { error } = await supabase.from("habits").insert([neuesHabit]);
+    // AB IN DIE CLOUD + wir wollen die Daten (inkl. ID) zurückbekommen
+    const { data, error } = await supabase
+      .from("habits")
+      .insert([neuesHabit])
+      .select(); // <--- DAS ist der magische Befehl!
 
-    if (!error) {
-      // Wenn in der Cloud alles okay ist, aktualisieren wir auch unseren Screen
-      setHabits([...habits, neuesHabit]);
+    if (!error && data) {
+      // data[0] ist das vollständige Habit, das gerade in der DB erstellt wurde
+      setHabits([...habits, data[0]]);
       setInputValue("");
+      setZielWert(""); // Leert auch das Zielfeld
     } else {
+      console.error("Supabase Error:", error);
       alert("Fehler beim Speichern in der Cloud!");
     }
   };
@@ -81,28 +79,24 @@ function App() {
     }
   };
 
-  // Reset Funktion
-  const habitReset = (indexZumReset) => {
-    const bestaetigen = window.confirm(
-      "Möchtest du den Zähler wirklich zurücksetzen?",
-    );
-    if (bestaetigen == false) return;
-    const neueListe = [...habits];
-    neueListe[indexZumReset].days = 0;
-    setHabits(neueListe);
+  // ---------------------+1 Funktion-------------------------------------//
+  const tagHinzufuegen = async (idVonDatenbank, indexInListe) => {
+    const neuerWert = habits[indexInListe].days + 1;
+
+    // 1. Supabase informieren
+    const { error } = await supabase
+      .from("habits")
+      .update({ days: neuerWert })
+      .eq("id", idVonDatenbank);
+
+    if (!error) {
+      // 2. Anzeige auf dem Bildschirm aktualisieren
+      const neueListe = [...habits];
+      neueListe[indexInListe].days = neuerWert;
+      setHabits(neueListe);
+    }
   };
-
-  // +1 Funktion
-  const tagHinzufuegen = (indexZumAendern) => {
-    // aktuelle Liste kopieren
-    const neueListe = [...habits];
-
-    // +1
-    neueListe[indexZumAendern].days = neueListe[indexZumAendern].days + 1;
-
-    // neue liste speichern
-    setHabits(neueListe);
-  };
+  // -----------------Emojis-----------------------------------------//
 
   // Emojis speichern
   const onEmojiClick = (emojiData) => {
@@ -110,16 +104,7 @@ function App() {
     setZeigePicker(false);
   };
 
-  const allesloeschen = () => {
-    const bestaetigung = window.confirm(
-      "Möchtest du wirklich ALLE Habits und Fortschritte unwiderruflich löschen?",
-    );
-    if (bestaetigung == true) {
-      setHabits([]);
-      window.confirm("Der Tracker wurde zurückgesetzt!");
-    }
-  };
-
+  // -------------------- Tage & Wochen berechnenn ------------------- //
   const berechnenWochen = (gesamtTage) => {
     //Berechne die Wochen
     const wochen = Math.floor(gesamtTage / 7);
@@ -137,9 +122,9 @@ function App() {
     );
   };
 
-  // ------------------------------------------------------------//
+  // ---------------------db anbindung---------------------------------------//
 
-  // Automatischer Speichervorgang (useEffect) Local Storage + DB
+  // Automatischer Speichervorgang (useEffect)
   // Daten beim Start aus Supabase laden
   useEffect(() => {
     const datenLaden = async () => {
@@ -150,9 +135,29 @@ function App() {
 
     datenLaden();
   }, []);
-  // Daten bei jeder Änderung in Supabase SPEICHERN (optionaler Zwischenschritt)
-  // Hinweis: Wir bauen das gleich direkt in deine Funktionen ein, das ist sauberer!
-  // ------------------------------------------------------------//
+
+  // ---------------------------- RESET --------------------------- //
+
+  const datenbankLeeren = async () => {
+    const bestaetigung = window.confirm(
+      "Möchtest du wirklich ALLE Habits unwiderruflich aus der Datenbank löschen?",
+    );
+
+    if (bestaetigung) {
+      // Der SQL-Trick: Lösche alles, wo die ID größer als 0 ist
+      const { error } = await supabase.from("habits").delete().gt("id", 0);
+
+      if (!error) {
+        setHabits([]); // Auch auf dem Bildschirm alles leeren
+        alert("Datenbank wurde komplett geleert!");
+      } else {
+        console.error("Fehler beim Leeren:", error.message);
+        alert("Fehler: " + error.message);
+      }
+    }
+  };
+
+  // ---------------------------------------------------------------------------------------
 
   //HTML
 
@@ -266,17 +271,20 @@ function App() {
                 </p>
 
                 <p className="start-date">
-                  Start: {habit.erstelltAm || "Unbekannt"}
+                  Start:{" "}
+                  {habit.created_at
+                    ? new Date(habit.created_at).toLocaleDateString()
+                    : "Unbekannt"}
                 </p>
                 <button
-                  onClick={() => tagHinzufuegen(index)}
+                  onClick={() => tagHinzufuegen(habit.id, index)}
                   className="plus-button"
                 >
                   +1 Tag geschafft!
                 </button>
                 <div className="button-group">
                   <button
-                    onClick={() => habitReset(index)}
+                    onClick={() => habitReset(habit.id, index)}
                     className="reset-button"
                   >
                     Reset
@@ -303,8 +311,8 @@ function App() {
             </h2>
           </div>
           <p>Hier bauen wir bald die Monats-Grafik ein!</p>
-          <button onClick={allesloeschen} className="danger-button ">
-            Reset
+          <button onClick={datenbankLeeren} className="danger-button">
+            🔥 Gesamte Datenbank leeren
           </button>
         </div>
       )}
