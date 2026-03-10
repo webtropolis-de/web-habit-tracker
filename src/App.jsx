@@ -274,7 +274,7 @@ function App() {
               className="habit-input"
               type="password"
               required
-              minlength="12"
+              minLength="12"
               placeholder="Passwort (min 12 Zeichen)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -330,6 +330,16 @@ function App() {
                   onChange={(e) => setInputValue(e.target.value)}
                 />
 
+                
+
+                <input
+                  className="goal-input"
+                  type="number"
+                  value={zielWert}
+                  onChange={(e) => setZielWert(e.target.value)}
+                  placeholder="Ziel"
+                />
+
                 <div className="emoji-section">
                   <button
                     type="button"
@@ -351,14 +361,6 @@ function App() {
                     </>
                   )}
                 </div>
-
-                <input
-                  className="goal-input"
-                  type="number"
-                  value={zielWert}
-                  onChange={(e) => setZielWert(e.target.value)}
-                  placeholder="Ziel"
-                />
 
                 <button onClick={habbithinzufuegen} className="add-button">
                   Hinzufügen

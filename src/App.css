@@ -300,6 +300,8 @@ body {
   outline: none;
 }
 
+
+
 .goal-input:focus {
   border-color: #007bff;
 }
@@ -767,4 +769,14 @@ input {
 
 .login-form input.habit-input:focus:valid {
   border-color: #2ecc71; /* Wird grün, wenn ausgefüllt */
+}
+
+
+/* Mobile Optimization */
+
+@media (max-width: 600px) {
+  .add-button {width:100%;}
+  .habit-input {width: 100%;}
+  .goal-input {width: 100%;}
+
 }
