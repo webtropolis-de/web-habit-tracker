@@ -27,12 +27,15 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setDisplayName] = useState("");
+  const [loading, setLoading] = useState(true);
 
   // -------------------------Funktionen-----------------------------------//
 
   // Habbit hinzufügen
   const habbithinzufuegen = async () => {
     if (eingabeWert.trim() === "") return;
+
+    
 
     const neuesHabit = {
       name: eingabeWert,
@@ -56,10 +59,12 @@ function App() {
       console.error("Supabase Error:", error);
       alert("Fehler beim Speichern in der Cloud!");
     }
+    
   };
 
   // Habbit löschen mit confirm
   const habitLoeschen = async (idVonDatenbank, indexInListe) => {
+    
     const wirklichLoeschen = window.confirm(
       "Möchtest du dieses Habit wirklich löschen?",
     );
@@ -80,6 +85,7 @@ function App() {
       const neueListe = habits.filter((_, i) => i !== indexInListe);
       setHabits(neueListe);
     }
+    
   };
 
   // ---------------------+1 Funktion-------------------------------------//
@@ -128,6 +134,7 @@ function App() {
   // ---------------------- LOGIN System -------------------------------------//
 
   const handleRegister = async () => {
+    
     const { error } = await supabase.auth.signUp({ email, password, options: {
       data: {
         display_name: username, 
@@ -143,8 +150,10 @@ function App() {
   };
 
   const handleLogout = async () => {
+    setLoading(true);
     await supabase.auth.signOut();
     setHabits([]); // Liste leeren beim Ausloggen
+    setLoading(false);
   };
 
 
@@ -152,30 +161,35 @@ function App() {
 
   // Automatischer Speichervorgang (useEffect)
   // Daten beim Start aus Supabase laden
+  // 1. Session prüfen
   useEffect(() => {
-    // Prüfen, ob schon jemand eingeloggt ist
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (!session) setLoading(false); // Wenn nicht eingeloggt, Lade-Ende
     });
 
-    // Auf Änderungen (Login/Logout) hören
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (!session) setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  // Daten laden, sobald ein User da ist
+  // 2. Daten laden
   useEffect(() => {
     if (user) {
       const datenLaden = async () => {
+        setLoading(true); // Spinner AN
         const { data, error } = await supabase
           .from("habits")
           .select("*")
           .order("created_at", { ascending: true });
+        
         if (error) console.log("Fehler beim Laden:", error);
         else if (data) setHabits(data);
+        
+        setLoading(false); // Spinner AUS
       };
       datenLaden();
     }
@@ -185,6 +199,7 @@ function App() {
   // ---------------------------- habitReset ----------------------- //
 
   const habitReset = async (idVonDatenbank, indexInListe) => {
+    setLoading(true);
     const resetconfirm = window.confirm ("Möchtest du den Zähler wirklich zurücksetzen?",
     );
 
@@ -203,12 +218,14 @@ function App() {
         console.error("Fehler beim Leeren:", error.message);
         alert("Fehler: " + error.message);
       }}
+      setLoading(false);
   };
 
 
   // ---------------------------- RESET --------------------------- //
 
   const datenbankLeeren = async () => {
+    setLoading(true);
     const bestaetigung = window.confirm(
       "Möchtest du wirklich ALLE Habits unwiderruflich aus der Datenbank löschen?",
     );
@@ -225,6 +242,7 @@ function App() {
         alert("Fehler: " + error.message);
       }
     }
+    setLoading(false);
   };
 
   // -------------------------Login Reset Button--------------------------------------------------------------
@@ -247,7 +265,13 @@ function App() {
         style={{ width: "200px", marginBottom: "20px" }}
       />
 
-      {!user ? (
+      {loading ? (
+        /* NEU: Spinner-Anzeige */
+        <div className="spinner-container">
+          <div className="spinner"></div>
+          <p className="quote">Deine Erfolge werden geladen...</p>
+        </div>
+      ) : !user ? (
         /* --- 1. ANSICHT: LOGIN / REGISTRIERUNG --- */
         <div className="login-view fade-effekt">
           <h1>Willkommen bei Habitrack!</h1>
