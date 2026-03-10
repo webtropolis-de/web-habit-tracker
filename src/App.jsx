@@ -26,7 +26,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setDisplayName] = useState(" ");
+  const [username, setDisplayName] = useState("User");
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -219,7 +219,7 @@ function App() {
       {!user ? (
         /* --- 1. ANSICHT: LOGIN / REGISTRIERUNG --- */
         <div className="login-view fade-effekt">
-          <h1>Willkommen beim Tracker</h1>
+          <h1>Willkommen bei Habitrack!</h1>
           <p className="quote">Bitte melde dich an, um deine Habits zu sehen.</p>
           
           <div className="input-group login-form" style={{ marginTop: "20px" }}>
@@ -234,6 +234,7 @@ function App() {
             <input
               className="habit-input"
               type="email"
+              required
               placeholder="E-Mail Adresse"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -241,7 +242,9 @@ function App() {
             <input
               className="habit-input"
               type="password"
-              placeholder="Passwort"
+              required
+              minlength="12"
+              placeholder="Passwort (min 12 Zeichen)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -283,7 +286,7 @@ function App() {
           {aktuelleAnsicht === "home" ? (
             /* --- TRACKER HOME VIEW --- */
             <div className="home-view fade-effekt" key="home-view">
-              <h1>Schön, dass du da bist!</h1>
+              <h1>Schön, dass du da bist {user.user_metadata.display_name}!</h1>
               <p className="quote">{zufallsSpruch}</p>
 
               <div className="input-group">
@@ -402,13 +405,13 @@ function App() {
                 <h2>
                   {berechnenWochen(habits.reduce((sum, h) => sum + h.days, 0))}
                 </h2>
-
+                
               
               </div>
               <p>Nur deine persönlichen Daten sind hier sichtbar.</p>
-              <button onClick={datenbankLeeren} className="danger-button">
+              <p><button onClick={datenbankLeeren} className="danger-button">
                 🔥 Gesamte Datenbank leeren
-              </button>
+              </button></p>
             </div>
           )}
         </>

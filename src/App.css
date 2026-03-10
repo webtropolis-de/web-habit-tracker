@@ -642,3 +642,125 @@ input {
   pointer-events: none; /* Man kann durch die Zahl hindurchklicken */
   text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.6);
 }
+
+/* --- LOGIN & REGISTRIERUNGS-ANSICHT --- */
+
+.login-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Zentriert alles horizontal */
+  justify-content: center; /* Zentriert alles vertikal im Container */
+  min-height: 80vh; /* Nimmt fast die ganze Höhe ein */
+  color: #fff;
+  text-align: center;
+}
+
+.login-view h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.login-view .quote {
+  font-size: 1.1rem;
+  color: #888;
+  margin-bottom: 30px;
+}
+
+/* Der Container für die Inputs und Buttons */
+.login-form {
+  display: flex;
+  flex-direction: column; /* Stapelt alles untereinander */
+  gap: 15px; /* Perfekter, gleichmäßiger Abstand zwischen den Feldern */
+  width: 100%;
+  max-width: 400px; /* Begrenzt die Breite auf dem Desktop */
+  padding: 20px;
+  background-color: #1a1a1a; /* Leicht hellerer Hintergrund */
+  border-radius: 12px; /* Abgerundete Ecken */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3); /* Eleganter Schatten */
+}
+
+/* Styling für alle Inputs im Login-Bereich */
+.login-form input.habit-input {
+  width: 90%;
+  padding: 12px 15px;
+  background-color: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.login-form input.habit-input:focus {
+  outline: none;
+  border-color: #3498db; /* Blauer Rahmen beim Reinklicken */
+}
+
+/* Der Container für die beiden Buttons */
+.login-form .button-group {
+  display: flex;
+  gap: 10px; /* Abstand zwischen den Buttons */
+  margin-top: 10px;
+}
+
+/* Styling für die Buttons, damit sie gleich groß sind */
+.login-form .button-group button {
+  flex: 1; /* Beide Buttons teilen sich den Platz 50/50 */
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.login-form .button-group button:active {
+  transform: scale(0.98); /* Kleiner Klick-Effekt */
+}
+
+/* Spezifische Farben für die Buttons */
+.login-form .add-button {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.login-form .add-button:hover {
+  background-color: #2980b9;
+}
+
+.login-form .reset-button {
+  background-color: #333;
+  color: #aaa;
+  border: 1px solid #444 !important;
+}
+
+.login-form .reset-button:hover {
+  background-color: #444;
+  color: #fff;
+}
+
+
+/* Markierung für Pflichtfelder */
+.login-form input.habit-input:required {
+  border-left: 4px solid #e74c3c; /* Roter Streifen links als Pflicht-Markierung */
+}
+
+/* Optional: Ein kleiner Text-Hinweis unter den Feldern */
+.required-hint {
+  font-size: 0.8rem;
+  color: #e74c3c;
+  text-align: left;
+  margin-top: -10px;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+/* Fokus-Zustand verbessern */
+.login-form input.habit-input:focus:invalid {
+  border-color: #e74c3c; /* Bleibt rot, wenn ungültig */
+}
+
+.login-form input.habit-input:focus:valid {
+  border-color: #2ecc71; /* Wird grün, wenn ausgefüllt */
+}
