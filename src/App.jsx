@@ -285,13 +285,14 @@ function App() {
       ) : !user ? (
         <div className="login-view fade-effekt">
     <h1>{isLoginMode ? "Willkommen zurück!" : "Konto erstellen"}</h1>
-    <p className="quote">
+    
+    
+    <div className="input-group login-form" style={{ marginTop: "20px" }}>
+      <p className="quote">
       {isLoginMode 
         ? "Melde dich an, um deine Habits zu tracken." 
         : "Registriere dich und starte deine Reise."}
     </p>
-    
-    <div className="input-group login-form" style={{ marginTop: "20px" }}>
       {/* Nur bei Registrierung anzeigen */}
       {!isLoginMode && (
         <input
@@ -319,10 +320,11 @@ function App() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <div className="button-group" style={{ marginTop: "10px" }}>
+      <div className="login-button" style={{ marginTop: "10px" }}>
+        
         {isLoginMode ? (
           <>
-            <button onClick={handleLogin} className="add-button">Anmelden</button>
+            <button onClick={handleLogin} className="login-button">Anmelden</button>
             <p className="toggle-auth">
               
             </p>
