@@ -28,6 +28,7 @@ function App() {
   const [password, setPassword] = useState("");
   const [username, setDisplayName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingText, setLoadingText] = useState("Lade deine Daten...");
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -145,11 +146,15 @@ function App() {
   };
 
   const handleLogin = async () => {
+    setLoadingText("Melde dich an...");
+    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) alert("Login fehlgeschlagen: " + error.message);
+    setLoading(false);
   };
 
   const handleLogout = async () => {
+    setLoadingText("Melde dich ab...");
     setLoading(true);
     await supabase.auth.signOut();
     setHabits([]); // Liste leeren beim Ausloggen
