@@ -324,7 +324,28 @@ function App() {
           <>
             <button onClick={handleLogin} className="add-button">Anmelden</button>
             <p className="toggle-auth">
-              Noch kein Konto?{" "}
+              
+            </p>
+          </>
+        ) : (
+          <>
+            <button onClick={handleRegister} className="add-button">Registrieren</button>
+            <p className="toggle-auth">
+              
+              
+            </p>
+          </>
+        )}
+      </div>
+
+      <div> 
+            
+      <div className="button-group" style={{ marginTop: "10px" }}>
+        {isLoginMode ? (
+          <>
+            
+            <p className="toggle-auth">
+              Noch kein Konto?{" "} <br></br>
               <span onClick={() => { setIsLoginMode(false); clearLogin(); }}>
                 Jetzt registrieren
               </span>
@@ -332,16 +353,21 @@ function App() {
           </>
         ) : (
           <>
-            <button onClick={handleRegister} className="add-button">Registrieren</button>
             <p className="toggle-auth">
-              Bereits ein Konto?{" "}
+              Bereits ein Konto?{" "} <br></br>
               <span onClick={() => { setIsLoginMode(true); clearLogin(); }}>
                 Zum Login
               </span>
             </p>
           </>
         )}
-      </div>
+      </div>      
+            
+            
+            
+            
+            
+            </div>
     </div>
   </div>
 ) : (
@@ -494,10 +520,11 @@ function App() {
                 
               
               </div>
-              <p>Nur deine persönlichen Daten sind hier sichtbar.</p>
+              <div className="dangercard stats-view fade-effekt" key="stats-view">
+              <h3> ⚠️ Developer Optionen</h3>
               <p><button onClick={datenbankLeeren} className="danger-button">
                 🔥 Gesamte Datenbank leeren
-              </button></p>
+              </button></p></div>
             </div>
           )}
         </>
