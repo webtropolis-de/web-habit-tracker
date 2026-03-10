@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/react-refresh'
+import react from '@vitejs/plugin-react' // Das hier ist das richtige Paket!
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
-    react(),
+    react(), // Hier einfach react() aufrufen
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
@@ -13,10 +13,10 @@ export default defineConfig({
         description: 'Tracke deine Erfolge und bleib abstinent',
         theme_color: '#1a1a1a',
         background_color: '#1a1a1a',
-        display: 'standalone', // Das entfernt die Browser-Leiste!
+        display: 'standalone',
         icons: [
           {
-            src: 'pwa-192x192.png', // Du müsstest ein Icon in den 'public' Ordner legen
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
