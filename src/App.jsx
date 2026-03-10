@@ -231,6 +231,15 @@ function App() {
       setLoading(false);
   };
 
+  // ---------------------------- Passwort Validierung --------------//
+
+  const validatePassword = (pw) => {
+  return {
+    length: pw.length >= 12,
+    hasNumber: /\d/.test(pw),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(pw),
+  };
+};
 
   // ---------------------------- RESET --------------------------- //
 
@@ -302,7 +311,11 @@ function App() {
           value={username}
           onChange={(e) => setDisplayName(e.target.value)}
         />
+
+        
       )}
+
+      
       
       <input
         className="habit-input"
@@ -320,6 +333,20 @@ function App() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
+      {!isLoginMode && password.length > 0 && (
+  <div className="password-hints fade-effekt">
+    <p className={validatePassword(password).length ? "valid" : "invalid"}>
+      {validatePassword(password).length ? "✔" : "✘"} Mind. 12 Zeichen
+    </p>
+    <p className={validatePassword(password).hasNumber ? "valid" : "invalid"}>
+      {validatePassword(password).hasNumber ? "✔" : "✘"} Eine Zahl enthalten
+    </p>
+    <p className={validatePassword(password).hasSpecial ? "valid" : "invalid"}>
+      {validatePassword(password).hasSpecial ? "✔" : "✘"} Ein Sonderzeichen
+    </p>
+  </div>
+)}
+
       <div className="login-button" style={{ marginTop: "10px" }}>
         
         {isLoginMode ? (
@@ -331,7 +358,14 @@ function App() {
           </>
         ) : (
           <>
-            <button onClick={handleRegister} className="login-button">Registrieren</button>
+            <button 
+  onClick={handleRegister} 
+  className="login-button"
+  disabled={!validatePassword(password).length || !validatePassword(password).hasNumber}
+  style={{ opacity: (!validatePassword(password).length || !validatePassword(password).hasNumber) ? 0.5 : 1 }}
+>
+  Registrieren
+</button>
             <p className="toggle-auth">
               
               

@@ -62,6 +62,32 @@ body {
   color: #888;
 }
 
+.password-hints {
+  text-align: left;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  padding-left: 10px;
+}
+
+.password-hints p {
+  margin: 2px 0;
+  transition: color 0.3s ease;
+}
+
+.valid {
+  color: #4caf50; /* Grün */
+}
+
+.invalid {
+  color: #ff5252; /* Rot */
+}
+
+/* Button-Styling wenn deaktiviert */
+button:disabled {
+  cursor: not-allowed;
+}
+
+
 /*  Design Eingabefeld */
 .habit-input {
   background: rgba(255, 255, 255, 0.05);
@@ -343,9 +369,6 @@ body {
 .emoji-section {
   position: relative;
   display: inline-block;
-  margin-right: 0px;
-  margin-left: 0px;
-  top: 0px;
 }
 
 .emoji-trigger-btn {
@@ -368,11 +391,18 @@ body {
 }
 
 .emoji-picker-container {
-  position: absolute;
-  top: 60px; /* Erscheint unter dem Button */
-  left: 0;
-  z-index: 1000; /* Damit er über den Karten liegt */
+position: absolute;
+  bottom: 100%; /* Erscheint ÜBER dem Button */
+  left: -200%;
+  transform: translateX(-50%);
+  z-index: 1000; /* Ganz nach vorne */
+  margin-bottom: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.emoji-picker-container .EmojiPickerReact {
+  max-width: 90vw !important; /* Maximal 90% der Bildschirmbreite */
+  max-height: 400px !important;
 }
 
 .emoji-overlay {
