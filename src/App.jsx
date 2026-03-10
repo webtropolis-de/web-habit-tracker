@@ -22,8 +22,11 @@ function App() {
   const [zielWert, setZielWert] = useState("");
   const [zeigePicker, setZeigePicker] = useState(false);
   const [icon, setIcon] = useState("🔥"); // Standard-Emoji
-
   const [habits, setHabits] = useState([]);
+  const [user, setUser] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setDisplayName] = useState(" ");
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -38,7 +41,7 @@ function App() {
       goal: Number(zielWert),
     };
 
-    // AB IN DIE CLOUD + wir wollen die Daten (inkl. ID) zurückbekommen
+    // die Daten (inkl. ID) zurückbekommen
     const { data, error } = await supabase
       .from("habits")
       .insert([neuesHabit])
@@ -63,7 +66,7 @@ function App() {
 
     if (!wirklichLoeschen) return;
 
-    // 1. In Supabase löschen (wir suchen nach der ID)
+    //  HABBIT  löschen (wir suchen nach der ID)
     const { error } = await supabase
       .from("habits")
       .delete()
@@ -73,7 +76,7 @@ function App() {
       console.error("Fehler beim Löschen:", error.message);
       alert("Konnte nicht in der Datenbank gelöscht werden.");
     } else {
-      // 2. Erst wenn es in der Cloud weg ist, löschen wir es lokal aus dem State
+      //Erst wenn es in der Cloud weg ist, löschen wir es lokal aus dem State
       const neueListe = habits.filter((_, i) => i !== indexInListe);
       setHabits(neueListe);
     }
@@ -122,19 +125,61 @@ function App() {
     );
   };
 
+  // ---------------------- LOGIN System -------------------------------------//
+
+  const handleRegister = async () => {
+    const { error } = await supabase.auth.signUp({ email, password, options: {
+      data: {
+        display_name: username, 
+      }
+    }});
+    if (error) alert("Registrierung fehlgeschlagen: " + error.message);
+    else alert("Check deine E-Mails für den Bestätigungslink!");
+  };
+
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) alert("Login fehlgeschlagen: " + error.message);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setHabits([]); // Liste leeren beim Ausloggen
+  };
+
+
   // ---------------------db anbindung---------------------------------------//
 
   // Automatischer Speichervorgang (useEffect)
   // Daten beim Start aus Supabase laden
   useEffect(() => {
-    const datenLaden = async () => {
-      const { data, error } = await supabase.from("habits").select("*");
-      if (error) console.log("Fehler beim Laden:", error);
-      else if (data) setHabits(data);
-    };
+    // Prüfen, ob schon jemand eingeloggt ist
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
 
-    datenLaden();
+    // Auf Änderungen (Login/Logout) hören
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Daten laden, sobald ein User da ist
+  useEffect(() => {
+    if (user) {
+      const datenLaden = async () => {
+        const { data, error } = await supabase
+          .from("habits")
+          .select("*")
+          .order("created_at", { ascending: true });
+        if (error) console.log("Fehler beim Laden:", error);
+        else if (data) setHabits(data);
+      };
+      datenLaden();
+    }
+  }, [user]);
 
   // ---------------------------- RESET --------------------------- //
 
@@ -163,158 +208,210 @@ function App() {
 
   return (
     <div className="App">
+      {/* Das Logo bleibt immer oben sichtbar */}
       <img
         className="logo"
         src={logo}
         alt="Logo"
         style={{ width: "200px", marginBottom: "20px" }}
       />
-      {/* NAV (Immer sichtbar) */}
-      <nav className="nav-bar">
-        <button
-          onClick={() => setAktuelleAnsicht("home")}
-          className={aktuelleAnsicht === "home" ? "active" : ""}
-        >
-          🏠 Tracker
-        </button>
-        <button
-          onClick={() => setAktuelleAnsicht("stats")}
-          className={aktuelleAnsicht === "stats" ? "active" : ""}
-        >
-          📊 Statistik
-        </button>
-      </nav>
 
-      {/* WECHSELER */}
-      {aktuelleAnsicht === "home" ? (
-        /* --- DIESER TEIL WIRD BEI "HOME" ANGEZEIGT --- */
-        <div className="home-view fade-effekt" key="home-view">
-          <h1>Willkommen!</h1>
-          <p className="quote">{zufallsSpruch}</p>
-
-          <div className="input-group">
+      {!user ? (
+        /* --- 1. ANSICHT: LOGIN / REGISTRIERUNG --- */
+        <div className="login-view fade-effekt">
+          <h1>Willkommen beim Tracker</h1>
+          <p className="quote">Bitte melde dich an, um deine Habits zu sehen.</p>
+          
+          <div className="input-group login-form" style={{ marginTop: "20px" }}>
+            <input
+        className="habit-input"
+        type="text"
+        placeholder="Dein Name (für Registrierung)"
+        value={username}
+        onChange={(e) => setDisplayName(e.target.value)}
+      />
+            
             <input
               className="habit-input"
-              type="text"
-              placeholder="Was möchtest du tracken?"
-              value={eingabeWert}
-              onChange={(e) => setInputValue(e.target.value)}
+              type="email"
+              placeholder="E-Mail Adresse"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-
-            <div className="emoji-section">
-              <button
-                type="button"
-                className="emoji-trigger-btn"
-                onClick={() => setZeigePicker(!zeigePicker)}
-              >
-                {icon}
-              </button>
-
-              {zeigePicker && (
-                <>
-                  <div
-                    className="emoji-overlay"
-                    onClick={() => setZeigePicker(false)}
-                  />
-                  <div className="emoji-picker-container">
-                    <EmojiPicker onEmojiClick={onEmojiClick} theme="dark" />
-                  </div>
-                </>
-              )}
-            </div>
-
             <input
-              className="goal-input"
-              type="number"
-              value={zielWert}
-              onChange={(e) => setZielWert(e.target.value)}
-              placeholder="Ziel"
+              className="habit-input"
+              type="password"
+              placeholder="Passwort"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
+          
 
-            <button onClick={habbithinzufuegen} className="add-button">
-              Hinzufügen
-            </button>
+            <div className="button-group" style={{ marginTop: "10px" }}>
+              <button onClick={handleLogin} className="add-button">
+                Anmelden
+              </button>
+              <button onClick={handleRegister} className="reset-button">
+                Registrieren
+              </button>
+            </div>
           </div>
-
-          <ul className="habit-grid">
-            {habits.map((habit, index) => (
-              <li
-                key={habit.id || index}
-                className={
-                  "habit-card fade-in-view" +
-                  (habit.days >= habit.goal ? " erledigt" : "")
-                }
-              >
-                <div className="habit-icon">{habit.icon || "🔥"}</div>
-                {habit.days >= habit.goal && (
-                  <span className="success-badge">⭐ Ziel erreicht!</span>
-                )}
-                <h3 className="habit-name">{habit.name}</h3>
-
-                <div className="progress-container">
-                  {/* 1. Der wachsende Balken im Hintergrund */}
-                  <div
-                    className="progress-bar"
-                    style={{
-                      width: `${Math.min((habit.days / (habit.goal || 1)) * 100, 100)}%`,
-                    }}
-                  ></div>
-
-                  {/* 2. Die Prozentzahl schwebt IMMER mittig im Container */}
-                  <span className="progress-percentage">
-                    {Math.round((habit.days / (habit.goal || 1)) * 100)}%
-                  </span>
-                </div>
-
-                <p className="progress-text">
-                  {habit.days} / {habit.goal} Tage
-                </p>
-
-                <p className="start-date">
-                  Start:{" "}
-                  {habit.created_at
-                    ? new Date(habit.created_at).toLocaleDateString()
-                    : "Unbekannt"}
-                </p>
-                <button
-                  onClick={() => tagHinzufuegen(habit.id, index)}
-                  className="plus-button"
-                >
-                  +1 Tag geschafft!
-                </button>
-                <div className="button-group">
-                  <button
-                    onClick={() => habitReset(habit.id, index)}
-                    className="reset-button"
-                  >
-                    Reset
-                  </button>
-                  <button
-                    onClick={() => habitLoeschen(habit.id, index)}
-                    className="delete-button fade-effekt"
-                  >
-                    Löschen
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
         </div>
       ) : (
-        /* --- DIESER TEIL WIRD BEI "STATS" ANGEZEIGT --- */
-        <div className="stats-view fade-effekt" key="stats-view">
-          <h1>Deine Erfolge 🏆</h1>
-          <div className="stats-card">
-            <p>Insgesamt geschaffte Tage </p>
-            <h2>
-              {berechnenWochen(habits.reduce((sum, h) => sum + h.days, 0))}
-            </h2>
-          </div>
-          <p>Hier bauen wir bald die Monats-Grafik ein!</p>
-          <button onClick={datenbankLeeren} className="danger-button">
-            🔥 Gesamte Datenbank leeren
-          </button>
-        </div>
+        /* --- 2. ANSICHT: DEIN TRACKER (Eingeloggt) --- */
+        <>
+          {/* NAVIGATION */}
+          <nav className="nav-bar">
+            <button
+              onClick={() => setAktuelleAnsicht("home")}
+              className={aktuelleAnsicht === "home" ? "active" : ""}
+            >
+              🏠 Tracker
+            </button>
+            <button
+              onClick={() => setAktuelleAnsicht("stats")}
+              className={aktuelleAnsicht === "stats" ? "active" : ""}
+            >
+              📊 Statistik
+            </button>
+            {/* Neuer Logout Button */}
+            <button onClick={handleLogout} className="delete-button" style={{ marginLeft: "auto" }}>
+              🚪 Logout
+            </button>
+          </nav>
+
+          {aktuelleAnsicht === "home" ? (
+            /* --- TRACKER HOME VIEW --- */
+            <div className="home-view fade-effekt" key="home-view">
+              <h1>Schön, dass du da bist!</h1>
+              <p className="quote">{zufallsSpruch}</p>
+
+              <div className="input-group">
+                <input
+                  className="habit-input"
+                  type="text"
+                  placeholder="Was möchtest du tracken?"
+                  value={eingabeWert}
+                  onChange={(e) => setInputValue(e.target.value)}
+                />
+
+                <div className="emoji-section">
+                  <button
+                    type="button"
+                    className="emoji-trigger-btn"
+                    onClick={() => setZeigePicker(!zeigePicker)}
+                  >
+                    {icon}
+                  </button>
+
+                  {zeigePicker && (
+                    <>
+                      <div
+                        className="emoji-overlay"
+                        onClick={() => setZeigePicker(false)}
+                      />
+                      <div className="emoji-picker-container">
+                        <EmojiPicker onEmojiClick={onEmojiClick} theme="dark" />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <input
+                  className="goal-input"
+                  type="number"
+                  value={zielWert}
+                  onChange={(e) => setZielWert(e.target.value)}
+                  placeholder="Ziel"
+                />
+
+                <button onClick={habbithinzufuegen} className="add-button">
+                  Hinzufügen
+                </button>
+              </div>
+
+              <ul className="habit-grid">
+                {habits.map((habit, index) => (
+                  <li
+                    key={habit.id || index}
+                    className={
+                      "habit-card fade-in-view" +
+                      (habit.days >= habit.goal ? " erledigt" : "")
+                    }
+                  >
+                    <div className="habit-icon">{habit.icon || "🔥"}</div>
+                    {habit.days >= habit.goal && (
+                      <span className="success-badge">⭐ Ziel erreicht!</span>
+                    )}
+                    <h3 className="habit-name">{habit.name}</h3>
+
+                    <div className="progress-container">
+                      <div
+                        className="progress-bar"
+                        style={{
+                          width: `${Math.min((habit.days / (habit.goal || 1)) * 100, 100)}%`,
+                        }}
+                      ></div>
+                      <span className="progress-percentage">
+                        {Math.round((habit.days / (habit.goal || 1)) * 100)}%
+                      </span>
+                    </div>
+
+                    <p className="progress-text">
+                      {habit.days} / {habit.goal} Tage
+                    </p>
+
+                    <p className="start-date">
+                      Start:{" "}
+                      {habit.created_at
+                        ? new Date(habit.created_at).toLocaleDateString()
+                        : "Unbekannt"}
+                    </p>
+                    
+                    <button
+                      onClick={() => tagHinzufuegen(habit.id, index)}
+                      className="plus-button"
+                    >
+                      +1 Tag geschafft!
+                    </button>
+                    
+                    <div className="button-group">
+                      <button
+                        onClick={() => habitReset(habit.id, index)}
+                        className="reset-button"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        onClick={() => habitLoeschen(habit.id, index)}
+                        className="delete-button fade-effekt"
+                      >
+                        Löschen
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            /* --- STATS VIEW --- */
+            <div className="stats-view fade-effekt" key="stats-view">
+              <h1>Deine Erfolge 🏆</h1>
+              <div className="stats-card">
+                <p>Insgesamt geschaffte Tage </p>
+                <h2>
+                  {berechnenWochen(habits.reduce((sum, h) => sum + h.days, 0))}
+                </h2>
+
+              
+              </div>
+              <p>Nur deine persönlichen Daten sind hier sichtbar.</p>
+              <button onClick={datenbankLeeren} className="danger-button">
+                🔥 Gesamte Datenbank leeren
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
