@@ -331,7 +331,7 @@ function App() {
           </>
         ) : (
           <>
-            <button onClick={handleRegister} className="add-button">Registrieren</button>
+            <button onClick={handleRegister} className="login-button">Registrieren</button>
             <p className="toggle-auth">
               
               

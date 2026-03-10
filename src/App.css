@@ -98,6 +98,7 @@ body {
 /* Das Design für unseren Hinzufügen-Button */
 .login-button {
   background: #007bff;
+  color:white;
   padding: 9px;
   border-radius: 12px;
   font-weight: bold;
