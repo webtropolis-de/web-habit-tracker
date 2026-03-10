@@ -26,7 +26,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setDisplayName] = useState("User");
+  const [username, setDisplayName] = useState("");
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -181,6 +181,31 @@ function App() {
     }
   }, [user]);
 
+
+  // ---------------------------- habitReset ----------------------- //
+
+  const habitReset = async (idVonDatenbank, indexInListe) => {
+    const resetconfirm = window.confirm ("Möchtest du den Zähler wirklich zurücksetzen?",
+    );
+
+    if (resetconfirm == true) {
+    const { error } = await supabase
+      .from("habits")
+      .update({ days: 0 })
+      .eq("id", idVonDatenbank);
+
+    if (!error) {
+      // 2. Anzeige auf dem Bildschirm aktualisieren
+      const neueListe = [...habits];
+      neueListe[indexInListe].days = 0;
+      setHabits(neueListe);
+    }else {
+        console.error("Fehler beim Leeren:", error.message);
+        alert("Fehler: " + error.message);
+      }}
+  };
+
+
   // ---------------------------- RESET --------------------------- //
 
   const datenbankLeeren = async () => {
@@ -202,7 +227,13 @@ function App() {
     }
   };
 
-  // ---------------------------------------------------------------------------------------
+  // -------------------------Login Reset Button--------------------------------------------------------------
+
+  const clearLogin = async () => {
+    setPassword("");
+    setDisplayName("");
+    setEmail("");
+  }
 
   //HTML
 
@@ -257,6 +288,7 @@ function App() {
               <button onClick={handleRegister} className="reset-button">
                 Registrieren
               </button>
+              <button onClick={clearLogin} className="reset-button"> Reset</button>
             </div>
           </div>
         </div>

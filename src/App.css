@@ -694,13 +694,16 @@ input {
 .login-form input.habit-input:focus {
   outline: none;
   border-color: #3498db; /* Blauer Rahmen beim Reinklicken */
+  transform: scale(1.1); /* Kleiner Klick-Effekt */
+  transition: 300ms;
 }
 
 /* Der Container für die beiden Buttons */
 .login-form .button-group {
   display: flex;
-  gap: 10px; /* Abstand zwischen den Buttons */
-  margin-top: 10px;
+  gap: 8px; /* Etwas schmalerer Abstand, damit drei Buttons passen */
+  width: 100%;
+  justify-content: space-between;
 }
 
 /* Styling für die Buttons, damit sie gleich groß sind */
@@ -716,7 +719,8 @@ input {
 }
 
 .login-form .button-group button:active {
-  transform: scale(0.98); /* Kleiner Klick-Effekt */
+  transform: scale(0.98); 
+  transition: 300ms;
 }
 
 /* Spezifische Farben für die Buttons */
