@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react' // Das hier ist das richtige Paket!
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: '/web-habit-tracker/',
   plugins: [
     react(), // Hier einfach react() aufrufen
     VitePWA({
