@@ -29,11 +29,14 @@ function App() {
   const [username, setDisplayName] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState("Lade deine Daten...");
+  const [isLoginMode, setIsLoginMode] = useState(true); // true = Login, false = Registrieren
 
   // -------------------------Funktionen-----------------------------------//
 
   // Habbit hinzufügen
   const habbithinzufuegen = async () => {
+    setLoadingText("Speichere dein neues Habit...");
+    setLoading(true);
     if (eingabeWert.trim() === "") return;
 
     
@@ -60,11 +63,13 @@ function App() {
       console.error("Supabase Error:", error);
       alert("Fehler beim Speichern in der Cloud!");
     }
-    
+    setLoading(false);
   };
 
   // Habbit löschen mit confirm
   const habitLoeschen = async (idVonDatenbank, indexInListe) => {
+    setLoadingText("Lösche Habit...");
+    setLoading(true);
     
     const wirklichLoeschen = window.confirm(
       "Möchtest du dieses Habit wirklich löschen?",
@@ -86,7 +91,7 @@ function App() {
       const neueListe = habits.filter((_, i) => i !== indexInListe);
       setHabits(neueListe);
     }
-    
+    setLoading(false);
   };
 
   // ---------------------+1 Funktion-------------------------------------//
@@ -262,7 +267,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* Das Logo bleibt immer oben sichtbar */}
+      {/* Logo bleibt immer oben */}
       <img
         className="logo"
         src={logo}
@@ -271,57 +276,75 @@ function App() {
       />
 
       {loading ? (
-        /* NEU: Spinner-Anzeige */
+        /* Spinner-Anzeige */
         <div className="spinner-container">
           <div className="spinner"></div>
           <p className="quote">Deine Erfolge werden geladen...</p>
         </div>
+        /* weiter mit der User View */
       ) : !user ? (
-        /* --- 1. ANSICHT: LOGIN / REGISTRIERUNG --- */
         <div className="login-view fade-effekt">
-          <h1>Willkommen bei Habitrack!</h1>
-          <p className="quote">Bitte melde dich an, um deine Habits zu sehen.</p>
-          
-          <div className="input-group login-form" style={{ marginTop: "20px" }}>
-            <input
+    <h1>{isLoginMode ? "Willkommen zurück!" : "Konto erstellen"}</h1>
+    <p className="quote">
+      {isLoginMode 
+        ? "Melde dich an, um deine Habits zu tracken." 
+        : "Registriere dich und starte deine Reise."}
+    </p>
+    
+    <div className="input-group login-form" style={{ marginTop: "20px" }}>
+      {/* Nur bei Registrierung anzeigen */}
+      {!isLoginMode && (
+        <input
+          className="habit-input"
+          type="text"
+          placeholder="Dein Name"
+          value={username}
+          onChange={(e) => setDisplayName(e.target.value)}
+        />
+      )}
+      
+      <input
         className="habit-input"
-        type="text"
-        placeholder="Dein Name (für Registrierung)"
-        value={username}
-        onChange={(e) => setDisplayName(e.target.value)}
+        type="email"
+        placeholder="E-Mail Adresse"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
       />
-            
-            <input
-              className="habit-input"
-              type="email"
-              required
-              placeholder="E-Mail Adresse"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              className="habit-input"
-              type="password"
-              required
-              minLength="12"
-              placeholder="Passwort (min 12 Zeichen)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          
+      
+      <input
+        className="habit-input"
+        type="password"
+        placeholder="Passwort"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
 
-            <div className="button-group" style={{ marginTop: "10px" }}>
-              <button onClick={handleLogin} className="add-button">
-                Anmelden
-              </button>
-              <button onClick={handleRegister} className="reset-button">
-                Registrieren
-              </button>
-              <button onClick={clearLogin} className="reset-button"> Reset</button>
-            </div>
-          </div>
-        </div>
-      ) : (
+      <div className="button-group" style={{ marginTop: "10px" }}>
+        {isLoginMode ? (
+          <>
+            <button onClick={handleLogin} className="add-button">Anmelden</button>
+            <p className="toggle-auth">
+              Noch kein Konto?{" "}
+              <span onClick={() => { setIsLoginMode(false); clearLogin(); }}>
+                Jetzt registrieren
+              </span>
+            </p>
+          </>
+        ) : (
+          <>
+            <button onClick={handleRegister} className="add-button">Registrieren</button>
+            <p className="toggle-auth">
+              Bereits ein Konto?{" "}
+              <span onClick={() => { setIsLoginMode(true); clearLogin(); }}>
+                Zum Login
+              </span>
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+) : (
         /* --- 2. ANSICHT: DEIN TRACKER (Eingeloggt) --- */
         <>
           {/* NAVIGATION */}

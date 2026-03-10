@@ -869,3 +869,20 @@ input {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.toggle-auth {
+  margin-top: 15px;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.toggle-auth span {
+  color: #ff4500;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.toggle-auth span:hover {
+  color: #ff6347;
+}
