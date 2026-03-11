@@ -89,6 +89,43 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker registriert!', reg))
+      .catch(err => console.error('SW Registrierung fehlgeschlagen', err));
+  }
+}, []);
+// -------------------------- Zeitplaner ------------------------------ //
+useEffect(() => {
+  const planeMorgendlicheErinnerung = async () => {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (!reg || Notification.permission !== "granted") return;
+
+    // 1. Zielzeit berechnen (Morgen um 09:00 Uhr)
+    const jetzt = new Date();
+    const ziel = new Date();
+    ziel.setDate(jetzt.getDate() + 1); // Morgen
+    ziel.setHours(9, 0, 0, 0);         // 09:00 Uhr
+
+    // 2. Differenz in Millisekunden berechnen
+    const differenz = ziel.getTime() - jetzt.getTime();
+
+    // 3. Den Timer im Service Worker "vorglühen"
+    // Hinweis: Das funktioniert am besten, wenn die PWA auf dem Homescreen installiert ist!
+    setTimeout(() => {
+      reg.showNotification("Guten Morgen! ☀️", {
+        body: "Zeit für deinen Daily Check-In. Bleib heute stark!",
+        tag: "daily-reminder",
+        icon: "/logo192.png"
+      });
+    }, differenz);
+  };
+
+  window.addEventListener('beforeunload', planeMorgendlicheErinnerung);
+  return () => window.removeEventListener('beforeunload', planeMorgendlicheErinnerung);
+}, []);
+
   // -------------------------Funktionen-----------------------------------//
 
   // ------------------------ Notifications --------------------------------//
@@ -109,6 +146,25 @@ function App() {
     });
   } else {
     zeigeToast("Mitteilungen wurden blockiert.", "error");
+  }
+};
+
+const aktiviereNotifications = async () => {
+  if (!("Notification" in window)) {
+    alert("Benachrichtigungen werden nicht unterstützt.");
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") {
+    // Hier schicken wir eine lokale Test-Nachricht
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg) {
+      reg.showNotification("Aktiviert! 🔔", {
+        body: "Du wirst ab jetzt an deinen Check-In erinnert.",
+        icon: "/logo192.png"
+      });
+    }
   }
 };
 
@@ -1023,7 +1079,7 @@ useEffect(() => {
   <p className="modal-subtitle" style={{textAlign: 'left'}}>
     Lass dich daran erinnern, deinen täglichen Check-In zu machen.
   </p>
-  <button onClick={aktiviereErinnerung} className="add-button">
+  <button onClick={aktiviereNotifications} className="add-button">
     Mitteilungen erlauben 🔔
   </button>
 </div> <br></br>
