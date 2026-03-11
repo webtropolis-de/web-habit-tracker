@@ -31,8 +31,36 @@ function App() {
   const emojiOptionen = ["🔥", "💪", "🥗", "💧", "🧘", "📚", "🚭", "🍺", "🛌", "🏃", "🎯", "💰","♥️", "🎮", "💵"];
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const aktuellesdatum = new Date().toLocaleDateString('de-DE', {weekday: "long", day:"numeric", month: "long", year: "numeric"});
-
+  const [toast, setToast] = useState(null);
+  const [offenerKalender, setOffenerKalender] = useState(null); // Speichert die ID des Habits
   
+
+
+  // ----------------  Kalender Function -------------------------------  //
+
+  const holeTageImMonat = () => {
+    const jetzt = new Date();
+    const jahr = jetzt.getFullYear();
+    const monat = jetzt.getMonth();
+    const anzahlTage = new Date(jahr, monat + 1, 0).getDate();
+    
+    return Array.from({ length: anzahlTage }, (_, i) => {
+      const tag = i + 1;
+      // Wir bauen das Format so, dass es zu deinem 'aktuellesdatum' passt
+      const datum = new Date(jahr, monat, tag).toLocaleDateString('de-DE', {
+        weekday: "long", day:"numeric", month: "long", year: "numeric"
+      });
+      return { tag, datum };
+    });
+  };
+
+  // -------------- Toast Funktion ------------------------------------- //
+  const zeigeToast = (nachricht) => {
+    setToast(nachricht);
+    setTimeout(() => {
+      setToast(null);
+    }, 3000); // Verschwindet automatisch nach 3 Sekunden
+  };
   
   // ------------------- PWA POPup -------------------------------------- //
   useEffect(() => {
@@ -57,7 +85,7 @@ function App() {
       name: eingabeWert,
       days: 0,
       icon: icon,
-      goal: Number(zielWert),
+      goal: zielWert === "" ? 0 : Number(zielWert),
       type: habitType,                   
       frequency: Number(frequency) || 0,
     };
@@ -73,7 +101,7 @@ function App() {
       setFrequency("");
     } else {
       console.error("Supabase Error:", error);
-      alert("Fehler beim Speichern in der Cloud!");
+      zeigeToast("Fehler beim Speichern in der Cloud!");
     }
     setLoading(false);
   };
@@ -100,7 +128,7 @@ function App() {
       setHabits(neueHabits);
     } catch (error) {
       console.error("Fehler beim Löschen:", error.message);
-      alert("Fehler beim Löschen des Habits.");
+      zeigeToast("Fehler beim Löschen des Habits.");
     } finally {
       setLoading(false); // Spinner stoppen, egal ob Erfolg oder Fehler
     }
@@ -110,49 +138,68 @@ function App() {
   const tagHinzufuegen = async (idVonDatenbank, indexInListe) => {
     const aktuellesHabit = habits[indexInListe];
     
-    // 1. Ziel-Größe berechnen
+    // 1. Datum SICHER direkt in der Funktion generieren (verhindert Abstürze!)
+    const heuteString = new Date().toLocaleDateString('de-DE', {
+      weekday: "long", day:"numeric", month: "long", year: "numeric"
+    });
+
+    // 2. Ziel-Größe berechnen
     const isWochenziel = aktuellesHabit.type === "wochenziel";
     const zielGroeße = isWochenziel ? aktuellesHabit.frequency : aktuellesHabit.goal;
 
-    // 2. Sperre für Wochenziele
+    // 3. Sperre für Wochenziele
     if (isWochenziel && aktuellesHabit.days >= zielGroeße) {
-      alert("Du hast dein Wochenziel für diese Woche schon erreicht! 🎉");
+      zeigeToast("Du hast dein Wochenziel für diese Woche schon erreicht! 🎉");
+      return;
+    }
+
+    // 4. Sperre für tägliche Abstinenz (Prüft den Text-Stempel)
+    if (!isWochenziel && aktuellesHabit.last_clicked === heuteString) {
+      zeigeToast("Stark geblieben! Du hast für heute schon einen Tag eingetragen. Mach morgen weiter! 💪");
       return;
     }
 
     const neuerWert = aktuellesHabit.days + 1;
     
-    // 3. Prüfen, ob ein neuer Rekord aufgestellt wurde
+    // 5. Rekord prüfen
     let neuerRekord = aktuellesHabit.best_streak || 0;
     if (neuerWert > neuerRekord) {
       neuerRekord = neuerWert;
     }
 
-    // 4. DB-Update direkt über Supabase (umgeht den Service-Fehler)
+    const alteHistory = aktuellesHabit.history || [];
+    const neueHistory = [...alteHistory, heuteString];
+
+    // 6. DB-Update an Supabase senden
     const { error } = await supabase
       .from("habits")
-      .update({ days: neuerWert, best_streak: neuerRekord })
+      .update({ 
+        days: neuerWert, 
+        best_streak: neuerRekord,
+        last_clicked: heuteString,
+        history: neueHistory // <--- Hier speichern wir das Gedächtnis
+      })
       .eq("id", idVonDatenbank);
 
     if (!error) {
-      // KONFETTI-CHECK: Wurde das Ziel exakt jetzt erreicht?
+      // Konfetti auslösen, falls ein Ziel erreicht wurde
       if (neuerWert === zielGroeße && zielGroeße > 0) {
         confetti({
-          particleCount: 150,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#007bff', '#28a745', '#ffffff'] // Deine App-Farben
+          particleCount: 150, spread: 70, origin: { y: 0.6 },
+          colors: ['#007bff', '#28a745', '#ffffff']
         });
       }
 
-      // Anzeige aktualisieren
+      // Anzeige auf dem Bildschirm aktualisieren
       const neueListe = [...habits];
       neueListe[indexInListe].days = neuerWert;
       neueListe[indexInListe].best_streak = neuerRekord;
+      neueListe[indexInListe].last_clicked = heuteString;
+      neueListe[indexInListe].history = neueHistory; // Lokal aktualisieren
       setHabits(neueListe);
     } else {
-      console.error("Fehler beim Hinzufügen des Tages:", error);
-      alert("Fehler beim Speichern: " + error.message); // Zeigt den genauen Fehler an
+      console.error("Datenbank-Fehler:", error);
+      zeigeToast("⚠️ Fehler! DB Error: " + error.message);
     }
   };
   // -----------------Emojis-----------------------------------------//
@@ -175,9 +222,9 @@ function App() {
     });
     
     if (error) {
-      alert("Fehler beim Ändern des Namens: " + error.message);
+      zeigeToast("Fehler beim Ändern des Namens: " + error.message);
     } else {
-      alert("Name erfolgreich geändert!");
+      zeigeToast("Name erfolgreich geändert!");
       setUser(data.user); // Aktualisiert den Namen direkt auf dem Bildschirm
       setNewName("");
     }
@@ -186,7 +233,7 @@ function App() {
 
   const updatePassword = async () => {
     if (!validatePassword(newPassword).length || !validatePassword(newPassword).hasNumber) {
-      alert("Passwort erfüllt nicht die Kriterien.");
+      zeigeToast("Passwort erfüllt nicht die Kriterien.");
       return;
     }
     setLoadingText("Aktualisiere Passwort...");
@@ -197,9 +244,9 @@ function App() {
     });
     
     if (error) {
-      alert("Fehler beim Ändern des Passworts: " + error.message);
+      zeigeToast("Fehler beim Ändern des Passworts: " + error.message);
     } else {
-      alert("Passwort erfolgreich geändert!");
+      zeigeToast("Passwort erfolgreich geändert!");
       setNewPassword("");
     }
     setLoading(false);
@@ -214,15 +261,15 @@ function App() {
         display_name: username, 
       }
     }});
-    if (error) alert("Registrierung fehlgeschlagen: " + error.message);
-    else alert("Check deine E-Mails für den Bestätigungslink!");
+    if (error) zeigeToast("Registrierung fehlgeschlagen: " + error.message);
+    else zeigeToast("Check deine E-Mails für den Bestätigungslink!");
   };
 
   const handleLogin = async () => {
     setLoadingText("Melde dich an...");
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert("Login fehlgeschlagen: " + error.message);
+    if (error) zeigeToast("Login fehlgeschlagen: " + error.message);
     setLoading(false);
   };
 
@@ -311,7 +358,7 @@ useEffect(() => {
       setHabits(neueListe);
     }else {
         console.error("Fehler beim Leeren:", error.message);
-        alert("Fehler: " + error.message);
+        zeigeToast("Fehler: " + error.message);
       }}
       setLoading(false);
   };
@@ -332,10 +379,10 @@ useEffect(() => {
 
       if (!error) {
         setHabits([]); // Auch auf dem Bildschirm alles leeren
-        alert("Datenbank wurde komplett geleert!");
+        zeigeToast("Datenbank wurde komplett geleert!");
       } else {
         console.error("Fehler beim Leeren:", error.message);
-        alert("Fehler: " + error.message);
+        zeigeToast("Fehler: " + error.message);
       }
     }
     setLoading(false);
@@ -625,15 +672,15 @@ useEffect(() => {
                 <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
                     {habitType === "abstinenz" ? (
-                      <input
-                        className="goal-input"
-                        type="number"
-                        value={zielWert}
-                        onChange={(e) => setZielWert(e.target.value)}
-                        placeholder="Ziel in Tagen"
-                        style={{ width: "100%", margin: 0 }}
-                      />
-                    ) : (
+    <input
+      className="goal-input"
+      type="number"
+      value={zielWert}
+      onChange={(e) => setZielWert(e.target.value)}
+      placeholder="Wie lange? (leer = ♾️)" /* <--- Hier geändert */
+      style={{ width: "100%", margin: 0 }}
+    />
+  ) : (
                       <input
                         className="goal-input"
                         type="number"
@@ -719,34 +766,55 @@ useEffect(() => {
     {habit.icon || "🔥"}
   </div>
   
-  {/* 2. Text (Mitte) - flex: 1 sorgt dafür, dass dieser Teil schrumpft, falls nötig */}
-  <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-    <h3 style={{ 
-      margin: 0, 
-      fontSize: "1rem", 
-      fontWeight: "600", 
-      color: "#fff", 
-      whiteSpace: "nowrap", 
-      overflow: "hidden", 
-      textOverflow: "ellipsis" // Macht "..." falls der Text zu lang ist
-    }}>
-      {habit.name}
-    </h3>
-    <span style={{ fontSize: "0.65rem", color: "#666", textTransform: "uppercase", display: "block" }}>
-      {isWochenziel ? "Wochenziel" : "Abstinenz"}
-    </span>
-    {/* NEU: Kleine Progress Bar */}
+  {/* 2. Text (Mitte) */}
+<div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+  <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+    {habit.name}
+  </h3>
+  <span style={{ fontSize: "0.65rem", color: "#666", textTransform: "uppercase", display: "block" }}>
+    {isWochenziel ? "Wochenziel" : "Abstinenz"}
+  </span>
+
+  {/* Progress Bar (Nur wenn Ziel > 0) */}
   {zielGroeße > 0 && (
-    <div className="habit-progress-container">
+    <div className="habit-progress-container" style={{ marginTop: "8px" }}>
       <div 
         className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
-        style={{ 
-          width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%` 
-        }}
+        style={{ width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%` }}
       ></div>
     </div>
   )}
-  </div>
+
+  {/* --- KALENDER SEKTION --- */}
+<div className="calendar-section">
+  <button 
+  className="calendar-trigger"
+  onClick={() => setOffenerKalender(habit)} // Speichert das ganze Habit-Objekt
+>
+  📅 Kalender 
+</button>
+
+  {offenerKalender === habit.id && (
+    <div className="calendar-mini-grid fade-effekt">
+      {['M', 'D', 'M', 'D', 'F', 'S', 'S'].map((day, i) => (
+        <div key={i} className="calendar-weekday-label">{day}</div>
+      ))}
+      {holeTageImMonat().map((tagObj) => {
+        const istErfolgreich = habit.history?.includes(tagObj.datum);
+        const istHeuteMarkiert = tagObj.datum === aktuellesdatum;
+        return (
+          <div 
+            key={tagObj.tag} 
+            className={`calendar-day ${istErfolgreich ? "success" : ""} ${istHeuteMarkiert ? "today" : ""}`}
+          >
+            {tagObj.tag}
+          </div>
+        );
+      })}
+    </div>
+  )}
+</div>
+</div>
 
   {/* 3. Zähler & Buttons (Rechts) - Alles kompakt zusammengefasst */}
   <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
@@ -756,21 +824,27 @@ useEffect(() => {
       <span style={{ fontSize: "1rem", fontWeight: "700", color: istErledigt ? "#28a745" : "#fff" }}>
         {habit.days}
       </span>
-      {isWochenziel && (
-        <span style={{ fontSize: "0.7rem", color: "#444" }}>/{habit.frequency}</span>
+      
+      {/* NEU: Zeigt das Ziel an, wenn es größer als 0 ist (egal ob Wochenziel oder Abstinenz) */}
+      {zielGroeße > 0 && (
+        <span style={{ fontSize: "0.7rem", color: "#444" }}>/{zielGroeße}</span>
       )}
     </div>
     
     {/* Rechte Seite: Vollflächige Touch-Zonen */}
   <div className="habit-row-actions">
     <button
-      onClick={() => tagHinzufuegen(habit.id, index)}
-      disabled={isWochenziel && istErledigt}
-      className="action-zone-main"
-      title="Tag hinzufügen"
-    >
-      +
-    </button>
+    onClick={() => tagHinzufuegen(habit.id, index)} 
+    /* WICHTIG: Kein 'disabled' mehr hier! */
+    className="action-zone-main"
+    title="Tag hinzufügen"
+    style={{ 
+      /* Macht den Button blass, wenn gesperrt */
+      opacity: ((isWochenziel && istErledigt) || (!isWochenziel && habit.last_clicked === aktuellesdatum)) ? 0.3 : 1 
+    }}
+  >
+    +
+  </button>
 
     <div className="action-side-column">
     <button 
@@ -976,6 +1050,48 @@ useEffect(() => {
           
         </div>
       )}
+      {/* --- IN-APP TOAST NOTIFICATION --- */}
+      {toast && (
+        <div className="custom-toast">
+          {toast}
+        </div>
+      )}
+
+
+
+      {/* --- CALENDAR MODAL POPUP --- */}
+{offenerKalender && (
+  <div className="modal-overlay" onClick={() => setOffenerKalender(null)}>
+    <div className="modal-content fade-effekt" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-header">
+        <h2>{offenerKalender.icon} {offenerKalender.name}</h2>
+        <button className="close-modal" onClick={() => setOffenerKalender(null)}>✕</button>
+      </div>
+      
+      <p className="modal-subtitle">Deine Erfolge im aktuellen Monat</p>
+
+      <div className="calendar-mini-grid">
+        {['M', 'D', 'M', 'D', 'F', 'S', 'S'].map((day, i) => (
+          <div key={i} className="calendar-weekday-label">{day}</div>
+        ))}
+        {holeTageImMonat().map((tagObj) => {
+          const istErfolgreich = offenerKalender.history?.includes(tagObj.datum);
+          const istHeuteMarkiert = tagObj.datum === aktuellesdatum;
+          return (
+            <div 
+              key={tagObj.tag} 
+              className={`calendar-day ${istErfolgreich ? "success" : ""} ${istHeuteMarkiert ? "today" : ""}`}
+            >
+              {tagObj.tag}
+            </div>
+          );
+        })}
+      </div>
+      
+      <button className="modal-btn-close" onClick={() => setOffenerKalender(null)}>Fertig</button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
