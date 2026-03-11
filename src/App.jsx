@@ -28,7 +28,7 @@ function App() {
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const emojiOptionen = ["🔥", "💪", "🥗", "💧", "🧘", "📚", "🚭", "🍺", "🛌", "🏃", "🎯", "💰"];
+  const emojiOptionen = ["🔥", "💪", "🥗", "💧", "🧘", "📚", "🚭", "🍺", "🛌", "🏃", "🎯", "💰","♥️", "🎮", "💵"];
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -467,11 +467,11 @@ useEffect(() => {
             </h2>
 
             {/* Logo  */}
-            <div style={{ width: "40px", display: "flex", justifyContent: "flex-end" }}>
+            <div style={{ width: "50px", display: "flex", justifyContent: "flex-end" }}>
               <img
                 src={logo}
                 alt="Logo"
-                style={{ height: "30px", width: "auto" }}
+                style={{ height: "50px", width: "auto" }}
               />
             </div>
           </header>
@@ -629,7 +629,7 @@ useEffect(() => {
   {zeigePicker && (
     <div className="emoji-picker-dropdown fade-effekt">
       <div className="emoji-grid">
-        {["🔥", "💪", "🥗", "💧", "🧘", "📚", "🚭", "🍺", "🛌", "🏃", "🎯", "💰", "🛑", "🍀", "💎", "🔋"].map((e) => (
+        {emojiOptionen.map((e) => (
           <button
             key={e}
             type="button"
