@@ -28,6 +28,7 @@ function App() {
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const emojiOptionen = ["🔥", "💪", "🥗", "💧", "🧘", "📚", "🚭", "🍺", "🛌", "🏃", "🎯", "💰"];
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -432,8 +433,7 @@ useEffect(() => {
       ) : (
         /* --- EINGELOGGT-BEREICH --- */
         <>
-          {/* --- NEUE HEADER-LEISTE (Burger + Logo links, Titel mittig) --- */}
-          {/* --- MODERNISIERTER HEADER --- */}
+        
           <header style={{ 
             display: "flex", 
             justifyContent: "space-between", 
@@ -446,7 +446,7 @@ useEffect(() => {
             zIndex: 100
           }}>
             
-            {/* 1. Burger Menü (Links) */}
+            {/* Burger Menü  */}
             <button
               onClick={() => setIsMenuOpen(true)}
               style={{ background: "none", border: "none", fontSize: "28px", color: "white", cursor: "pointer", padding: 0, width: "40px", textAlign: "left" }}
@@ -454,7 +454,7 @@ useEffect(() => {
               ☰
             </button>
 
-            {/* 2. Überschrift (Zentriert) */}
+            {/* Überschrift */}
             <h2 style={{ 
               margin: 0, 
               fontSize: "1.2rem", 
@@ -466,7 +466,7 @@ useEffect(() => {
               {aktuelleAnsicht === "home" ? "Tracker" : aktuelleAnsicht === "stats" ? "Statistik" : "Profil"}
             </h2>
 
-            {/* 3. Logo (Rechts) */}
+            {/* Logo  */}
             <div style={{ width: "40px", display: "flex", justifyContent: "flex-end" }}>
               <img
                 src={logo}
@@ -476,9 +476,8 @@ useEffect(() => {
             </div>
           </header>
 
-          {/* --- DAS AUSKLAPPBARE SIDEBAR-MENÜ --- */}
+          {/* SIDEBAR-MENÜ  */}
           <>
-            {/* Dunkler Hintergrund mit weichem Fade-In */}
             <div
               style={{
                 position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -490,7 +489,7 @@ useEffect(() => {
               onClick={() => setIsMenuOpen(false)}
             ></div>
 
-            {/* Das eigentliche Menü-Fenster mit weichem Slide-In */}
+            {/* Menü-Fenster  */}
             <div
               style={{
                 position: "fixed", top: 0, left: 0, bottom: 0, width: "250px",
@@ -550,7 +549,7 @@ useEffect(() => {
                 margin: "0 auto 30px auto" 
               }}>
                 
-                {/* 1. Typ-Auswahl (Obere Reihe) */}
+                {/* 1. Typ-Auswahl  */}
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button
                     type="button"
@@ -580,7 +579,7 @@ useEffect(() => {
                   </button>
                 </div>
 
-                {/* 2. Haupt-Eingabefeld (Mittlere Reihe) */}
+                {/* 2. Haupt-Eingabefeld */}
                 <input
                   className="habit-input"
                   type="text"
@@ -614,28 +613,42 @@ useEffect(() => {
                     )}
                   </div>
 
-                  <div className="emoji-section" style={{ position: "relative" }}>
-                    <button
-                      type="button"
-                      className="emoji-trigger-btn"
-                      onClick={() => setZeigePicker(!zeigePicker)}
-                      style={{ height: "45px", width: "45px", display: "flex", alignItems: "center", justifyContent: "center", margin: 0 }}
-                    >
-                      {icon}
-                    </button>
+                  <div className="emoji-dropdown-container">
+  {/* Der Klick-Button zum Öffnen */}
+  <button 
+    type="button" 
+    className={`emoji-selector-btn ${zeigePicker ? 'active' : ''}`}
+    onClick={() => setZeigePicker(!zeigePicker)}
+  >
+    <span className="emoji-label"></span>
+    <span className="selected-emoji">{icon}</span>
+    
+  </button>
 
-                    {zeigePicker && (
-                      <>
-                        <div className="emoji-overlay" onClick={() => setZeigePicker(false)} />
-                        <div className="emoji-picker-container" style={{ position: "absolute", bottom: "55px", right: 0 }}>
-                          <EmojiPicker onEmojiClick={onEmojiClick} theme="dark" />
-                        </div>
-                      </>
-                    )}
-                  </div>
+  {/* Das aufklappbare Menü */}
+  {zeigePicker && (
+    <div className="emoji-picker-dropdown fade-effekt">
+      <div className="emoji-grid">
+        {["🔥", "💪", "🥗", "💧", "🧘", "📚", "🚭", "🍺", "🛌", "🏃", "🎯", "💰", "🛑", "🍀", "💎", "🔋"].map((e) => (
+          <button
+            key={e}
+            type="button"
+            className={`emoji-option ${icon === e ? "is-selected" : ""}`}
+            onClick={() => {
+              setIcon(e);
+              setZeigePicker(false); // Schließt das Menü nach der Wahl
+            }}
+          >
+            {e}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
                 </div>
 
-                {/* 4. Hinzufügen Button (Ganz unten, volle Breite) */}
+                {/* 4. Hinzufügen Button  */}
                 <button 
                   onClick={habbithinzufuegen} 
                   className="add-button" 

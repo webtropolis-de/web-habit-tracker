@@ -586,3 +586,144 @@ h3 {
 .toggle-auth span:hover {
   text-decoration: underline;
 }
+
+.emoji-selection-wrapper {
+  width: 100%;
+  background-color: #2a2a35;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #444;
+  margin-top: 5px;
+}
+
+.current-emoji-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #444;
+}
+
+.current-emoji-display span {
+  font-size: 0.8rem;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.selected-icon {
+  font-size: 1.5rem;
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 8px;
+  width: 100%;
+}
+
+.emoji-btn {
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 5px;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emoji-btn.active {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+  transform: scale(1.1);
+}
+
+/* Optimierung für sehr kleine Handys */
+@media (max-width: 400px) {
+  .emoji-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Container für den Button und das schwebende Menü */
+.emoji-dropdown-container {
+  position: relative;
+  width: 50px;
+  flex-shrink: 0;
+}
+
+.emoji-selector-btn {
+  height: 48px;
+  width: 50px;
+  background-color: #2a2a35;
+  border: 1px solid #444;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.emoji-selector-btn:active {
+  transform: scale(0.95);
+  border-color: #007bff;
+}
+
+.emoji-selector-btn:hover {
+  background-color: #3a3a45;
+}
+
+.emoji-picker-dropdown {
+  position: absolute;
+  top: 55px;         /* Öffnet sich nach unten */
+  right: 0;          /* Richtet sich rechts am Button aus, wächst nach links */
+  width: 220px;      /* Sicherere Breite für kleine Displays */
+  max-width: calc(100vw - 40px); /* Garantiert, dass es nicht aus dem Screen läuft */
+  background-color: #1e1e24;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  z-index: 2000;
+}
+
+.emoji-option {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Hält die Buttons quadratisch */
+  background: #2a2a35;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 1.2rem; /* Leicht verkleinert, damit es nicht drückt */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.emoji-option:hover {
+  background-color: #3a3a45;
+}
+
+.emoji-option.is-selected {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+
+/* Der Overlay-Schutz, um das Menü durch Tippen daneben zu schließen */
+.emoji-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1999;
+  background: transparent;
+}
