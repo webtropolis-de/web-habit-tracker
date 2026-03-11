@@ -26,6 +26,7 @@ function App() {
   const [frequency, setFrequency] = useState("");
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -61,28 +62,31 @@ function App() {
   };
 
   // Habbit löschen mit confirm
-  const habitLoeschen = async (idVonDatenbank, indexInListe) => {
-    setLoadingText("Lösche Habit...");
-    setLoading(true);
-    
-    const wirklichLoeschen = window.confirm(
-      "Möchtest du dieses Habit wirklich löschen?",
-    );
-
-    if (!wirklichLoeschen) return;
-
-    //  HABBIT  löschen (wir suchen nach der ID) (aus habitService)
-    const { error } = await habitService.habitLoeschen(idVonDatenbank);
-
-    if (error) {
-      console.error("Fehler beim Löschen:", error.message);
-      alert("Konnte nicht in der Datenbank gelöscht werden.");
-    } else {
-      //Erst wenn es in der Cloud weg ist, löschen wir es lokal aus dem State
-      const neueListe = habits.filter((_, i) => i !== indexInListe);
-      setHabits(neueListe);
+  const habitLoeschen = async (id, index) => {
+    // Bestätigungs-Dialog abfragen
+    if (!window.confirm("Möchtest du diesen Habit wirklich löschen?")) {
+      // WICHTIG: Falls der User abbricht, darf setLoading nicht auf true hängen bleiben
+      return; 
     }
-    setLoading(false);
+
+    setLoading(true); // Spinner erst starten, wenn der User bestätigt hat
+    try {
+      const { error } = await supabase
+        .from("habits")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      // Lokal aus dem State entfernen
+      const neueHabits = habits.filter((_, i) => i !== index);
+      setHabits(neueHabits);
+    } catch (error) {
+      console.error("Fehler beim Löschen:", error.message);
+      alert("Fehler beim Löschen des Habits.");
+    } finally {
+      setLoading(false); // Spinner stoppen, egal ob Erfolg oder Fehler
+    }
   };
 
  // ---------------------+1 Funktion-------------------------------------//
@@ -303,166 +307,219 @@ useEffect(() => {
 
   //HTML
 
+  // --- AB HIER ERSETZEN --- //
   return (
     <div className="App">
-      {/* Logo immer oben */}
-      <img
-        className="logo"
-        src={logo}
-        alt="Logo"
-        style={{ width: "200px", marginBottom: "20px" }}
-      />
-
+      
       {loading ? (
-        /* Spinner-Anzeige */
-        <div className="spinner-container">
+        /* Spinner-Anzeige - Jetzt garantiert zentriert */
+        <div className="spinner-container" style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          width: "100vw",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          backgroundColor: "#121214",
+          zIndex: 2000
+        }}>
+          <img className="logo" src={logo} alt="Logo" style={{ width: "150px", marginBottom: "30px" }} />
           <div className="spinner"></div>
-          <p className="quote">Deine Erfolge werden geladen...</p>
+          <p className="quote" style={{ marginTop: "20px" }}>Deine Erfolge werden geladen...</p>
         </div>
-        /* weiter mit User View */
       ) : !user ? (
         <div className="login-view fade-effekt">
-    <h1>{isLoginMode ? "Willkommen zurück!" : "Konto erstellen"}</h1>
-    
-    
-    <div className="input-group login-form" style={{ marginTop: "20px" }}>
-      <p className="quote">
-      {isLoginMode 
-        ? "Melde dich an, um deine Habits zu tracken." 
-        : "Registriere dich und starte deine Reise."}
-    </p>
-      {/* Nur bei Registrierung anzeigen */}
-      {!isLoginMode && (
-        <input
-          className="habit-input"
-          type="text"
-          placeholder="Dein Name"
-          value={username}
-          onChange={(e) => setDisplayName(e.target.value)}
-        />
-
-        
-      )}
-
-      
-      
-      <input
-        className="habit-input"
-        type="email"
-        placeholder="E-Mail Adresse"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      
-      <input
-        className="habit-input"
-        type="password"
-        placeholder="Passwort"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      {!isLoginMode && password.length > 0 && (
-  <div className="password-hints fade-effekt">
-    <p className={validatePassword(password).length ? "valid" : "invalid"}>
-      {validatePassword(password).length ? "✔" : "✘"} Mind. 12 Zeichen
-    </p>
-    <p className={validatePassword(password).hasNumber ? "valid" : "invalid"}>
-      {validatePassword(password).hasNumber ? "✔" : "✘"} Eine Zahl enthalten
-    </p>
-    <p className={validatePassword(password).hasSpecial ? "valid" : "invalid"}>
-      {validatePassword(password).hasSpecial ? "✔" : "✘"} Ein Sonderzeichen
-    </p>
-  </div>
-)}
-
-      <div className="login-button" style={{ marginTop: "10px" }}>
-        
-        {isLoginMode ? (
-          <>
-            <button onClick={handleLogin} className="login-button">Anmelden</button>
-            <p className="toggle-auth">
-              
-            </p>
-          </>
-        ) : (
-          <>
-            <button 
-  onClick={handleRegister} 
-  className="login-button"
-  disabled={!validatePassword(password).length || !validatePassword(password).hasNumber}
-  style={{ opacity: (!validatePassword(password).length || !validatePassword(password).hasNumber) ? 0.5 : 1 }}
->
-  Registrieren
-</button>
-            <p className="toggle-auth"></p>
-          </>
-        )}
-      </div>
-
-      <div> 
-            
-      <div className="button-group" style={{ marginTop: "10px" }}>
-        {isLoginMode ? (
-          <>
-            
-            <p className="toggle-auth">
-              Noch kein Konto?{" "} <br></br>
-              <span onClick={() => { setIsLoginMode(false); clearLogin(); }}>
-                Jetzt registrieren
-              </span>
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="toggle-auth">
-              Bereits ein Konto?{" "} <br></br>
-              <span onClick={() => { setIsLoginMode(true); clearLogin(); }}>
-                Zum Login
-              </span>
-            </p>
-          </>
-        )}
-      </div>      
-            
-            
-            
-            
-            
-            </div>
-    </div>
-  </div>
-) : (
-        /* --- 2. ANSICHT: TRACKER (Eingeloggt) --- */
-        <>
-          {/* NAVIGATION */}
-          <nav className="nav-bar">
-            <button
-              onClick={() => setAktuelleAnsicht("home")}
-              className={aktuelleAnsicht === "home" ? "active" : ""}
-            >
-              🏠 Tracker
-            </button>
-            <button
-              onClick={() => setAktuelleAnsicht("stats")}
-              className={aktuelleAnsicht === "stats" ? "active" : ""}
-            >
-              📊 Statistik
-            </button>
-            <button
-              onClick={() => setAktuelleAnsicht("profile")}
-              className={aktuelleAnsicht === "profile" ? "active" : ""}
-            >
-              👤 Profil
-            </button>
-
-            {/*Logout Button */}
-            <button onClick={handleLogout} className="delete-button" style={{ marginLeft: "auto" }}>
-              🚪 Logout
-            </button>
-          </nav>
-
+          {/* Logo in Login Ansicht */}
+          <img className="logo" src={logo} alt="Logo" style={{ width: "150px", marginBottom: "10px" }} />
+          <h1>{isLoginMode ? "Willkommen zurück!" : "Konto erstellen"}</h1>
           
+          <div className="input-group login-form" style={{ marginTop: "20px" }}>
+            <p className="quote">
+              {isLoginMode 
+                ? "Melde dich an, um deine Habits zu tracken." 
+                : "Registriere dich und starte deine Reise."}
+            </p>
+            {/* Nur bei Registrierung anzeigen */}
+            {!isLoginMode && (
+              <input
+                className="habit-input"
+                type="text"
+                placeholder="Dein Name"
+                value={username}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
+            )}
+            
+            <input
+              className="habit-input"
+              type="email"
+              placeholder="E-Mail Adresse"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            
+            <input
+              className="habit-input"
+              type="password"
+              placeholder="Passwort"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            {!isLoginMode && password.length > 0 && (
+              <div className="password-hints fade-effekt">
+                <p className={validatePassword(password).length ? "valid" : "invalid"}>
+                  {validatePassword(password).length ? "✔" : "✘"} Mind. 12 Zeichen
+                </p>
+                <p className={validatePassword(password).hasNumber ? "valid" : "invalid"}>
+                  {validatePassword(password).hasNumber ? "✔" : "✘"} Eine Zahl enthalten
+                </p>
+                <p className={validatePassword(password).hasSpecial ? "valid" : "invalid"}>
+                  {validatePassword(password).hasSpecial ? "✔" : "✘"} Ein Sonderzeichen
+                </p>
+              </div>
+            )}
+
+            <div className="login-button" style={{ marginTop: "10px" }}>
+              {isLoginMode ? (
+                <button onClick={handleLogin} className="login-button">Anmelden</button>
+              ) : (
+                <button 
+                  onClick={handleRegister} 
+                  className="login-button"
+                  disabled={!validatePassword(password).length || !validatePassword(password).hasNumber}
+                  style={{ opacity: (!validatePassword(password).length || !validatePassword(password).hasNumber) ? 0.5 : 1 }}
+                >
+                  Registrieren
+                </button>
+              )}
+            </div>
+
+            <div className="button-group" style={{ marginTop: "10px" }}>
+              {isLoginMode ? (
+                <p className="toggle-auth">
+                  Noch kein Konto?{" "} <br></br>
+                  <span onClick={() => { setIsLoginMode(false); clearLogin(); }}>
+                    Jetzt registrieren
+                  </span>
+                </p>
+              ) : (
+                <p className="toggle-auth">
+                  Bereits ein Konto?{" "} <br></br>
+                  <span onClick={() => { setIsLoginMode(true); clearLogin(); }}>
+                    Zum Login
+                  </span>
+                </p>
+              )}
+            </div>      
+          </div>
+        </div>
+      ) : (
+        /* --- EINGELOGGT-BEREICH --- */
+        <>
+          {/* --- NEUE HEADER-LEISTE (Burger + Logo links, Titel mittig) --- */}
+          {/* --- MODERNISIERTER HEADER --- */}
+          <header style={{ 
+            display: "flex", 
+            justifyContent: "space-between", 
+            alignItems: "center", 
+            padding: "10px 20px", 
+            borderBottom: "1px solid #333", 
+            backgroundColor: "#1e1e24",
+            position: "sticky",
+            top: 0,
+            zIndex: 100
+          }}>
+            
+            {/* 1. Burger Menü (Links) */}
+            <button
+              onClick={() => setIsMenuOpen(true)}
+              style={{ background: "none", border: "none", fontSize: "28px", color: "white", cursor: "pointer", padding: 0, width: "40px", textAlign: "left" }}
+            >
+              ☰
+            </button>
+
+            {/* 2. Überschrift (Zentriert) */}
+            <h2 style={{ 
+              margin: 0, 
+              fontSize: "1.2rem", 
+              color: "#fff", 
+              textAlign: "center", 
+              flexGrow: 1,
+              fontWeight: "600"
+            }}>
+              {aktuelleAnsicht === "home" ? "Tracker" : aktuelleAnsicht === "stats" ? "Statistik" : "Profil"}
+            </h2>
+
+            {/* 3. Logo (Rechts) */}
+            <div style={{ width: "40px", display: "flex", justifyContent: "flex-end" }}>
+              <img
+                src={logo}
+                alt="Logo"
+                style={{ height: "30px", width: "auto" }}
+              />
+            </div>
+          </header>
+
+          {/* --- DAS AUSKLAPPBARE SIDEBAR-MENÜ --- */}
+          <>
+            {/* Dunkler Hintergrund mit weichem Fade-In */}
+            <div
+              style={{
+                position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.6)", zIndex: 998,
+                opacity: isMenuOpen ? 1 : 0,
+                visibility: isMenuOpen ? "visible" : "hidden",
+                transition: "opacity 0.3s ease, visibility 0.3s ease"
+              }}
+              onClick={() => setIsMenuOpen(false)}
+            ></div>
+
+            {/* Das eigentliche Menü-Fenster mit weichem Slide-In */}
+            <div
+              style={{
+                position: "fixed", top: 0, left: 0, bottom: 0, width: "250px",
+                backgroundColor: "#16161a", padding: "20px", zIndex: 999,
+                display: "flex", flexDirection: "column", gap: "10px",
+                boxShadow: isMenuOpen ? "4px 0 15px rgba(0,0,0,0.8)" : "none",
+                transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
+                transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease"
+              }}
+            >
+              <h2 style={{ color: "#fff", borderBottom: "1px solid #444", paddingBottom: "15px", marginTop: "10px", marginBottom: "20px" }}>Menü</h2>
+              
+              <button
+                onClick={() => { setAktuelleAnsicht("home"); setIsMenuOpen(false); }}
+                style={{ background: "none", border: "none", color: aktuelleAnsicht === "home" ? "#007bff" : "#aaa", textAlign: "left", fontSize: "1.2rem", cursor: "pointer", padding: "10px 0", fontWeight: aktuelleAnsicht === "home" ? "bold" : "normal" }}
+              >
+                🏠 Tracker
+              </button>
+              <button
+                onClick={() => { setAktuelleAnsicht("stats"); setIsMenuOpen(false); }}
+                style={{ background: "none", border: "none", color: aktuelleAnsicht === "stats" ? "#007bff" : "#aaa", textAlign: "left", fontSize: "1.2rem", cursor: "pointer", padding: "10px 0", fontWeight: aktuelleAnsicht === "stats" ? "bold" : "normal" }}
+              >
+                📊 Statistik
+              </button>
+              <button
+                onClick={() => { setAktuelleAnsicht("profile"); setIsMenuOpen(false); }}
+                style={{ background: "none", border: "none", color: aktuelleAnsicht === "profile" ? "#007bff" : "#aaa", textAlign: "left", fontSize: "1.2rem", cursor: "pointer", padding: "10px 0", fontWeight: aktuelleAnsicht === "profile" ? "bold" : "normal" }}
+              >
+                👤 Profil
+              </button>
+
+              <div style={{ flexGrow: 1 }}></div>
+
+              <button
+                onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                style={{ background: "none", border: "none", color: "#ff4d4d", textAlign: "left", fontSize: "1.2rem", cursor: "pointer", padding: "15px 0", borderTop: "1px solid #444" }}
+              >
+                🚪 Logout
+              </button>
+            </div>
+          </>
 
           {/* --- 1. ANSICHT: TRACKER HOME VIEW --- */}
           {aktuelleAnsicht === "home" && (
@@ -470,180 +527,193 @@ useEffect(() => {
               <h1>Schön, dass du da bist {user.user_metadata.display_name}!</h1>
               <p className="quote">{spruch}</p>
 
-              <div className="input-group" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <div className="input-group" style={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                gap: "15px", 
+                backgroundColor: "#1e1e24", 
+                padding: "20px", 
+                borderRadius: "15px",
+                maxWidth: "500px",
+                margin: "0 auto 30px auto" 
+              }}>
                 
-                {/* 1. Moderne Typ-Auswahl */}
-                <div className="type-selector" style={{ display: "flex", justifyContent: "center", gap: "15px" }}>
+                {/* 1. Typ-Auswahl (Obere Reihe) */}
+                <div style={{ display: "flex", gap: "10px" }}>
                   <button
                     type="button"
                     onClick={() => setHabitType("abstinenz")}
                     style={{
-                      padding: "10px 20px",
-                      borderRadius: "25px",
+                      flex: 1, padding: "12px", borderRadius: "12px",
                       border: habitType === "abstinenz" ? "2px solid #007bff" : "1px solid #444",
                       backgroundColor: habitType === "abstinenz" ? "rgba(0, 123, 255, 0.15)" : "transparent",
                       color: habitType === "abstinenz" ? "#fff" : "#aaa",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      transition: "all 0.2s ease-in-out"
+                      cursor: "pointer", fontWeight: "bold", transition: "0.2s", fontSize: "0.9rem"
                     }}
                   >
-                    ⏳ Abstinenz (Zähler)
+                    ⏳ Abstinenz
                   </button>
                   <button
                     type="button"
                     onClick={() => setHabitType("wochenziel")}
                     style={{
-                      padding: "10px 20px",
-                      borderRadius: "25px",
+                      flex: 1, padding: "12px", borderRadius: "12px",
                       border: habitType === "wochenziel" ? "2px solid #007bff" : "1px solid #444",
                       backgroundColor: habitType === "wochenziel" ? "rgba(0, 123, 255, 0.15)" : "transparent",
                       color: habitType === "wochenziel" ? "#fff" : "#aaa",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      transition: "all 0.2s ease-in-out"
+                      cursor: "pointer", fontWeight: "bold", transition: "0.2s", fontSize: "0.9rem"
                     }}
                   >
-                    📅 Wochenziel (z.B. Sport)
+                    📅 Wochenziel
                   </button>
                 </div>
 
-                {/* 2. Die Eingabefelder sauber in einer Reihe darunter */}
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
-                  <input
-                    className="habit-input"
-                    type="text"
-                    placeholder="Was möchtest du tracken?"
-                    value={eingabeWert}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    style={{ flex: 1, minWidth: "220px", margin: 0 }}
-                  />
+                {/* 2. Haupt-Eingabefeld (Mittlere Reihe) */}
+                <input
+                  className="habit-input"
+                  type="text"
+                  placeholder="Was möchtest du tracken?"
+                  value={eingabeWert}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  style={{ width: "100%", margin: 0 }}
+                />
 
-                  {habitType === "abstinenz" ? (
-                    <input
-                      className="goal-input"
-                      type="number"
-                      value={zielWert}
-                      onChange={(e) => setZielWert(e.target.value)}
-                      placeholder="Ziel in Tagen"
-                      style={{ width: "130px", margin: 0 }}
-                    />
-                  ) : (
-                    <input
-                      className="goal-input"
-                      type="number"
-                      value={frequency}
-                      onChange={(e) => setFrequency(e.target.value)}
-                      placeholder="Wie oft/Woche?"
-                      style={{ width: "150px", margin: 0 }}
-                    />
-                  )}
+                {/* 3. Ziel-Wert & Emoji-Picker (Untere Reihe) */}
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <div style={{ flex: 1 }}>
+                    {habitType === "abstinenz" ? (
+                      <input
+                        className="goal-input"
+                        type="number"
+                        value={zielWert}
+                        onChange={(e) => setZielWert(e.target.value)}
+                        placeholder="Ziel in Tagen"
+                        style={{ width: "100%", margin: 0 }}
+                      />
+                    ) : (
+                      <input
+                        className="goal-input"
+                        type="number"
+                        value={frequency}
+                        onChange={(e) => setFrequency(e.target.value)}
+                        placeholder="Wie oft/Woche?"
+                        style={{ width: "100%", margin: 0 }}
+                      />
+                    )}
+                  </div>
 
-                  <div className="emoji-section">
+                  <div className="emoji-section" style={{ position: "relative" }}>
                     <button
                       type="button"
                       className="emoji-trigger-btn"
                       onClick={() => setZeigePicker(!zeigePicker)}
-                      style={{ margin: 0 }}
+                      style={{ height: "45px", width: "45px", display: "flex", alignItems: "center", justifyContent: "center", margin: 0 }}
                     >
                       {icon}
                     </button>
 
                     {zeigePicker && (
                       <>
-                        <div
-                          className="emoji-overlay"
-                          onClick={() => setZeigePicker(false)}
-                        />
-                        <div className="emoji-picker-container">
+                        <div className="emoji-overlay" onClick={() => setZeigePicker(false)} />
+                        <div className="emoji-picker-container" style={{ position: "absolute", bottom: "55px", right: 0 }}>
                           <EmojiPicker onEmojiClick={onEmojiClick} theme="dark" />
                         </div>
                       </>
                     )}
                   </div>
-
-                  <button onClick={habbithinzufuegen} className="add-button" style={{ margin: 0 }}>
-                    Hinzufügen
-                  </button>
                 </div>
+
+                {/* 4. Hinzufügen Button (Ganz unten, volle Breite) */}
+                <button 
+                  onClick={habbithinzufuegen} 
+                  className="add-button" 
+                  style={{ width: "100%", marginTop: "5px", padding: "14px" }}
+                >
+                  Habit starten
+                </button>
               </div>
 
-              <ul className="habit-grid">
+              <ul className="habit-list" style={{ listStyle: "none", padding: 0, margin: "0 auto", maxWidth: "500px" }}>
                 {habits.map((habit, index) => {
                   const isWochenziel = habit.type === "wochenziel";
                   const zielGroeße = isWochenziel ? habit.frequency : habit.goal;
                   const istErledigt = habit.days >= zielGroeße && zielGroeße > 0;
-                  const prozent = Math.min((habit.days / (zielGroeße || 1)) * 100, 100);
-
+                  
                   return (
                     <li
-                      key={habit.id || index}
-                      className={
-                        "habit-card fade-in-view" +
-                        (istErledigt ? " erledigt" : "")
-                      }
-                    >
-                      <div className="habit-icon">{habit.icon || "🔥"}</div>
-                      {istErledigt && (
-                        <span className="success-badge">⭐ Ziel erreicht!</span>
-                      )}
-                      
-                      <span className="type-badge" style={{ fontSize: "0.7rem", opacity: 0.7, display: "block", marginBottom: "5px" }}>
-                        {isWochenziel ? "📅 Wöchentlich" : "⏳ Zähler"}
-                      </span>
-                      
-                      <h3 className="habit-name">{habit.name}</h3>
+  key={habit.id || index}
+  className="habit-row fade-in-view"
+  style={{
+    display: "flex",
+    alignItems: "center",
+    backgroundColor: "#1e1e24",
+    marginBottom: "12px",
+    padding: "12px 15px", // Etwas weniger Padding für mehr Platz
+    borderRadius: "16px",
+    gap: "10px", // Kleinerer Gap zwischen den Blöcken
+    borderLeft: istErledigt ? "4px solid #28a745" : "4px solid #007bff",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+    width: "100%", // Sicherstellen, dass es nicht breiter als der Screen wird
+    boxSizing: "border-box"
+  }}
+>
+  {/* 1. Icon (Links) */}
+  <div style={{ fontSize: "1.6rem", minWidth: "35px", textAlign: "center" }}>
+    {habit.icon || "🔥"}
+  </div>
+  
+  {/* 2. Text (Mitte) - flex: 1 sorgt dafür, dass dieser Teil schrumpft, falls nötig */}
+  <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+    <h3 style={{ 
+      margin: 0, 
+      fontSize: "1rem", 
+      fontWeight: "600", 
+      color: "#fff", 
+      whiteSpace: "nowrap", 
+      overflow: "hidden", 
+      textOverflow: "ellipsis" // Macht "..." falls der Text zu lang ist
+    }}>
+      {habit.name}
+    </h3>
+    <span style={{ fontSize: "0.65rem", color: "#666", textTransform: "uppercase", display: "block" }}>
+      {isWochenziel ? "Wochenziel" : "Abstinenz"}
+    </span>
+  </div>
 
-                      <div className="progress-container">
-                        <div
-                          className="progress-bar"
-                          style={{ width: `${prozent}%` }}
-                        ></div>
-                        <span className="progress-percentage">
-                          {Math.round(prozent)}%
-                        </span>
-                      </div>
-
-                      <p className="progress-text">
-                        {isWochenziel
-                          ? `${habit.days} / ${habit.frequency} Mal pro Woche`
-                          : `${habit.days} / ${habit.goal} Tage`}
-                      </p>
-
-                      <p className="start-date">
-                        Start:{" "}
-                        {habit.created_at
-                          ? new Date(habit.created_at).toLocaleDateString()
-                          : "Unbekannt"}
-                      </p>
-                      
-                      <button
-                        onClick={() => tagHinzufuegen(habit.id, index)}
-                        className="plus-button"
-                        disabled={isWochenziel && istErledigt} 
-                        style={{ 
-                          opacity: (isWochenziel && istErledigt) ? 0.5 : 1, 
-                          cursor: (isWochenziel && istErledigt) ? "not-allowed" : "pointer" 
-                        }}
-                      >
-                        {isWochenziel ? "+1 Mal geschafft!" : "+1 Tag geschafft!"}
-                      </button>
-                      
-                      <div className="button-group">
-                        <button
-                          onClick={() => habitReset(habit.id, index)}
-                          className="reset-button"
-                        >
-                          Reset
-                        </button>
-                        <button
-                          onClick={() => habitLoeschen(habit.id, index)}
-                          className="delete-button fade-effekt"
-                        >
-                          Löschen
-                        </button>
-                      </div>
-                    </li>
+  {/* 3. Zähler & Buttons (Rechts) - Alles kompakt zusammengefasst */}
+  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+    
+    {/* Zähler */}
+    <div style={{ textAlign: "right", minWidth: "35px" }}>
+      <span style={{ fontSize: "1rem", fontWeight: "700", color: istErledigt ? "#28a745" : "#fff" }}>
+        {habit.days}
+      </span>
+      {isWochenziel && (
+        <span style={{ fontSize: "0.7rem", color: "#444" }}>/{habit.frequency}</span>
+      )}
+    </div>
+    
+    {/* Deine neuen Buttons */}
+    <div className="habit-row-actions" style={{ display: "flex", gap: "6px" }}>
+      <button
+        onClick={() => tagHinzufuegen(habit.id, index)}
+        disabled={isWochenziel && istErledigt}
+        className="btn-plus"
+        style={{ width: "36px", height: "36px", fontSize: "1.2rem" }} // Etwas kompakter
+      >
+        +
+      </button>
+      
+      <button onClick={() => habitReset(habit.id, index)} className="btn-reset" style={{ width: "32px", height: "32px" }}>
+        🔄
+      </button>
+      
+      <button onClick={() => habitLoeschen(habit.id, index)} className="btn-delete" style={{ width: "32px", height: "32px" }}>
+        🗑️
+      </button>
+    </div>
+  </div>
+</li>
                   );
                 })}
               </ul>
@@ -652,21 +722,55 @@ useEffect(() => {
 
           {/* --- 2. ANSICHT: STATS VIEW --- */}
           {aktuelleAnsicht === "stats" && (
-            <div className="stats-view fade-effekt" key="stats-view">
-              <h1>Deine Erfolge 🏆</h1>
-              <div className="stats-card">
-                <p>Insgesamt geschaffte Tage </p>
-                <h2>
+            <div className="stats-view fade-effekt" key="stats-view" style={{ textAlign: "center" }}>
+              <h1 style={{ marginBottom: "10px" }}>Deine Erfolge 🏆</h1>
+              <p className="quote" style={{ marginBottom: "30px" }}>Jeder Tag zählt auf deinem Weg.</p>
+              
+              {/* Haupt-Statistik Karte */}
+              <div className="stats-card" style={{ 
+                backgroundColor: "#1e1e24", 
+                padding: "30px", 
+                borderRadius: "20px", 
+                maxWidth: "500px", 
+                margin: "0 auto 40px auto",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+                border: "1px solid #333"
+              }}>
+                <p style={{ color: "#888", textTransform: "uppercase", fontSize: "0.8rem", letterSpacing: "1px", marginBottom: "10px" }}>
+                  Insgesamt geschaffte Zeit
+                </p>
+                <h2 style={{ fontSize: "2rem", color: "#fff", margin: 0 }}>
                   {berechnenWochen(habits.reduce((sum, h) => sum + h.days, 0))}
                 </h2>
               </div>
-              <div className="dangercard stats-view fade-effekt" key="stats-view">
-                <h3> ⚠️ Developer Optionen</h3>
-                <p>
-                  <button onClick={datenbankLeeren} className="danger-button">
-                    🔥 Gesamte Datenbank leeren
-                  </button>
-                </p>
+
+              {/* Developer Sektion - Jetzt schicker und passend zum Header/Profil */}
+              <div className="dangercard stats-view fade-effekt" style={{ 
+                maxWidth: "500px", 
+                margin: "0 auto", 
+                padding: "20px", 
+                borderRadius: "15px", 
+                backgroundColor: "rgba(220, 53, 69, 0.05)",
+                border: "1px solid rgba(220, 53, 69, 0.2)"
+              }}>
+                <h3 style={{ color: "#dc3545", fontSize: "1.1rem", marginBottom: "15px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                  ⚠️ Developer Optionen
+                </h3>
+                <button 
+                  onClick={datenbankLeeren} 
+                  className="btn-delete" 
+                  style={{ 
+                    width: "100%", 
+                    height: "45px", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    gap: "10px",
+                    fontSize: "0.95rem"
+                  }}
+                >
+                  🔥 Gesamte Datenbank leeren
+                </button>
               </div>
             </div>
           )}
@@ -675,39 +779,47 @@ useEffect(() => {
           {aktuelleAnsicht === "profile" && (
             <div className="profile-view fade-effekt" key="profile-view">
               <h1>Dein Account ⚙️</h1>
-              <div className="stats-card">
-                <p style={{ marginBottom: "20px" }}>Angemeldet als: <br/><strong style={{ color: "#007bff" }}>{user.email}</strong></p>
+              <p className="quote">Verwalte deine persönlichen Einstellungen.</p>
+              
+              <div className="profile-card">
+                <p className="profile-email-info">
+                  Angemeldet als: <br/>
+                  <strong>{user.email}</strong>
+                </p>
                 
-                <h3 style={{ marginTop: "20px", borderBottom: "1px solid #444", paddingBottom: "10px", textAlign: "left" }}>Name ändern</h3>
-                {/* NEU: flexDirection "column" stapelt die Felder sauber untereinander */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
-                  <input
-                    className="habit-input"
-                    type="text"
-                    placeholder={`Aktuell: ${user.user_metadata.display_name}`}
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    style={{ margin: 0, width: "100%", boxSizing: "border-box" }}
-                  />
-                  <button onClick={updateName} className="add-button" style={{ margin: 0, width: "100%" }}>Speichern</button>
+                {/* Name ändern Sektion */}
+                <div className="profile-section">
+                  <h3>Name ändern</h3>
+                  <div className="form-group">
+                    <input
+                      className="habit-input"
+                      type="text"
+                      placeholder={`Aktuell: ${user.user_metadata.display_name}`}
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                    />
+                    <button onClick={updateName} className="add-button">Namen speichern</button>
+                  </div>
                 </div>
 
-                <h3 style={{ marginTop: "30px", borderBottom: "1px solid #444", paddingBottom: "10px", textAlign: "left" }}>Passwort ändern</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
-                  <input
-                    className="habit-input"
-                    type="password"
-                    placeholder="Neues Passwort"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    style={{ margin: 0, width: "100%", boxSizing: "border-box" }}
-                  />
-                  <button onClick={updatePassword} className="add-button" style={{ margin: 0, width: "100%" }}>Aktualisieren</button>
+                {/* Passwort ändern Sektion */}
+                <div className="profile-section">
+                  <h3>Passwort ändern</h3>
+                  <div className="form-group">
+                    <input
+                      className="habit-input"
+                      type="password"
+                      placeholder="Neues Passwort"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                    <button onClick={updatePassword} className="add-button">Passwort aktualisieren</button>
+                  </div>
                 </div>
                 
-                {/* Zeigt die Regeln nur an, wenn man gerade tippt */}
+                {/* Passwort-Regeln */}
                 {newPassword.length > 0 && (
-                  <div className="password-hints fade-effekt" style={{ marginTop: "15px", textAlign: "left" }}>
+                  <div className="password-hints fade-effekt">
                     <p className={validatePassword(newPassword).length ? "valid" : "invalid"}>
                       {validatePassword(newPassword).length ? "✔" : "✘"} Mind. 12 Zeichen
                     </p>
@@ -719,7 +831,7 @@ useEffect(() => {
                     </p>
                   </div>
                 )}
-          </div>
+              </div>
             </div>
           )}
         </>

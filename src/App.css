@@ -1,964 +1,439 @@
-:root {
- 
-  --font-main:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+/* --- GRUNDLAYOUT & DARK MODE --- */
+* {
+  box-sizing: border-box;
+  margin: 0; /* Nimmt unsichtbare Standard-Ränder vom Browser weg */
+  padding: 0;
 }
 
-body {
-}
 
 body {
-  font-family: var(--font-main);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
-  color: #f5f5f5;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
+  overflow-x: hidden; /* Verhindert horizontales Scrollen auf der ganzen Seite */
+  width: 100vw;
+  background-color: #121214;
 }
 
 #root {
   width: 100%;
-  max-width: 1000px;
-  padding: 20px 10px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; /* Zur doppelten Sicherheit */
+  width: 100%;
+}
+
+/* --- ANSICHTEN (Views) --- */
+.home-view, .stats-view, .profile-view {
+  width: 100%;
+  max-width: 500px; /* Deine gewählte Standard-Breite */
+  margin: 0 auto;
+  padding: 10px 20px; /* Seitlicher Puffer für mobile Displays */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Überschriften-Fix damit sie nicht schieben */
+h1, h2, h3 {
+  color: #ffffff;
+  text-align: center;
+  font-size: clamp(1.5rem, 5vw, 2rem); /* Schrumpft auf kleinen Handys automatisch */
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.quote {
+  color: #888;
+  font-style: italic;
+  margin-bottom: 25px;
   text-align: center;
 }
 
-.logo {
-  width: 150px !important;
-  margin-bottom: 20px;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 3em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* EINGABEFELDER & FORMULARE --- */
+.input-group {
+  width: 100%; /* Nutzt die vollen 500px der View */
+  background-color: #1e1e24;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  margin-bottom: 20px; /* Abstand zur Liste */
+  box-sizing: border-box;
+  border: 1px solid #333;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-.password-hints {
-  text-align: left;
-  font-size: 0.8rem;
-  margin-top: 5px;
-  padding-left: 10px;
-}
-
-.password-hints p {
-  margin: 2px 0;
-  transition: color 0.3s ease;
-}
-
-.valid {
-  color: #4caf50; /* Grün */
-}
-
-.invalid {
-  color: #ff5252; /* Rot */
-}
-
-/* Button-Styling wenn deaktiviert */
-button:disabled {
-  cursor: not-allowed;
-}
-
-
-/*  Design Eingabefeld */
-.habit-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px 20px;
+.habit-input, .goal-input {
+  background-color: #2a2a35;
+  border: 1px solid #444;
   color: white;
-  font-size: 1.1rem;
-  width: 300px;
+  padding: 12px 15px;
+  border-radius: 8px;
   outline: none;
+  font-size: 1rem;
+  transition: border-color 0.2s;
 }
 
-/* Fokus Border */
-.habit-input:focus {
+.habit-input:focus, .goal-input:focus {
   border-color: #007bff;
 }
 
-/* Ordnet Feld und Button waagerecht nebeneinander an */
-.input-container {
-  display: flex; /* Setzt die Elemente in eine Reihe */
-  gap: 10px; /* Macht genau 10px Platz zwischen Feld und Button */
-  margin-bottom: 20px; /* Macht etwas Platz nach unten zum Kontroll-Text */
-}
-
-/* Das Design für unseren Hinzufügen-Button */
-.add-button {
-  background: #007bff;
-  padding: 12px 25px;
-  border-radius: 12px;
-  margin-left: 0px;
-  font-weight: bold;
-}
-
-/* Das Design für unseren Hinzufügen-Button */
-.login-button {
-  background: #007bff;
-  color:white;
-  padding: 9px;
-  border-radius: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  display: flex;
-  justify-content: center;
-  width:90%
-}
-
-/* Ein kleiner Effekt, wenn man mit der Maus über den Button fährt (Hover) */
-.add-button:hover {
-  background-color: #0056b3; /* Ein etwas dunkleres Blau */
-}
-
-/* Das Design für den unsichtbaren Rahmen der Liste */
-.habit-list {
-  list-style-type: none; /* Das entfernt die hässlichen schwarzen Punkte */
-  padding: 0; /* Nimmt den Standard-Abstand weg */
-  margin-top: 30px; /* Macht etwas Platz nach oben zum Eingabefeld */
-}
-
-/* Das Design für die einzelnen Karten (die Vorbereitung für deinen Zähler) */
-.habit-item {
-  background-color: #919191; /* Ein sehr helles, modernes Grau */
-  padding: 15px 20px; /* Schön viel Platz im Inneren */
-  margin-bottom: 15px; /* Abstand zur nächsten Karte darunter */
-  border-radius: 8px; /* Abgerundete Ecken wie beim Eingabefeld */
-  border-left: 6px solid #007bff; /* Ein blauer Rand auf der linken Seite als Akzent */
-  font-size: 20px; /* Schön groß und lesbar */
-  font-weight: bold; /* Etwas dickere Schrift */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ein ganz weicher 3D-Schatten */
-}
-
-.delete-button {
-  margin-left: 20px;
-  background-color: #ff4d4d; /* Ein kräftiges Rot */
+/* --- BUTTONS --- */
+.add-button, .login-button {
+  background-color: #007bff;
   color: white;
   border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 12px 20px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
-.delete-button:hover {
-  background-color: #cc0000; /* Dunkler beim Drüberfahren */
+.add-button:hover, .login-button:hover {
+  background-color: #0056b3;
 }
 
-/* Das Gitter-Layout für die Karten */
+.add-button:active, .login-button:active {
+  transform: scale(0.97);
+}
+
+/* Emojis */
+.emoji-trigger-btn {
+  background-color: #2a2a35;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.emoji-trigger-btn:hover {
+  background-color: #3a3a45;
+}
+
+/* --- HABIT KARTEN (Aktuelles Layout) --- */
 .habit-grid {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(250px, 1fr)
-  ); /* Karten nebeneinander */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
-  transition: all 0.5s ease-in-out;
-  list-style: none;
   padding: 0;
-  margin-top: 30px;
+  list-style: none;
+  margin: 0;
 }
 
-/* Die einzelne Karte als schicke Box */
 .habit-card {
-  background: rgba(255, 255, 255, 0.05); /* Fast transparent */
-  backdrop-filter: blur(10px); /* Glas-Effekt */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background-color: #1e1e24;
+  border-radius: 12px;
   padding: 20px;
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-top: 4px solid #007bff;
+  transition: transform 0.2s ease;
 }
 
 .habit-card:hover {
-  transform: translateY(-8px);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #007bff;
-}
-
-.habit-name {
-  color: #fff;
-  font-size: 1.4rem;
-  margin: 2px 0;
-}
-
-.habit-days {
-  color: #00d4ff; /* Ein helleres, leuchtendes Blau */
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-bottom: 2px;
-}
-
-/* Container für die Buttons unten auf der Karte */
-.button-group {
-  display: flex;
- 
-  width: 100%;
-}
-
-/* Reset Button Style */
-.reset-button {
-  background-color: #ffc107; /* Gelb/Orange für Warnung */
-  color: #333;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.reset-button,
-.delete-button {
-  flex: 1; /* Beide Buttons gleich breit */
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.6);
-  padding: 8px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.reset-button:hover {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
-  border-color: #ffc107;
-}
-
-.delete-button:hover {
-  background: rgba(220, 53, 69, 0.2);
-  color: #dc3545;
-  border-color: #dc3545;
-}
-
-.plus-button {
-  width: 100%;
-  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  color: white;
-  font-weight: bold;
-  font-size: 1.1rem;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-  margin-bottom: 20px;
-}
-
-.plus-button:hover {
-  background-color: #218838;
-}
-
-.plus-button:active {
-  transform: scale(0.95); /* Kleiner Effekt beim Draufdrücken */
-}
-
-.progress-container {
-  position: relative;
-  height: 22px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 11px;
-  overflow: hidden;
-
-  /* WICHTIG: */
-  width: 100%; /* Nutze die volle Breite der Karte */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 15px 0;
-}
-
-/* Der farbige Füllstand */
-.progress-bar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  background: #00bfff;
-  transition: width 0.6s ease;
-  z-index: 1;
-  /* Kein width: 100% hier, das kommt vom Style-Attribut im JSX! */
-}
-
-.progress-percentage {
-  position: relative;
-  z-index: 2; /* Liegt über dem Balken */
-  color: white;
-  font-size: 0.8rem;
-  font-weight: 800;
-  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.6);
-}
-
-/* Der Text unter dem Balken */
-.progress-text {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 0px;
-}
-
-.goal-input {
-  width: 180px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px;
-  color: white;
-  font-size: 1.1rem;
-  margin-left: 0px;
-  outline: none;
-}
-
-
-
-.goal-input:focus {
-  border-color: #007bff;
-}
-
-/* Container für die Eingabefelder oben */
-.input-group {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 40px;
-  flex-wrap: wrap; /* Für mobile Ansicht */
-  gap: 10px;
-}
-
-.icon-input {
-  width: 50px;
-  text-align: center;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  color: white;
-  border-radius: 8px;
-  padding: 8px;
-  margin-right: 8px;
-}
-
-.emoji-section {
-  position: relative;
-  display: inline-block;
-}
-
-.emoji-trigger-btn {
-  font-size: 1.5rem;
-  padding: 5px;
-  background: #2a2a2a;
-  border: 2px solid #444;
-  border-radius: 25%; /* Macht den Button rund */
-  cursor: pointer;
-  transition: border-color 0.3s;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.emoji-trigger-btn:hover {
-  border-color: #00bfff;
-}
-
-.emoji-picker-container {
-position: absolute;
-  bottom: 100%; /* Erscheint ÜBER dem Button */
-  left: -200%;
-  transform: translateX(-50%);
-  z-index: 1000; /* Ganz nach vorne */
-  margin-bottom: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-}
-
-.emoji-picker-container .EmojiPickerReact {
-  max-width: 90vw !important; /* Maximal 90% der Bildschirmbreite */
-  max-height: 400px !important;
-}
-
-.emoji-overlay {
-  position: fixed; /* Deckt den ganzen Bildschirm ab */
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 999; /* Direkt unter dem Picker (der hat 1000) */
-  background: transparent; /* Unsichtbar */
-}
-
-.nav-bar {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 0 auto 40px auto;
-  padding: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 50px; /* Pillen-Form */
-  width: fit-content;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.nav-bar button {
-  background: transparent;
-  border: none;
-  color: #888;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 10px 25px;
-  border-radius: 40px;
-  transition: all 0.3s ease;
-}
-
-.nav-bar button:hover {
-  color: white;
-}
-
-/* Der Style für den aktiven Tab */
-.nav-bar button.active {
-  background: #00bfff;
-  color: white;
-  box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
-}
-
-.home-view {
-  animation: fadeIn 0.5s ease; /* Sanftes Einblenden */
-}
-
-.stats-view {
-  animation: fadeIn 0.5s ease; /* Sanftes Einblenden */
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.stats-card {
-  background: linear-gradient(145deg, #2a2a2a, #222);
-  padding: 40px;
-  border-radius: 20px;
-  border: 1px solid #444;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  margin-top: 20px;
-}
-
-.stats-card h2 {
-  font-size: 1.8rem;
-  color: #00bfff;
-  margin: 10px 0;
-  text-shadow: 0 0 20px rgba(0, 191, 255, 0.4);
-}
-
-.stats-card p {
-  color: #aaa;
-  font-size: 1.2rem;
-}
-
-.dangercard {
-  background: linear-gradient(145deg, #2a2a2a, #222);
-  padding: 40px;
-  border-radius: 20px;
-  border: 1px solid #444;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  margin-top: 20px;
-  margin-bottom:15px;
-}
-
-/* Kleiner Animationseffekt beim Wechseln */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Diese Klasse sorgt für den Effekt */
-.fade-in-view {
-  animation: fadeIn 0.5s ease-out;
-}
-
-/* Das Drehbuch für das sanfte Hochhüpfen */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Die Klasse, die den Effekt auslöst */
-.fade-in-view {
-  animation: fadeIn 0.4s ease-out;
-}
-
-/* Hauptüberschrift - Groß und markant */
-h1 {
-  font-size: 2.8rem;
-  font-weight: 800; /* Extra fett */
-  letter-spacing: -1.5px; /* Eng zusammen für modernen Look */
-  margin-bottom: 10px;
-  background: linear-gradient(180deg, #ffffff 0%, #aaaaaa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Statistik-Zahlen und Untertitel */
-h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  color: #00bfff;
-}
-
-/* Karten-Titel */
-h3 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin: 10px 0;
-}
-
-/* Fließtext und Beschreibungen */
-p {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #999999; /* Etwas dunkleres Grau für weniger Kontrast-Stress */
-  margin-bottom: 1rem;
-}
-
-/* Buttons und klickbare Elemente */
-button {
-  font-family: var(--font-main); /* Muss für Buttons explizit gesetzt werden */
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.3px;
-}
-
-/* Spezieller Style für den Motivationsspruch */
-.quote {
-  font-size: 1.1rem;
-  font-weight: 300;
-  color: #00bfff;
-  opacity: 0.9;
-}
-
-input {
-  font-family: var(--font-main);
-}
-
-.quote {
-  /* Schrift-Einstellungen */
-  font-size: 1.2rem;
-  font-weight: 300; /* Schön dünn und elegant */
-  font-style: italic; /* Kursiv für Zitat-Charakter */
-  line-height: 1.3;
-
-  /* Farbe & Effekt */
-  color: #00bfff; /* Dein Blau-Ton */
-  text-shadow: 0 0 15px rgba(0, 191, 255, 0.2); /* Ein ganz leichter Glow */
-
-  /* Layout */
-  margin: 20px auto 40px auto;
-  max-width: 80%; /* Damit der Text nicht zu breit läuft */
-  position: relative;
-  padding: 0 30px;
-  opacity: 0.9;
-}
-
-/* Optionale Anführungszeichen als Deko */
-
-.danger-button {
-  background: transparent;
-  border: 1px solid #ff4d4d;
-  color: #ff4d4d;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  opacity: 0.6; /* Dezent im Hintergrund */
-}
-
-.danger-button:hover {
-  background: #ff4d4d;
-  color: white;
-  opacity: 1;
-  box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
-}
-
-/* Die Klasse, die per Ternary Operator hinzugefügt wird */
-.erledigt {
-  border: 1px solid #ffd700; /* Goldener Rand */
-  background: linear-gradient(145deg, rgba(30, 30, 30, 1), rgba(45, 45, 20, 1));
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); /* Sanfter Gold-Glow */
-  transform: scale(1.02); /* Die Karte wird dezent größer */
-}
-
-/* Ein kleiner Effekt für den Namen, wenn erledigt */
-.erledigt .habit-name {
-  color: #ffd700;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
-}
-
-/* Das "Ziel erreicht" Label (falls du es im JSX eingebaut hast) */
-.success-badge {
-  background: #ffd700;
-  color: #000;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  margin-left: 10px;
-  vertical-align: middle;
+  transform: translateY(-3px);
 }
 
 .habit-card.erledigt {
-  border: 2px solid #ffd700;
-  background: linear-gradient(
-    145deg,
-    #1a1a1a,
-    #2c2c0a
-  ); /* Edler Gold-Schimmer */
-  transform: translateY(-5px); /* Kleiner "Lift" Effekt */
-  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.2);
+  border-top-color: #28a745;
 }
 
-.erledigt .progress-bar {
-  background: linear-gradient(90deg, #ffd700, #ffae00);
+.habit-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
 }
 
-/* Wenn das Ziel erreicht ist, verändern wir den Plus-Button */
-.erledigt .plus-button {
-  background: rgba(255, 215, 0, 0.2); /* Dezent goldener Hintergrund */
-  border: 1px solid #ffd700;
-  color: #ffd700;
-  cursor: default; /* Zeigt an: Hier gibt es nichts mehr zu tun */
-  box-shadow: none;
-}
-
-.erledigt .plus-button:hover {
-  background: rgba(255, 215, 0, 0.3);
+.habit-name {
+  margin: 5px 0 15px 0;
 }
 
 .success-badge {
-  background: #ffd700;
-  color: #000;
-  padding: 4px 12px;
-  border-radius: 50px;
-  font-size: 0.7rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-  display: inline-block;
-  margin-bottom: 10px;
-}
-
-.progress-percentage-overlay {
-  position: relative;
-  z-index: 2; /* Zahl liegt IMMER oben auf */
-  color: white;
+  background-color: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  padding: 4px 8px;
+  border-radius: 12px;
   font-size: 0.8rem;
-  font-weight: 800;
-  pointer-events: none; /* Man kann durch die Zahl hindurchklicken */
-  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.6);
-}
-
-/* --- LOGIN & REGISTRIERUNGS-ANSICHT --- */
-
-.login-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Zentriert alles horizontal */
-  justify-content: flex-start; /* Zentriert alles vertikal im Container */
-  min-height: 80vh; /* Nimmt fast die ganze Höhe ein */
-  color: #fff;
-  text-align: center;
-}
-
-.login-view h1 {
-  font-size: 2.5rem;
+  font-weight: bold;
   margin-bottom: 10px;
 }
 
-.login-view .quote {
+/* --- FORTSCHRITT & TEXTE --- */
+.progress-container {
+  width: 100%;
+  background-color: #333;
+  border-radius: 10px;
+  height: 8px;
+  margin: 10px 0;
+  position: relative;
+}
+
+.progress-bar {
+  background-color: #007bff;
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.erledigt .progress-bar {
+  background-color: #28a745;
+}
+
+.progress-percentage {
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.progress-text {
+  font-weight: bold;
   font-size: 1.1rem;
-  color: #888;
-  margin-bottom: 10px;
+  margin: 10px 0 5px 0;
 }
 
-/* Der Container für die Inputs und Buttons */
-.login-form {
-  display: flex;
-  flex-direction: column; /* Stapelt alles untereinander */
-  gap: 15px; /* Perfekter, gleichmäßiger Abstand zwischen den Feldern */
-  width: 100%;
-  max-width: 450px; /* Begrenzt die Breite auf dem Desktop */
-  padding: 5px;
-  padding-top:20px;
-  background-color: #202020; /* Leicht hellerer Hintergrund */
-  border-radius: 12px; /* Abgerundete Ecken */
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3); /* Eleganter Schatten */
+.start-date {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 15px;
 }
 
-/* Styling für alle Inputs im Login-Bereich */
-.login-form input.habit-input {
-  width: 90%;
-  padding: 16px 10px;
-  background-color: #2a2a2a;
-  border: 1px solid #3a3a3a;
+/* --- KARTEN-BUTTONS --- */
+.plus-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 15px;
   border-radius: 8px;
-  color: #fff;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-}
-
-.login-form input.habit-input:focus {
-  outline: none;
-  border-color: #3498db; /* Blauer Rahmen beim Reinklicken */
-  transform: scale(1.02); /* Kleiner Klick-Effekt */
-  transition: 100ms;
-}
-
-/* Der Container für die beiden Buttons */
-.login-form .button-group {
-  display: flex;
-  gap: 0px; /* Etwas schmalerer Abstand, damit drei Buttons passen */
   width: 100%;
-  justify-content: space-between;
+  margin-bottom: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: background-color 0.2s;
 }
 
-/* Styling für die Buttons, damit sie gleich groß sind */
-.login-form .button-group button {
-  flex: 1; /* Beide Buttons teilen sich den Platz 50/50 */
-  padding: 12px;
+.plus-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.reset-button, .delete-button {
+  flex: 1;
+  padding: 10px;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.1s;
+  font-weight: bold;
+  transition: opacity 0.2s;
 }
 
-.login-form .button-group button:active {
-  transform: scale(0.98); 
-  transition: 300ms;
-}
-
-/* Spezifische Farben für die Buttons */
-.login-form .add-button {
-  background-color: #3498db;
-  color: #fff;
-}
-
-.login-form .add-button:hover {
-  background-color: #2980b9;
-}
-
-.login-form .reset-button {
-  background-color: #2a2a2a;
-  color: #aaa;
-  border: 1px solid #444 !important;
-}
-
-.login-form .reset-button:hover {
+.reset-button {
   background-color: #444;
   color: #fff;
 }
+.reset-button:hover { background-color: #555; }
 
-
-/* Markierung für Pflichtfelder */
-.login-form input.habit-input:required {
-  border-left: 4px solid #e74c3c; /* Roter Streifen links als Pflicht-Markierung */
+.delete-button {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border: 1px solid #dc3545;
 }
+.delete-button:hover { background-color: #dc3545; color: white; }
 
-/* Optional: Ein kleiner Text-Hinweis unter den Feldern */
-.required-hint {
-  font-size: 0.8rem;
-  color: #e74c3c;
-  text-align: left;
-  margin-top: -10px;
-  margin-bottom: 5px;
-  width: 100%;
-}
-
-/* Fokus-Zustand verbessern */
-.login-form input.habit-input:focus:invalid {
-  border-color: #e74c3c; /* Bleibt rot, wenn ungültig */
-}
-
-.login-form input.habit-input:focus:valid {
-  border-color: #2ecc71; /* Wird grün, wenn ausgefüllt */
-}
-
-
-/* Mobile Optimization */
-@media (max-width: 600px) {
-  /* Falls du sie nebeneinander haben willst: */
-  .emoji-and-goal-wrapper {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .add-button {
-    background: #007bff;
-    padding: 12px 25px;
-    border-radius: 12px;
-    margin-left: 0px;
-    font-weight: bold;
-    color:white;
-    width: 100%;
-}
-  
-  .emoji-trigger-btn {
-    width: 60px !important; 
-    flex-shrink: 0; /* Verhindert, dass das Emoji gequetscht wird */
-  }
-
-  .goal-input {
-    flex-grow: 1; /* Das Ziel-Feld nimmt den Rest der Zeile ein */
-  }
-
-/* Der Haupt-Container bekommt links und rechts Sicherheitsabstand */
-  .App {
-    padding: 0 20px !important; 
-    box-sizing: border-box;
-    overflow-x: hidden; /* Verhindert, dass man seitlich scrollen kann */
-  }
-
-  /* Die Eingabegruppe auch leicht einrücken */
-  .input-group {
-    width: 100% !important;
-    padding-left:0px; /* Padding kommt jetzt von der .App */
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* Damit die Habit-Cards nicht am Rand kleben */
-  .habit-grid {
-    padding: 10px 0 !important;
-  }
-
-
-  /* ... deine anderen Mobile-Styles ... */
-
-  .nav-bar {
-    display: flex;
-    justify-content: space-between; /* Verteilt die Buttons gleichmäßig */
-    align-items: center;
-    width: 100% !important;
-    padding: 10px 15px !important; /* Rand innerhalb der Navi */
-    margin-bottom: 20px !important;
-    background: rgba(255, 255, 255, 0.05); /* Dezenter Hintergrund für Struktur */
-    border-radius: 15px;
-    box-sizing: border-box;
-  }
-
-  .nav-bar button {
-    flex: 1; /* Jeder Button bekommt gleich viel Platz */
-    margin: 0 3px !important; /* Kleiner Abstand zwischen den Buttons */
-    padding: 15px 10px !important;
-    font-size: 1rem !important; /* Schrift etwas kleiner, damit nichts umbricht */
-    display: flex;
-    flex-direction: column; /* Icon über dem Text (optional) */
-    align-items: center;
-    gap: 2px;
-    border-radius: 10px !important;
-  }
-
-  /* Spezifisch für den Logout-Button, damit er nicht wegrutscht */
-  .delete-button[style*="margin-left: auto"] {
-    margin-left: 5px !important; /* Hebt das margin-left: auto auf Mobile auf */
-  }
-  
-
-}
-
-
-/*  Spinner */
-
+/* --- SPINNER --- */
 .spinner-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 50px;
+  height: 100vh;
 }
 
 .spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top: 4px solid #ff4500;
   border-radius: 50%;
+  border-left-color: #007bff;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.toggle-auth {
-  margin-top: 5px;
-  color: #888;
-  font-size: 0.9rem;
+/* --- ANIMATIONEN --- */
+.fade-effekt {
+  animation: fadeIn 0.4s ease-out;
 }
 
-.toggle-auth span {
-  color: #ff4500;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.emoji-picker-container {
+  position: absolute;
+  z-index: 100;
+  margin-top: 10px;
+}
+
+.emoji-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 99;
+}
+
+.home-view h1, .stats-view h1, .profile-view h1 {
+  text-align: center;
+  margin-top: 20px;
+}
+
+
+.habit-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Neuer, moderner Plus-Button (Eckig, abgerundet) */
+.btn-plus, .btn-reset, .btn-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
   cursor: pointer;
-  text-decoration: underline;
+  border: none;
+  transition: all 0.2s;
+  flex-shrink: 0; /* Verhindert, dass die Buttons gequetscht werden */
+}
+
+.btn-plus {
+  background-color: #007bff;
+  color: white;
   font-weight: bold;
 }
 
-.toggle-auth span:hover {
-  color: #ff6347;
+/* Hover-Zustand für Plus-Button */
+.btn-plus:hover {
+  background-color: #0056b3; /* Dunkleres Blau beim Hover */
 }
 
-.habit-input {
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 12px 20px;
-    color: white;
-    font-size: 1.1rem;
-    width: 100%;
-    outline: none;
+/* Klick-Zustand für Plus-Button */
+.btn-plus:active {
+  transform: scale(0.95); /* Leichtes Schrumpfen beim Klicken */
+}
+
+.btn-reset, .btn-delete {
+  background-color: #2a2a35;
+  font-size: 1rem;
+}
+
+.btn-plus:hover { background-color: #0056b3; }
+.btn-reset:hover { color: #007bff; background-color: #3a3a45; }
+.btn-delete:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.1); }
+
+/* Klick-Zustand für Reset- und Lösch-Buttons */
+.btn-reset:active, .btn-delete:active {
+  transform: scale(0.95); /* Leichtes Schrumpfen beim Klicken */
+}
+
+/* --- PROFILE VIEW --- */
+.profile-view {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+  max-width: 100%; /* Verhindert Ausbrechen nach rechts */
+  box-sizing: border-box; /* Zwingt Padding in die Breite hinein */
+  overflow-x: hidden; /* Schneidet alles ab, was über den Rand will */
+}
+
+/* --- PROFILE VIEW SPEZIFISCH --- */
+.profile-card {
+  background-color: #1e1e24;
+  padding: 25px;
+  border-radius: 20px;
+  width: 100%; /* Nutzt die 100% der übergeordneten View */
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  border: 1px solid #333;
+  text-align: left;
+  margin: 0 auto;
+  box-sizing: border-box !important;
+}
+
+.profile-email-info {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 25px;
+}
+
+.profile-email-info strong {
+  color: #007bff;
+  font-size: 1.1rem;
+}
+
+.profile-section {
+  margin-top: 25px;
+}
+
+.profile-section h3 {
+  font-size: 1rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+/* Fix für die Formulare im Profil */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Verhindert, dass die Eingabefelder die Karte aufdrücken */
+.form-group .habit-input,
+.form-group .add-button {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0;
+  box-sizing: border-box !important;
+}
+
+/* Die Liste der Habits (Unten) */
+.habit-list {
+  width: 100%; /* Ebenfalls volle 500px */
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+/* Die einzelnen Habit-Zeilen */
+.habit-row {
+  width: 100%;
+  box-sizing: border-box;
+  /* Dein restliches Styling für die Zeilen bleibt gleich */
 }
