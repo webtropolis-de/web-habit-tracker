@@ -29,6 +29,20 @@ function App() {
   const [newPassword, setNewPassword] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const emojiOptionen = ["🔥", "💪", "🥗", "💧", "🧘", "📚", "🚭", "🍺", "🛌", "🏃", "🎯", "💰","♥️", "🎮", "💵"];
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+
+  
+  
+  // ------------------- PWA POPup -------------------------------------- //
+  useEffect(() => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // Prüft, ob die App schon im Vollbild/Standalone-Modus läuft
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    if (isIOS && !isStandalone) {
+      setShowInstallPrompt(true);
+    }
+  }, []);
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -929,6 +943,23 @@ useEffect(() => {
             </div>
           )}
         </>
+      )}
+      {/* --- CUSTOM IOS INSTALL POPUP --- */}
+      {showInstallPrompt && (
+        <div className="ios-install-prompt fade-effekt">
+          <button 
+            className="close-prompt" 
+            onClick={() => setShowInstallPrompt(false)}
+          >
+            ✕
+          </button>
+          <p>
+            <strong>App installieren</strong><br/>
+            Tippe unten auf das Teilen-Symbol <span style={{ fontSize: "1rem" }}>⏍</span> und wähle 
+            <strong>" Zum Home-Bildschirm"</strong> <span style={{ fontSize: "1rem" }}>➕</span>
+          </p>
+          
+        </div>
       )}
     </div>
   );
