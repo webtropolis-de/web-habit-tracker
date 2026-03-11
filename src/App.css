@@ -521,3 +521,68 @@ h3 {
 .habit-progress-bar.completed {
   background-color: #28a745; /* Grün */
 }
+
+/* --- LOGIN VIEW SPECIFIC FIX --- */
+.login-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Das Logo oben in der Login-View */
+.login-view .logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+/* Die Login-Karte (nutzt deine input-group Basis) */
+.login-form {
+  width: 100%;
+  max-width: 400px; /* Login etwas schmaler als der Tracker wirkt oft besser */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 30px 20px;
+}
+
+/* Überschriften im Login */
+.login-view h1 {
+  margin-bottom: 5px;
+  font-size: 1.8rem;
+}
+
+/* Inputs und Buttons im Login auf volle Breite zwingen */
+.login-form .habit-input,
+.login-form .login-button,
+.login-form button {
+  width: 100% !important;
+  margin: 0;
+}
+
+/* Der Text unter dem Login ("Noch kein Konto?") */
+.toggle-auth {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #aaa;
+  text-align: center; /* Zwingt den Text in die Mitte */
+  width: 100%;        /* Nutzt die volle Breite der Karte */
+  display: block;     /* Sicherstellen, dass es eine eigene Zeile ist */
+}
+
+.toggle-auth span {
+  color: #007bff;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block; /* Erlaubt feineres Alignment */
+  margin-top: 5px;       /* Kleiner Abstand zur oberen Zeile */
+}
+
+.toggle-auth span:hover {
+  text-decoration: underline;
+}
