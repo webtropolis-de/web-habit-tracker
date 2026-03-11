@@ -42,16 +42,32 @@ function App() {
     const jetzt = new Date();
     const jahr = jetzt.getFullYear();
     const monat = jetzt.getMonth();
+    
+    // 1. Welcher Wochentag war der erste des Monats? (0=So, 1=Mo...)
+    const ersterTagWochentag = new Date(jahr, monat, 1).getDay();
+    
+    // 2. Wir schieben das so, dass Montag = 0 ist (statt Sonntag)
+    // (ersterTagWochentag + 6) % 7 macht: Mo=0, Di=1 ... So=6
+    const leertageAmAnfang = (ersterTagWochentag + 6) % 7;
+    
     const anzahlTage = new Date(jahr, monat + 1, 0).getDate();
     
-    return Array.from({ length: anzahlTage }, (_, i) => {
-      const tag = i + 1;
-      // Wir bauen das Format so, dass es zu deinem 'aktuellesdatum' passt
+    const tageArray = [];
+    
+    // Leertage einfügen (Platzhalter)
+    for (let i = 0; i < leertageAmAnfang; i++) {
+      tageArray.push({ leertag: true });
+    }
+    
+    // Echte Tage einfügen
+    for (let tag = 1; tag <= anzahlTage; tag++) {
       const datum = new Date(jahr, monat, tag).toLocaleDateString('de-DE', {
-        weekday: "long", day:"numeric", month: "long", year: "numeric"
+        weekday: "long", day: "numeric", month: "long", year: "numeric"
       });
-      return { tag, datum };
-    });
+      tageArray.push({ tag, datum, leertag: false });
+    }
+    
+    return tageArray;
   };
 
   // -------------- Toast Funktion ------------------------------------- //
@@ -75,7 +91,28 @@ function App() {
 
   // -------------------------Funktionen-----------------------------------//
 
-  // Habbit hinzufügen
+  // ------------------------ Notifications --------------------------------//
+
+  const aktiviereErinnerung = async () => {
+  if (!("Notification" in window)) {
+    zeigeToast("Browser unterstützt keine Mitteilungen", "error");
+    return;
+  }
+
+  const erlaubnis = await Notification.requestPermission();
+  if (erlaubnis === "granted") {
+    zeigeToast("Erinnerungen aktiviert! 🔔");
+    // Kleine Test-Nachricht
+    new Notification("Check-In bereit", {
+      body: "Deine Habits warten auf dich!",
+      icon: "/logo.png" 
+    });
+  } else {
+    zeigeToast("Mitteilungen wurden blockiert.", "error");
+  }
+};
+
+  // --------------------------- Habbit hinzufügen ---------------------------------//
   const habbithinzufuegen = async () => {
     setLoadingText("Speichere dein neues Habit...");
     setLoading(true);
@@ -799,18 +836,25 @@ useEffect(() => {
       {['M', 'D', 'M', 'D', 'F', 'S', 'S'].map((day, i) => (
         <div key={i} className="calendar-weekday-label">{day}</div>
       ))}
-      {holeTageImMonat().map((tagObj) => {
-        const istErfolgreich = habit.history?.includes(tagObj.datum);
-        const istHeuteMarkiert = tagObj.datum === aktuellesdatum;
-        return (
-          <div 
-            key={tagObj.tag} 
-            className={`calendar-day ${istErfolgreich ? "success" : ""} ${istHeuteMarkiert ? "today" : ""}`}
-          >
-            {tagObj.tag}
-          </div>
-        );
-      })}
+      {holeTageImMonat().map((tagObj, i) => {
+  // Wenn es ein Leertag ist, rendern wir ein unsichtbares/leeres Kästchen
+  if (tagObj.leertag) {
+    return <div key={`empty-${i}`} className="calendar-day empty"></div>;
+  }
+
+  // Normaler Tag
+  const istErfolgreich = offenerKalender.history?.includes(tagObj.datum);
+  const istHeuteMarkiert = tagObj.datum === aktuellesdatum;
+
+  return (
+    <div 
+      key={tagObj.tag} 
+      className={`calendar-day ${istErfolgreich ? "success" : ""} ${istHeuteMarkiert ? "today" : ""}`}
+    >
+      {tagObj.tag}
+    </div>
+  );
+})}
     </div>
   )}
 </div>
@@ -974,7 +1018,15 @@ useEffect(() => {
                 Logout
               </button>
               <br></br>
-              
+              <div className="profile-card">
+  <h3>Benachrichtigungen</h3>
+  <p className="modal-subtitle" style={{textAlign: 'left'}}>
+    Lass dich daran erinnern, deinen täglichen Check-In zu machen.
+  </p>
+  <button onClick={aktiviereErinnerung} className="add-button">
+    Mitteilungen erlauben 🔔
+  </button>
+</div> <br></br>
               <div className="profile-card">
                 <h3>Name ändern</h3>
                 
@@ -1011,7 +1063,14 @@ useEffect(() => {
                     />
                     <button onClick={updatePassword} className="add-button">Passwort aktualisieren</button>
                   </div>
+
+                  
+                  
                 </div>
+
+                
+
+                
                 
                 
                 {/* Passwort-Regeln */}
