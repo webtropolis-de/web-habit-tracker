@@ -1076,3 +1076,20 @@ h3 {
   background: transparent;
   border: none;
 }
+
+.time-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  color: white;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+.time-input::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Macht das Uhren-Icon weiß */
+  cursor: pointer;
+}

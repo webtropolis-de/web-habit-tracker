@@ -33,6 +33,8 @@ function App() {
   const aktuellesdatum = new Date().toLocaleDateString('de-DE', {weekday: "long", day:"numeric", month: "long", year: "numeric"});
   const [toast, setToast] = useState(null);
   const [offenerKalender, setOffenerKalender] = useState(null); // Speichert die ID des Habits
+  const [erinnerungZeit, setErinnerungZeit] = useState(localStorage.getItem("reminder_time") || "09:00");
+  const speichereZeit = (neueZeit) => {setErinnerungZeit(neueZeit);localStorage.setItem("reminder_time", neueZeit);toast.success(`Wecker auf ${neueZeit} Uhr gestellt! ⏰`);};
   
 
 
@@ -98,33 +100,37 @@ function App() {
 }, []);
 // -------------------------- Zeitplaner ------------------------------ //
 useEffect(() => {
-  const planeMorgendlicheErinnerung = async () => {
+  const planeBenutzerErinnerung = async () => {
     const reg = await navigator.serviceWorker.getRegistration();
     if (!reg || Notification.permission !== "granted") return;
 
-    // 1. Zielzeit berechnen (Morgen um 09:00 Uhr)
+    const [stunden, minuten] = erinnerungZeit.split(':');
     const jetzt = new Date();
     const ziel = new Date();
-    ziel.setDate(jetzt.getDate() + 1); // Morgen
-    ziel.setHours(9, 0, 0, 0);         // 09:00 Uhr
+    
+    ziel.setHours(parseInt(stunden), parseInt(minuten), 0, 0);
 
-    // 2. Differenz in Millisekunden berechnen
+    // Falls die Uhrzeit heute schon vorbei ist, plane für morgen
+    if (ziel <= jetzt) {
+      ziel.setDate(jetzt.getDate() + 1);
+    }
+
     const differenz = ziel.getTime() - jetzt.getTime();
 
-    // 3. Den Timer im Service Worker "vorglühen"
-    // Hinweis: Das funktioniert am besten, wenn die PWA auf dem Homescreen installiert ist!
+    // Timer setzen
     setTimeout(() => {
-      reg.showNotification("Guten Morgen! ☀️", {
-        body: "Zeit für deinen Daily Check-In. Bleib heute stark!",
+      reg.showNotification("Daily Check-In 🎯", {
+        body: "Dein Versprechen für heute wartet. Kurz einchecken?",
         tag: "daily-reminder",
-        icon: "/logo192.png"
+        icon: "/logo192.png",
+        renotify: true
       });
     }, differenz);
   };
 
-  window.addEventListener('beforeunload', planeMorgendlicheErinnerung);
-  return () => window.removeEventListener('beforeunload', planeMorgendlicheErinnerung);
-}, []);
+  window.addEventListener('beforeunload', planeBenutzerErinnerung);
+  return () => window.removeEventListener('beforeunload', planeBenutzerErinnerung);
+}, [erinnerungZeit]); // Wichtig: Reagiert auf Zeitänderungen
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -1075,13 +1081,22 @@ useEffect(() => {
               </button>
               <br></br>
               <div className="profile-card">
-  <h3>Benachrichtigungen</h3>
-  <p className="modal-subtitle" style={{textAlign: 'left'}}>
-    Lass dich daran erinnern, deinen täglichen Check-In zu machen.
+  <h3>Daily Reminder 🔔</h3>
+  <p className="modal-subtitle" style={{textAlign: 'left', marginBottom: '15px'}}>
+    Wann möchtest du an deinen Check-In erinnert werden?
   </p>
-  <button onClick={aktiviereNotifications} className="add-button">
-    Mitteilungen erlauben 🔔
-  </button>
+  
+  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+    <input 
+      type="time" 
+      value={erinnerungZeit}
+      onChange={(e) => speichereZeit(e.target.value)}
+      className="time-input"
+    />
+    <button onClick={aktiviereNotifications} className="btn-checkin" style={{marginTop: 0}}>
+      Aktivieren
+    </button>
+  </div>
 </div> <br></br>
               <div className="profile-card">
                 <h3>Name ändern</h3>
