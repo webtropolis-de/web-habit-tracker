@@ -5,6 +5,7 @@ import EmojiPicker from "emoji-picker-react"; // Emoji Picker
 import { supabase } from "./supabaseClient";
 import { berechnenWochen, holeZufallsSpruch, validatePassword, istNeueWoche } from "./helper";
 import { habitService } from "./habitService"; // Supabase Services
+import confetti from "canvas-confetti";
 
 
 function App() {
@@ -91,26 +92,37 @@ function App() {
 
  // ---------------------+1 Funktion-------------------------------------//
   const tagHinzufuegen = async (idVonDatenbank, indexInListe) => {
-    const aktuellesHabit = habits[indexInListe];
+  const aktuellesHabit = habits[indexInListe];
+  const zielGroeße = aktuellesHabit.type === "wochenziel" ? aktuellesHabit.frequency : aktuellesHabit.goal;
 
-    // NEU: Sperre für Wochenziele einbauen
-    if (aktuellesHabit.type === "wochenziel" && aktuellesHabit.days >= aktuellesHabit.frequency) {
-      alert("Du hast dein Wochenziel für diese Woche schon erreicht! 🎉");
-      return; // Bricht die Funktion hier ab, es wird nicht weiter hochgezählt!
+  // Sperre für Wochenziele (hast du schon drin)
+  if (aktuellesHabit.type === "wochenziel" && aktuellesHabit.days >= aktuellesHabit.frequency) {
+    alert("Du hast dein Wochenziel für diese Woche schon erreicht! 🎉");
+    return;
+  }
+
+  const neuerWert = aktuellesHabit.days + 1;
+
+  // DB informieren
+  const { error } = await habitService.tageUpdaten(idVonDatenbank, neuerWert);
+
+  if (!error) {
+    // KONFETTI-CHECK: Wurde das Ziel exakt jetzt erreicht?
+    if (neuerWert === zielGroeße && zielGroeße > 0) {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#007bff', '#28a745', '#ffffff'] // Deine App-Farben
+      });
     }
 
-    const neuerWert = aktuellesHabit.days + 1;
-
-    // DB  informieren (aus habitService)
-    const { error } = await habitService.tageUpdaten(idVonDatenbank, neuerWert);
-
-    if (!error) {
-      // Anzeige aktualisieren
-      const neueListe = [...habits];
-      neueListe[indexInListe].days = neuerWert;
-      setHabits(neueListe);
-    }
-  };
+    // Anzeige aktualisieren
+    const neueListe = [...habits];
+    neueListe[indexInListe].days = neuerWert;
+    setHabits(neueListe);
+  }
+};
   // -----------------Emojis-----------------------------------------//
 
   // Emojis speichern
@@ -678,6 +690,17 @@ useEffect(() => {
     <span style={{ fontSize: "0.65rem", color: "#666", textTransform: "uppercase", display: "block" }}>
       {isWochenziel ? "Wochenziel" : "Abstinenz"}
     </span>
+    {/* NEU: Kleine Progress Bar */}
+  {zielGroeße > 0 && (
+    <div className="habit-progress-container">
+      <div 
+        className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
+        style={{ 
+          width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%` 
+        }}
+      ></div>
+    </div>
+  )}
   </div>
 
   {/* 3. Zähler & Buttons (Rechts) - Alles kompakt zusammengefasst */}
@@ -693,24 +716,35 @@ useEffect(() => {
       )}
     </div>
     
-    {/* Deine neuen Buttons */}
-    <div className="habit-row-actions" style={{ display: "flex", gap: "6px" }}>
-      <button
-        onClick={() => tagHinzufuegen(habit.id, index)}
-        disabled={isWochenziel && istErledigt}
-        className="btn-plus"
-        style={{ width: "36px", height: "36px", fontSize: "1.2rem" }} // Etwas kompakter
-      >
-        +
-      </button>
-      
-      <button onClick={() => habitReset(habit.id, index)} className="btn-reset" style={{ width: "32px", height: "32px" }}>
-        🔄
-      </button>
-      
-      <button onClick={() => habitLoeschen(habit.id, index)} className="btn-delete" style={{ width: "32px", height: "32px" }}>
-        🗑️
-      </button>
+    {/* Rechte Seite: Vollflächige Touch-Zonen */}
+  <div className="habit-row-actions">
+    <button
+      onClick={() => tagHinzufuegen(habit.id, index)}
+      disabled={isWochenziel && istErledigt}
+      className="action-zone-main"
+      title="Tag hinzufügen"
+    >
+      +
+    </button>
+
+    <div className="action-side-column">
+    <button 
+      onClick={() => habitReset(habit.id, index)} 
+      className="action-zone-small reset"
+    >
+      🔄
+    </button>
+    <button 
+      onClick={() => habitLoeschen(habit.id, index)} 
+      className="action-zone-small delete"
+    >
+      🗑️
+    </button>
+  </div>
+    
+    
+    
+    
     </div>
   </div>
 </li>
