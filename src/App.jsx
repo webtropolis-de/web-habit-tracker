@@ -30,6 +30,7 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const emojiOptionen = ["🔥", "💪", "🥗", "💧", "🧘", "📚", "🚭", "🍺", "🛌", "🏃", "🎯", "💰","♥️", "🎮", "💵"];
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const aktuellesdatum = new Date().toLocaleDateString('de-DE', {weekday: "long", day:"numeric", month: "long", year: "numeric"});
 
   
   
@@ -493,9 +494,10 @@ useEffect(() => {
               flexGrow: 1,
               fontWeight: "600"
             }}>
-              {aktuelleAnsicht === "home" ? "Tracker" : aktuelleAnsicht === "stats" ? "Statistik" : "Profil"}
+              {aktuelleAnsicht === "home" ? "Today" : aktuelleAnsicht === "stats" ? "Statistik" : "Profil"} <p style={{ color: "#888", fontSize: "0.9rem" }}>
+                  Heute ist {aktuellesdatum}
+                </p>
             </h2>
-
             {/* Logo  */}
             <div style={{ width: "50px", display: "flex", justifyContent: "flex-end" }}>
               <img
@@ -888,16 +890,24 @@ useEffect(() => {
             <div className="profile-view fade-effekt" key="profile-view">
               <h1>Dein Account ⚙️</h1>
               <p className="quote">Verwalte deine persönlichen Einstellungen.</p>
-              
-              <div className="profile-card">
-                <p className="profile-email-info">
+              <p className="profile-email-info">
                   Angemeldet als: <br/>
                   <strong>{user.email}</strong>
                 </p>
+                <button onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                style={{ background: "#af0000", border: "none", color: "#ffffff", textAlign: "center", fontSize: "1rem", cursor: "pointer", padding: "8px", borderTop: "0px solid #444" }}
+              >
+                Logout
+              </button>
+              <br></br>
+              
+              <div className="profile-card">
+                <h3>Name ändern</h3>
+                
                 
                 {/* Name ändern Sektion */}
                 <div className="profile-section">
-                  <h3>Name ändern</h3>
+                  
                   <div className="form-group">
                     <input
                       className="habit-input"
@@ -909,10 +919,14 @@ useEffect(() => {
                     <button onClick={updateName} className="add-button">Namen speichern</button>
                   </div>
                 </div>
-
+                </div>
+                <br></br>
+                
+                <div className="profile-card">
+                  <h3>Passwort ändern</h3>
                 {/* Passwort ändern Sektion */}
                 <div className="profile-section">
-                  <h3>Passwort ändern</h3>
+                  
                   <div className="form-group">
                     <input
                       className="habit-input"
@@ -924,6 +938,7 @@ useEffect(() => {
                     <button onClick={updatePassword} className="add-button">Passwort aktualisieren</button>
                   </div>
                 </div>
+                
                 
                 {/* Passwort-Regeln */}
                 {newPassword.length > 0 && (
