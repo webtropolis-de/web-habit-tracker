@@ -93,37 +93,53 @@ function App() {
 
  // ---------------------+1 Funktion-------------------------------------//
   const tagHinzufuegen = async (idVonDatenbank, indexInListe) => {
-  const aktuellesHabit = habits[indexInListe];
-  const zielGroeße = aktuellesHabit.type === "wochenziel" ? aktuellesHabit.frequency : aktuellesHabit.goal;
+    const aktuellesHabit = habits[indexInListe];
+    
+    // 1. Ziel-Größe berechnen
+    const isWochenziel = aktuellesHabit.type === "wochenziel";
+    const zielGroeße = isWochenziel ? aktuellesHabit.frequency : aktuellesHabit.goal;
 
-  // Sperre für Wochenziele (hast du schon drin)
-  if (aktuellesHabit.type === "wochenziel" && aktuellesHabit.days >= aktuellesHabit.frequency) {
-    alert("Du hast dein Wochenziel für diese Woche schon erreicht! 🎉");
-    return;
-  }
-
-  const neuerWert = aktuellesHabit.days + 1;
-
-  // DB informieren
-  const { error } = await habitService.tageUpdaten(idVonDatenbank, neuerWert);
-
-  if (!error) {
-    // KONFETTI-CHECK: Wurde das Ziel exakt jetzt erreicht?
-    if (neuerWert === zielGroeße && zielGroeße > 0) {
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#007bff', '#28a745', '#ffffff'] // Deine App-Farben
-      });
+    // 2. Sperre für Wochenziele
+    if (isWochenziel && aktuellesHabit.days >= zielGroeße) {
+      alert("Du hast dein Wochenziel für diese Woche schon erreicht! 🎉");
+      return;
     }
 
-    // Anzeige aktualisieren
-    const neueListe = [...habits];
-    neueListe[indexInListe].days = neuerWert;
-    setHabits(neueListe);
-  }
-};
+    const neuerWert = aktuellesHabit.days + 1;
+    
+    // 3. Prüfen, ob ein neuer Rekord aufgestellt wurde
+    let neuerRekord = aktuellesHabit.best_streak || 0;
+    if (neuerWert > neuerRekord) {
+      neuerRekord = neuerWert;
+    }
+
+    // 4. DB-Update direkt über Supabase (umgeht den Service-Fehler)
+    const { error } = await supabase
+      .from("habits")
+      .update({ days: neuerWert, best_streak: neuerRekord })
+      .eq("id", idVonDatenbank);
+
+    if (!error) {
+      // KONFETTI-CHECK: Wurde das Ziel exakt jetzt erreicht?
+      if (neuerWert === zielGroeße && zielGroeße > 0) {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#007bff', '#28a745', '#ffffff'] // Deine App-Farben
+        });
+      }
+
+      // Anzeige aktualisieren
+      const neueListe = [...habits];
+      neueListe[indexInListe].days = neuerWert;
+      neueListe[indexInListe].best_streak = neuerRekord;
+      setHabits(neueListe);
+    } else {
+      console.error("Fehler beim Hinzufügen des Tages:", error);
+      alert("Fehler beim Speichern: " + error.message); // Zeigt den genauen Fehler an
+    }
+  };
   // -----------------Emojis-----------------------------------------//
 
   // Emojis speichern
@@ -790,6 +806,37 @@ useEffect(() => {
                   {berechnenWochen(habits.reduce((sum, h) => sum + h.days, 0))}
                 </h2>
               </div>
+
+              <div className="stats-grid">
+  {habits.map((habit) => (
+    <div key={habit.id} className="stats-card">
+      <div className="stats-header">
+        <span className="stats-icon">{habit.icon}</span>
+        <h4>{habit.name}</h4>
+      </div>
+      
+      <div className="stats-body">
+        <div className="stat-item">
+          <span className="stat-label">Aktuell:</span>
+          <span className="stat-value">{habit.days} Tage</span>
+        </div>
+        
+        <div className="stat-item best-streak">
+          <span className="stat-label">🏆 Rekord:</span>
+          <span className="stat-value">{habit.best_streak || 0} Tage</span>
+        </div>
+      </div>
+      
+      {/* Optional: Ein kleiner Fortschrittsbalken zum Rekord */}
+      <div className="mini-progress-bg">
+        <div 
+          className="mini-progress-fill" 
+          style={{ width: `${Math.min((habit.days / (habit.best_streak || 1)) * 100, 100)}%` }}
+        ></div>
+      </div>
+    </div>
+  ))}
+</div>
 
               {/* Developer Sektion - Jetzt schicker und passend zum Header/Profil */}
               <div className="dangercard stats-view fade-effekt" style={{ 
