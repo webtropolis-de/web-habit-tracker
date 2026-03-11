@@ -3,18 +3,9 @@ import "./App.css"; // Stylesheet importieren
 import logo from "./assets/logo.png"; // Logo importieren
 import EmojiPicker from "emoji-picker-react"; // Emoji Picker
 import { supabase } from "./supabaseClient";
+import { berechnenWochen, holeZufallsSpruch, validatePassword, istNeueWoche } from "./helper";
+import { habitService } from "./habitService"; // Supabase Services
 
-// Zufallssprüche Array
-const sprueche = [
-  "Jeder Tag ist ein neuer Sieg!",
-  "Bleib stark, es lohnt sich",
-  "Dein zukünftiges Ich wird dir danken",
-  "Einfach weiteratmen und weitermachen",
-  "Disziplin ist die Brücke zwischen Zielen und Erfolg",
-];
-
-// Speicher / States deklarieren
-const zufallsSpruch = sprueche[Math.floor(Math.random() * sprueche.length)]; //  zufälligen Spruch auswählen
 
 function App() {
   const [aktuelleAnsicht, setAktuelleAnsicht] = useState("home");
@@ -30,6 +21,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState("Lade deine Daten...");
   const [isLoginMode, setIsLoginMode] = useState(true); // true = Login, false = Registrieren
+  const [spruch] = useState(holeZufallsSpruch());
+  const [habitType, setHabitType] = useState("abstinenz"); // abstinenz oder wochenziel
+  const [frequency, setFrequency] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   // -------------------------Funktionen-----------------------------------//
 
@@ -39,26 +35,24 @@ function App() {
     setLoading(true);
     if (eingabeWert.trim() === "") return;
 
-    
-
     const neuesHabit = {
       name: eingabeWert,
       days: 0,
       icon: icon,
       goal: Number(zielWert),
+      type: habitType,                   
+      frequency: Number(frequency) || 0,
     };
 
-    // die Daten (inkl. ID) zurückbekommen
-    const { data, error } = await supabase
-      .from("habits")
-      .insert([neuesHabit])
-      .select(); // <--- DAS ist der magische Befehl!
+    // die Daten (inkl. ID) zurückbekommen (aus habitService)
+    const { data, error } = await habitService.habbithinzufuegen(neuesHabit); 
 
     if (!error && data) {
       // data[0] ist das vollständige Habit, das gerade in der DB erstellt wurde
       setHabits([...habits, data[0]]);
       setInputValue("");
       setZielWert(""); // Leert auch das Zielfeld
+      setFrequency("");
     } else {
       console.error("Supabase Error:", error);
       alert("Fehler beim Speichern in der Cloud!");
@@ -77,11 +71,8 @@ function App() {
 
     if (!wirklichLoeschen) return;
 
-    //  HABBIT  löschen (wir suchen nach der ID)
-    const { error } = await supabase
-      .from("habits")
-      .delete()
-      .eq("id", idVonDatenbank);
+    //  HABBIT  löschen (wir suchen nach der ID) (aus habitService)
+    const { error } = await habitService.habitLoeschen(idVonDatenbank);
 
     if (error) {
       console.error("Fehler beim Löschen:", error.message);
@@ -94,18 +85,23 @@ function App() {
     setLoading(false);
   };
 
-  // ---------------------+1 Funktion-------------------------------------//
+ // ---------------------+1 Funktion-------------------------------------//
   const tagHinzufuegen = async (idVonDatenbank, indexInListe) => {
-    const neuerWert = habits[indexInListe].days + 1;
+    const aktuellesHabit = habits[indexInListe];
 
-    // 1. Supabase informieren
-    const { error } = await supabase
-      .from("habits")
-      .update({ days: neuerWert })
-      .eq("id", idVonDatenbank);
+    // NEU: Sperre für Wochenziele einbauen
+    if (aktuellesHabit.type === "wochenziel" && aktuellesHabit.days >= aktuellesHabit.frequency) {
+      alert("Du hast dein Wochenziel für diese Woche schon erreicht! 🎉");
+      return; // Bricht die Funktion hier ab, es wird nicht weiter hochgezählt!
+    }
+
+    const neuerWert = aktuellesHabit.days + 1;
+
+    // DB  informieren (aus habitService)
+    const { error } = await habitService.tageUpdaten(idVonDatenbank, neuerWert);
 
     if (!error) {
-      // 2. Anzeige auf dem Bildschirm aktualisieren
+      // Anzeige aktualisieren
       const neueListe = [...habits];
       neueListe[indexInListe].days = neuerWert;
       setHabits(neueListe);
@@ -119,22 +115,46 @@ function App() {
     setZeigePicker(false);
   };
 
-  // -------------------- Tage & Wochen berechnenn ------------------- //
-  const berechnenWochen = (gesamtTage) => {
-    //Berechne die Wochen
-    const wochen = Math.floor(gesamtTage / 7);
-    // Berechne die restlichen Tage
-    const tage = gesamtTage % 7;
-    //Antwort-Satz
-    return (
-      wochen +
-      " " +
-      (wochen == 1 ? "Woche" : "Wochen") +
-      " und " +
-      tage +
-      " " +
-      (tage == 1 ? "Tag" : "Tage")
-    );
+  
+  // ---------------------- Profil Updates -------------------------------------//
+  const updateName = async () => {
+    if (!newName.trim()) return;
+    setLoadingText("Aktualisiere Namen...");
+    setLoading(true);
+    
+    const { data, error } = await supabase.auth.updateUser({
+      data: { display_name: newName }
+    });
+    
+    if (error) {
+      alert("Fehler beim Ändern des Namens: " + error.message);
+    } else {
+      alert("Name erfolgreich geändert!");
+      setUser(data.user); // Aktualisiert den Namen direkt auf dem Bildschirm
+      setNewName("");
+    }
+    setLoading(false);
+  };
+
+  const updatePassword = async () => {
+    if (!validatePassword(newPassword).length || !validatePassword(newPassword).hasNumber) {
+      alert("Passwort erfüllt nicht die Kriterien.");
+      return;
+    }
+    setLoadingText("Aktualisiere Passwort...");
+    setLoading(true);
+    
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    
+    if (error) {
+      alert("Fehler beim Ändern des Passworts: " + error.message);
+    } else {
+      alert("Passwort erfolgreich geändert!");
+      setNewPassword("");
+    }
+    setLoading(false);
   };
 
   // ---------------------- LOGIN System -------------------------------------//
@@ -186,24 +206,42 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // 2. Daten laden
-  useEffect(() => {
-    if (user) {
-      const datenLaden = async () => {
-        setLoading(true); // Spinner AN
-        const { data, error } = await supabase
-          .from("habits")
-          .select("*")
-          .order("created_at", { ascending: true });
-        
-        if (error) console.log("Fehler beim Laden:", error);
-        else if (data) setHabits(data);
-        
-        setLoading(false); // Spinner AUS
-      };
-      datenLaden();
-    }
-  }, [user]);
+// --------------------- 2. Daten laden -------------------------------------
+useEffect(() => {
+  if (user) {
+    const datenLaden = async () => {
+      setLoading(true); // Spinner AN
+
+      // (aus habitService)
+      const { data, error } = await habitService.datenLaden();
+
+      if (error) {
+        console.log("Fehler beim Laden:", error);
+      } else if (data) {
+        // Prüfen, ob wir Wochenziele auf 0 setzen müssen ---
+        let aktuelleHabits = [...data];
+
+        for (let i = 0; i < aktuelleHabits.length; i++) {
+          const habit = aktuelleHabits[i];
+
+          // Wenn es ein Wochenziel ist UND die helper.js sagt "Neue Woche!"
+          if (habit.type === "wochenziel" && istNeueWoche(habit.last_reset)) {
+            //In der Cloud auf 0 setzen
+            await habitService.wochenReset(habit.id);
+            //Auf dem Bildschirm auf 0 setzen
+            aktuelleHabits[i].days = 0;
+            aktuelleHabits[i].last_reset = new Date().toISOString();
+          }
+        }
+
+        setHabits(aktuelleHabits);
+      }
+
+      setLoading(false); // Spinner AUS
+    };
+    datenLaden();
+  }
+}, [user]);
 
 
   // ---------------------------- habitReset ----------------------- //
@@ -214,13 +252,12 @@ function App() {
     );
 
     if (resetconfirm == true) {
-    const { error } = await supabase
-      .from("habits")
-      .update({ days: 0 })
-      .eq("id", idVonDatenbank);
+    
+    // (aus habitService)
+    const { error } = await habitService.tageUpdaten(idVonDatenbank, 0);
 
     if (!error) {
-      // 2. Anzeige auf dem Bildschirm aktualisieren
+      // Anzeige  aktualisieren
       const neueListe = [...habits];
       neueListe[indexInListe].days = 0;
       setHabits(neueListe);
@@ -231,17 +268,9 @@ function App() {
       setLoading(false);
   };
 
-  // ---------------------------- Passwort Validierung --------------//
 
-  const validatePassword = (pw) => {
-  return {
-    length: pw.length >= 12,
-    hasNumber: /\d/.test(pw),
-    hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(pw),
-  };
-};
 
-  // ---------------------------- RESET --------------------------- //
+  // ---------------------------- Total RESET --------------------------- //
 
   const datenbankLeeren = async () => {
     setLoading(true);
@@ -250,8 +279,8 @@ function App() {
     );
 
     if (bestaetigung) {
-      // Der SQL-Trick: Lösche alles, wo die ID größer als 0 ist
-      const { error } = await supabase.from("habits").delete().gt("id", 0);
+      // Lösche alles, wo die ID größer als 0 ist (aus habitService)
+      const { error } = await habitService.datenbankLeeren();
 
       if (!error) {
         setHabits([]); // Auch auf dem Bildschirm alles leeren
@@ -276,7 +305,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* Logo bleibt immer oben */}
+      {/* Logo immer oben */}
       <img
         className="logo"
         src={logo}
@@ -290,7 +319,7 @@ function App() {
           <div className="spinner"></div>
           <p className="quote">Deine Erfolge werden geladen...</p>
         </div>
-        /* weiter mit der User View */
+        /* weiter mit User View */
       ) : !user ? (
         <div className="login-view fade-effekt">
     <h1>{isLoginMode ? "Willkommen zurück!" : "Konto erstellen"}</h1>
@@ -366,10 +395,7 @@ function App() {
 >
   Registrieren
 </button>
-            <p className="toggle-auth">
-              
-              
-            </p>
+            <p className="toggle-auth"></p>
           </>
         )}
       </div>
@@ -407,7 +433,7 @@ function App() {
     </div>
   </div>
 ) : (
-        /* --- 2. ANSICHT: DEIN TRACKER (Eingeloggt) --- */
+        /* --- 2. ANSICHT: TRACKER (Eingeloggt) --- */
         <>
           {/* NAVIGATION */}
           <nav className="nav-bar">
@@ -423,129 +449,209 @@ function App() {
             >
               📊 Statistik
             </button>
-            {/* Neuer Logout Button */}
+            <button
+              onClick={() => setAktuelleAnsicht("profile")}
+              className={aktuelleAnsicht === "profile" ? "active" : ""}
+            >
+              👤 Profil
+            </button>
+
+            {/*Logout Button */}
             <button onClick={handleLogout} className="delete-button" style={{ marginLeft: "auto" }}>
               🚪 Logout
             </button>
           </nav>
 
-          {aktuelleAnsicht === "home" ? (
-            /* --- TRACKER HOME VIEW --- */
+          
+
+          {/* --- 1. ANSICHT: TRACKER HOME VIEW --- */}
+          {aktuelleAnsicht === "home" && (
             <div className="home-view fade-effekt" key="home-view">
               <h1>Schön, dass du da bist {user.user_metadata.display_name}!</h1>
-              <p className="quote">{zufallsSpruch}</p>
+              <p className="quote">{spruch}</p>
 
-              <div className="input-group">
-                <input
-                  className="habit-input"
-                  type="text"
-                  placeholder="Was möchtest du tracken?"
-                  value={eingabeWert}
-                  onChange={(e) => setInputValue(e.target.value)}
-                />
-
+              <div className="input-group" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                 
-
-                <input
-                  className="goal-input"
-                  type="number"
-                  value={zielWert}
-                  onChange={(e) => setZielWert(e.target.value)}
-                  placeholder="Ziel"
-                />
-
-                <div className="emoji-section">
+                {/* 1. Moderne Typ-Auswahl */}
+                <div className="type-selector" style={{ display: "flex", justifyContent: "center", gap: "15px" }}>
                   <button
                     type="button"
-                    className="emoji-trigger-btn"
-                    onClick={() => setZeigePicker(!zeigePicker)}
+                    onClick={() => setHabitType("abstinenz")}
+                    style={{
+                      padding: "10px 20px",
+                      borderRadius: "25px",
+                      border: habitType === "abstinenz" ? "2px solid #007bff" : "1px solid #444",
+                      backgroundColor: habitType === "abstinenz" ? "rgba(0, 123, 255, 0.15)" : "transparent",
+                      color: habitType === "abstinenz" ? "#fff" : "#aaa",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      transition: "all 0.2s ease-in-out"
+                    }}
                   >
-                    {icon}
+                    ⏳ Abstinenz (Zähler)
                   </button>
-
-                  {zeigePicker && (
-                    <>
-                      <div
-                        className="emoji-overlay"
-                        onClick={() => setZeigePicker(false)}
-                      />
-                      <div className="emoji-picker-container">
-                        <EmojiPicker onEmojiClick={onEmojiClick} theme="dark" />
-                      </div>
-                    </>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setHabitType("wochenziel")}
+                    style={{
+                      padding: "10px 20px",
+                      borderRadius: "25px",
+                      border: habitType === "wochenziel" ? "2px solid #007bff" : "1px solid #444",
+                      backgroundColor: habitType === "wochenziel" ? "rgba(0, 123, 255, 0.15)" : "transparent",
+                      color: habitType === "wochenziel" ? "#fff" : "#aaa",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      transition: "all 0.2s ease-in-out"
+                    }}
+                  >
+                    📅 Wochenziel (z.B. Sport)
+                  </button>
                 </div>
 
-                <button onClick={habbithinzufuegen} className="add-button">
-                  Hinzufügen
-                </button>
+                {/* 2. Die Eingabefelder sauber in einer Reihe darunter */}
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
+                  <input
+                    className="habit-input"
+                    type="text"
+                    placeholder="Was möchtest du tracken?"
+                    value={eingabeWert}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    style={{ flex: 1, minWidth: "220px", margin: 0 }}
+                  />
+
+                  {habitType === "abstinenz" ? (
+                    <input
+                      className="goal-input"
+                      type="number"
+                      value={zielWert}
+                      onChange={(e) => setZielWert(e.target.value)}
+                      placeholder="Ziel in Tagen"
+                      style={{ width: "130px", margin: 0 }}
+                    />
+                  ) : (
+                    <input
+                      className="goal-input"
+                      type="number"
+                      value={frequency}
+                      onChange={(e) => setFrequency(e.target.value)}
+                      placeholder="Wie oft/Woche?"
+                      style={{ width: "150px", margin: 0 }}
+                    />
+                  )}
+
+                  <div className="emoji-section">
+                    <button
+                      type="button"
+                      className="emoji-trigger-btn"
+                      onClick={() => setZeigePicker(!zeigePicker)}
+                      style={{ margin: 0 }}
+                    >
+                      {icon}
+                    </button>
+
+                    {zeigePicker && (
+                      <>
+                        <div
+                          className="emoji-overlay"
+                          onClick={() => setZeigePicker(false)}
+                        />
+                        <div className="emoji-picker-container">
+                          <EmojiPicker onEmojiClick={onEmojiClick} theme="dark" />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <button onClick={habbithinzufuegen} className="add-button" style={{ margin: 0 }}>
+                    Hinzufügen
+                  </button>
+                </div>
               </div>
 
               <ul className="habit-grid">
-                {habits.map((habit, index) => (
-                  <li
-                    key={habit.id || index}
-                    className={
-                      "habit-card fade-in-view" +
-                      (habit.days >= habit.goal ? " erledigt" : "")
-                    }
-                  >
-                    <div className="habit-icon">{habit.icon || "🔥"}</div>
-                    {habit.days >= habit.goal && (
-                      <span className="success-badge">⭐ Ziel erreicht!</span>
-                    )}
-                    <h3 className="habit-name">{habit.name}</h3>
+                {habits.map((habit, index) => {
+                  const isWochenziel = habit.type === "wochenziel";
+                  const zielGroeße = isWochenziel ? habit.frequency : habit.goal;
+                  const istErledigt = habit.days >= zielGroeße && zielGroeße > 0;
+                  const prozent = Math.min((habit.days / (zielGroeße || 1)) * 100, 100);
 
-                    <div className="progress-container">
-                      <div
-                        className="progress-bar"
-                        style={{
-                          width: `${Math.min((habit.days / (habit.goal || 1)) * 100, 100)}%`,
-                        }}
-                      ></div>
-                      <span className="progress-percentage">
-                        {Math.round((habit.days / (habit.goal || 1)) * 100)}%
-                      </span>
-                    </div>
-
-                    <p className="progress-text">
-                      {habit.days} / {habit.goal} Tage
-                    </p>
-
-                    <p className="start-date">
-                      Start:{" "}
-                      {habit.created_at
-                        ? new Date(habit.created_at).toLocaleDateString()
-                        : "Unbekannt"}
-                    </p>
-                    
-                    <button
-                      onClick={() => tagHinzufuegen(habit.id, index)}
-                      className="plus-button"
+                  return (
+                    <li
+                      key={habit.id || index}
+                      className={
+                        "habit-card fade-in-view" +
+                        (istErledigt ? " erledigt" : "")
+                      }
                     >
-                      +1 Tag geschafft!
-                    </button>
-                    
-                    <div className="button-group">
+                      <div className="habit-icon">{habit.icon || "🔥"}</div>
+                      {istErledigt && (
+                        <span className="success-badge">⭐ Ziel erreicht!</span>
+                      )}
+                      
+                      <span className="type-badge" style={{ fontSize: "0.7rem", opacity: 0.7, display: "block", marginBottom: "5px" }}>
+                        {isWochenziel ? "📅 Wöchentlich" : "⏳ Zähler"}
+                      </span>
+                      
+                      <h3 className="habit-name">{habit.name}</h3>
+
+                      <div className="progress-container">
+                        <div
+                          className="progress-bar"
+                          style={{ width: `${prozent}%` }}
+                        ></div>
+                        <span className="progress-percentage">
+                          {Math.round(prozent)}%
+                        </span>
+                      </div>
+
+                      <p className="progress-text">
+                        {isWochenziel
+                          ? `${habit.days} / ${habit.frequency} Mal pro Woche`
+                          : `${habit.days} / ${habit.goal} Tage`}
+                      </p>
+
+                      <p className="start-date">
+                        Start:{" "}
+                        {habit.created_at
+                          ? new Date(habit.created_at).toLocaleDateString()
+                          : "Unbekannt"}
+                      </p>
+                      
                       <button
-                        onClick={() => habitReset(habit.id, index)}
-                        className="reset-button"
+                        onClick={() => tagHinzufuegen(habit.id, index)}
+                        className="plus-button"
+                        disabled={isWochenziel && istErledigt} 
+                        style={{ 
+                          opacity: (isWochenziel && istErledigt) ? 0.5 : 1, 
+                          cursor: (isWochenziel && istErledigt) ? "not-allowed" : "pointer" 
+                        }}
                       >
-                        Reset
+                        {isWochenziel ? "+1 Mal geschafft!" : "+1 Tag geschafft!"}
                       </button>
-                      <button
-                        onClick={() => habitLoeschen(habit.id, index)}
-                        className="delete-button fade-effekt"
-                      >
-                        Löschen
-                      </button>
-                    </div>
-                  </li>
-                ))}
+                      
+                      <div className="button-group">
+                        <button
+                          onClick={() => habitReset(habit.id, index)}
+                          className="reset-button"
+                        >
+                          Reset
+                        </button>
+                        <button
+                          onClick={() => habitLoeschen(habit.id, index)}
+                          className="delete-button fade-effekt"
+                        >
+                          Löschen
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
-          ) : (
-            /* --- STATS VIEW --- */
+          )}
+
+          {/* --- 2. ANSICHT: STATS VIEW --- */}
+          {aktuelleAnsicht === "stats" && (
             <div className="stats-view fade-effekt" key="stats-view">
               <h1>Deine Erfolge 🏆</h1>
               <div className="stats-card">
@@ -553,14 +659,67 @@ function App() {
                 <h2>
                   {berechnenWochen(habits.reduce((sum, h) => sum + h.days, 0))}
                 </h2>
-                
-              
               </div>
               <div className="dangercard stats-view fade-effekt" key="stats-view">
-              <h3> ⚠️ Developer Optionen</h3>
-              <p><button onClick={datenbankLeeren} className="danger-button">
-                🔥 Gesamte Datenbank leeren
-              </button></p></div>
+                <h3> ⚠️ Developer Optionen</h3>
+                <p>
+                  <button onClick={datenbankLeeren} className="danger-button">
+                    🔥 Gesamte Datenbank leeren
+                  </button>
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {/* --- 3. ANSICHT: PROFILE VIEW --- */}
+          {aktuelleAnsicht === "profile" && (
+            <div className="profile-view fade-effekt" key="profile-view">
+              <h1>Dein Account ⚙️</h1>
+              <div className="stats-card">
+                <p style={{ marginBottom: "20px" }}>Angemeldet als: <br/><strong style={{ color: "#007bff" }}>{user.email}</strong></p>
+                
+                <h3 style={{ marginTop: "20px", borderBottom: "1px solid #444", paddingBottom: "10px", textAlign: "left" }}>Name ändern</h3>
+                {/* NEU: flexDirection "column" stapelt die Felder sauber untereinander */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
+                  <input
+                    className="habit-input"
+                    type="text"
+                    placeholder={`Aktuell: ${user.user_metadata.display_name}`}
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    style={{ margin: 0, width: "100%", boxSizing: "border-box" }}
+                  />
+                  <button onClick={updateName} className="add-button" style={{ margin: 0, width: "100%" }}>Speichern</button>
+                </div>
+
+                <h3 style={{ marginTop: "30px", borderBottom: "1px solid #444", paddingBottom: "10px", textAlign: "left" }}>Passwort ändern</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
+                  <input
+                    className="habit-input"
+                    type="password"
+                    placeholder="Neues Passwort"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    style={{ margin: 0, width: "100%", boxSizing: "border-box" }}
+                  />
+                  <button onClick={updatePassword} className="add-button" style={{ margin: 0, width: "100%" }}>Aktualisieren</button>
+                </div>
+                
+                {/* Zeigt die Regeln nur an, wenn man gerade tippt */}
+                {newPassword.length > 0 && (
+                  <div className="password-hints fade-effekt" style={{ marginTop: "15px", textAlign: "left" }}>
+                    <p className={validatePassword(newPassword).length ? "valid" : "invalid"}>
+                      {validatePassword(newPassword).length ? "✔" : "✘"} Mind. 12 Zeichen
+                    </p>
+                    <p className={validatePassword(newPassword).hasNumber ? "valid" : "invalid"}>
+                      {validatePassword(newPassword).hasNumber ? "✔" : "✘"} Eine Zahl enthalten
+                    </p>
+                    <p className={validatePassword(newPassword).hasSpecial ? "valid" : "invalid"}>
+                      {validatePassword(newPassword).hasSpecial ? "✔" : "✘"} Ein Sonderzeichen
+                    </p>
+                  </div>
+                )}
+          </div>
             </div>
           )}
         </>
