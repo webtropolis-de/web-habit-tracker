@@ -74,9 +74,6 @@ function App() {
       setToast(null);
     }, 3000); 
   };
-
-  
-  
   // ------------------- PWA POPup -------------------------------------- //
   useEffect(() => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -180,6 +177,7 @@ const holeKIMotivation = async () => {
   
   // Gemini KEy aus Env
   const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
+  console.log("Mein aktueller Key fängt an mit:", API_KEY ? API_KEY.substring(0, 10) : "Kein Key gefunden!");
   // gemini-2.5-flash
   const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
