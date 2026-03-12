@@ -1266,7 +1266,7 @@ useEffect(() => {
               )}
             </div>
             
-            {/* --- BUTTON BEREICH --- */}
+            {/*  BUTTON   */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "25px" }}>
               <button 
                 onClick={holeKIMotivation} 
@@ -1277,7 +1277,7 @@ useEffect(() => {
                 {isKiLoading ? "Analysiere..." : "Neue Analyse anfordern"}
               </button>
               
-              {/* NEU: Der Schließen Button */}
+              {/*  Schließen Button */}
               <button 
                 onClick={() => setIsKiModalOpen(false)} 
                 className="modal-btn-close"
