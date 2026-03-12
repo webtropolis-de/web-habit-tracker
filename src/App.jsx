@@ -922,7 +922,7 @@ useEffect(() => {
     onClick={() => setOffenerKalender(habit)} 
     style={{ background: 'none', border: 'none', color: '#007bff', fontSize: '0.85rem', padding: '8px 0', cursor: 'pointer', textDecoration: 'underline' }}
   >
-    📅 Kalender anzeigen
+    📅 Kalender
   </button>
 </div>
 </div>
