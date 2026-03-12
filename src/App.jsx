@@ -37,6 +37,7 @@ function App() {
   const speichereZeit = (neueZeit) => {setErinnerungZeit(neueZeit);localStorage.setItem("reminder_time", neueZeit);toast.success(`Wecker auf ${neueZeit} Uhr gestellt! ⏰`);};
   const [kiMotivation, setKiMotivation] = useState("");
   const [isKiLoading, setIsKiLoading] = useState(false);
+  const [isKiModalOpen, setIsKiModalOpen] = useState(false); // Floating AI Coach
 
 
   // ----------------  Kalender Function -------------------------------  //
@@ -73,6 +74,8 @@ function App() {
       setToast(null);
     }, 3000); 
   };
+
+  
   
   // ------------------- PWA POPup -------------------------------------- //
   useEffect(() => {
@@ -683,7 +686,7 @@ useEffect(() => {
               fontWeight: "600"
             }}>
               {aktuelleAnsicht === "home" ? "Today" : aktuelleAnsicht === "stats" ? "Statistik" : "Profil"} <p style={{ color: "#888", fontSize: "0.9rem" }}>
-                  Heute ist {aktuellesdatum}
+                  {aktuellesdatum}
                 </p>
             </h2>
             {/* Logo  */}
@@ -693,6 +696,7 @@ useEffect(() => {
                 alt="Logo"
                 style={{ height: "50px", width: "auto" }}
               />
+              
             </div>
           </header>
 
@@ -977,6 +981,17 @@ useEffect(() => {
                   );
                 })}
               </ul>
+            <button 
+            className="fab-ki fade-effekt" 
+            onClick={() => {
+              setIsKiModalOpen(true);
+              // Holt sofort eine neue Motivation, falls noch keine da ist
+              if (!kiMotivation && habits.length > 0) holeKIMotivation();
+            }}
+            title="KI Coach fragen"
+          >
+            🤖
+          </button>
             </div>
           )}
 
@@ -997,30 +1012,7 @@ useEffect(() => {
                 </h2>
               </div>
 
-              {/* KI-Coach Karte */}
-              <div className="stats-card ki-card fade-effekt">
-                <h2 className="ki-header">
-                  KI Erfolgs-Coach 🤖
-                </h2>
-                
-                {kiMotivation ? (
-                  <p className="ki-text">
-                    "{kiMotivation.replace(/\*\*/g, '')}"
-                  </p>
-                ) : (
-                  <p className="ki-placeholder">
-                    Lass die KI deine Streak analysieren.
-                  </p>
-                )}
-                
-                <button 
-                  onClick={holeKIMotivation} 
-                  className="ki-btn" 
-                  disabled={isKiLoading}
-                >
-                  {isKiLoading ? "Analysiere..." : "Coach fragen"}
-                </button>
-              </div>
+              
 
               <div className="stats-grid">
   {habits.map((habit) => (
@@ -1248,6 +1240,57 @@ useEffect(() => {
     </div>
   </div>
 )}
+
+  {isKiModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsKiModalOpen(false)}>
+          <div className="modal-content fade-effekt" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 style={{ display: "flex", alignItems: "center", gap: "8px" }}>🤖 KI Coach</h2>
+              <button className="close-modal" onClick={() => setIsKiModalOpen(false)}>✕</button>
+            </div>
+            
+            <div className="ki-modal-body">
+              {isKiLoading ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '30px 0' }}>
+                  <div className="spinner"></div>
+                  <p style={{ marginTop: '20px', color: '#aaa' }}>Coach analysiert deine aktuelle Streak...</p>
+                </div>
+              ) : kiMotivation ? (
+                <p className="ki-text" style={{ fontSize: "1.1rem", marginBottom: 0 }}>
+                  "{kiMotivation.replace(/\*\*/g, '')}"
+                </p>
+              ) : (
+                <p className="ki-placeholder" style={{ marginBottom: 0 }}>
+                  Lass die KI deine Erfolge analysieren.
+                </p>
+              )}
+            </div>
+            
+            {/* --- BUTTON BEREICH --- */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "25px" }}>
+              <button 
+                onClick={holeKIMotivation} 
+                className="ki-btn" 
+                disabled={isKiLoading}
+                style={{ width: "100%" }}
+              >
+                {isKiLoading ? "Analysiere..." : "Neue Analyse anfordern"}
+              </button>
+              
+              {/* NEU: Der Schließen Button */}
+              <button 
+                onClick={() => setIsKiModalOpen(false)} 
+                className="modal-btn-close"
+                style={{ width: "100%", margin: 0 }}
+              >
+                Schließen
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

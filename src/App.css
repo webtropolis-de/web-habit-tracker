@@ -1180,3 +1180,53 @@ h3 {
 .sidebar-link.logout {
   color: #ff4d4d; padding: 15px 0; border-top: 1px solid #444;
 }
+
+
+/* --- FLOATING KI BUTTON --- */
+.fab-ki {
+  position: fixed;
+  bottom: 40px;
+  right: 30px;
+  width: 70px; /* Leicht vergrößert für Details */
+  height: 80px;
+  background: none; /* Kein flacher Hintergrund */
+  border: none;
+  font-size: 50px; /* Größeres Emoji */
+  cursor: pointer;
+  z-index: 900;
+  
+  /* Blauer Glow-Effekt */
+  filter: drop-shadow(0 0 10px rgba(0, 123, 255, 0.7));
+  
+  /* Schwebe-Animation */
+  animation: float 3s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+
+.fab-ki:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 15px rgba(0, 123, 255, 0.9));
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.fab-ki:active {
+  transform: scale(0.95);
+}
+
+.ki-modal-body {
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgba(0, 123, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 15px;
+  border: 1px solid rgba(0, 123, 255, 0.2);
+}
