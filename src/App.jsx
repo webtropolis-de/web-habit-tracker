@@ -35,33 +35,27 @@ function App() {
   const [offenerKalender, setOffenerKalender] = useState(null); // Speichert  ID des Habits
   const [erinnerungZeit, setErinnerungZeit] = useState(localStorage.getItem("reminder_time") || "09:00");
   const speichereZeit = (neueZeit) => {setErinnerungZeit(neueZeit);localStorage.setItem("reminder_time", neueZeit);toast.success(`Wecker auf ${neueZeit} Uhr gestellt! ⏰`);};
-  
+  const [kiMotivation, setKiMotivation] = useState("");
+  const [isKiLoading, setIsKiLoading] = useState(false);
 
 
   // ----------------  Kalender Function -------------------------------  //
 
-  const holeTageImMonat = () => {
+    const holeTageImMonat = () => {
     const jetzt = new Date();
     const jahr = jetzt.getFullYear();
     const monat = jetzt.getMonth();
-    
-    // 1. Welcher Wochentag war der erste des Monats? (0=So, 1=Mo...)
     const ersterTagWochentag = new Date(jahr, monat, 1).getDay();
-    
-    // 2. Wir schieben das so, dass Montag = 0 ist (statt Sonntag)
-    // (ersterTagWochentag + 6) % 7 macht: Mo=0, Di=1 ... So=6
     const leertageAmAnfang = (ersterTagWochentag + 6) % 7;
-    
     const anzahlTage = new Date(jahr, monat + 1, 0).getDate();
-    
     const tageArray = [];
     
-    // Leertage einfügen (Platzhalter)
+    // Leertage  
     for (let i = 0; i < leertageAmAnfang; i++) {
       tageArray.push({ leertag: true });
     }
     
-    // Echte Tage einfügen
+    // Echte Tage 
     for (let tag = 1; tag <= anzahlTage; tag++) {
       const datum = new Date(jahr, monat, tag).toLocaleDateString('de-DE', {
         weekday: "long", day: "numeric", month: "long", year: "numeric"
@@ -77,7 +71,7 @@ function App() {
     setToast(nachricht);
     setTimeout(() => {
       setToast(null);
-    }, 3000); // Verschwindet automatisch nach 3 Sekunden
+    }, 3000); 
   };
   
   // ------------------- PWA POPup -------------------------------------- //
@@ -93,9 +87,9 @@ function App() {
 
   useEffect(() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('Service Worker registriert!', reg))
-      .catch(err => console.error('SW Registrierung fehlgeschlagen', err));
+    navigator.serviceWorker.register('/sw.js') 
+      .then(() => console.log('SW registriert'))
+      .catch(err => console.log('SW Fehler:', err));
   }
 }, []);
 // -------------------------- Zeitplaner ------------------------------ //
@@ -110,7 +104,7 @@ useEffect(() => {
     
     ziel.setHours(parseInt(stunden), parseInt(minuten), 0, 0);
 
-    // Falls die Uhrzeit heute schon vorbei ist, plane für morgen
+    
     if (ziel <= jetzt) {
       ziel.setDate(jetzt.getDate() + 1);
     }
@@ -130,9 +124,7 @@ useEffect(() => {
 
   window.addEventListener('beforeunload', planeBenutzerErinnerung);
   return () => window.removeEventListener('beforeunload', planeBenutzerErinnerung);
-}, [erinnerungZeit]); // Wichtig: Reagiert auf Zeitänderungen
-
-  // -------------------------Funktionen-----------------------------------//
+}, [erinnerungZeit]); 
 
   // ------------------------ Notifications --------------------------------//
 
@@ -145,7 +137,6 @@ useEffect(() => {
   const erlaubnis = await Notification.requestPermission();
   if (erlaubnis === "granted") {
     zeigeToast("Erinnerungen aktiviert! 🔔");
-    // Kleine Test-Nachricht
     new Notification("Check-In bereit", {
       body: "Deine Habits warten auf dich!",
       icon: "/logo.png" 
@@ -163,7 +154,6 @@ const aktiviereNotifications = async () => {
 
   const permission = await Notification.requestPermission();
   if (permission === "granted") {
-    // Hier schicken wir eine lokale Test-Nachricht
     const reg = await navigator.serviceWorker.getRegistration();
     if (reg) {
       reg.showNotification("Aktiviert! 🔔", {
@@ -174,11 +164,62 @@ const aktiviereNotifications = async () => {
   }
 };
 
+  // ---------------------------- KI Coach ------------------------------------- //
+
+const holeKIMotivation = async () => {
+  if (!habits || habits.length === 0) {
+    zeigeToast("Erstelle erst ein Habit für den Coach!", "error");
+    return;
+  }
+
+  setIsKiLoading(true);
+  setKiMotivation(""); 
+  
+  // Gemini KEy aus Env
+  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
+  // gemini-2.5-flash
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+
+  try {
+    const habitZusammenfassung = habits.map(h => `${h.name}: ${h.days} Tage`).join(", ");
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `Du bist ein motivierender Coach. Analysiere diese Habits: ${habitZusammenfassung}. Schreib einen extrem kurzen, kraftvollen Coaching-Spruch auf Deutsch (max 2 Sätze) und sprich den Nutzer direkt mit Namen (${user.user_metadata.display_name} an) an`
+          }]
+        }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.candidates && data.candidates[0].content.parts[0].text) {
+      setKiMotivation(data.candidates[0].content.parts[0].text);
+    } else {
+      console.error("API Error Details:", data);
+      throw new Error("Ungültige Antwort von Google erhalten.");
+    }
+  } catch (err) {
+    console.error("Netzwerkfehler:", err);
+    zeigeToast("KI-Coach hat gerade Funkstille. 🤖", "error");
+  } finally {
+    setIsKiLoading(false);
+  }
+};
+
   // --------------------------- Habbit hinzufügen ---------------------------------//
   const habbithinzufuegen = async () => {
+    if (eingabeWert.trim() === "") {
+      zeigeToast("Bitte gib einen Namen für das Habit ein!", "error");
+      return; 
+    }
+
     setLoadingText("Speichere dein neues Habit...");
     setLoading(true);
-    if (eingabeWert.trim() === "") return;
 
     const neuesHabit = {
       name: eingabeWert,
@@ -189,14 +230,13 @@ const aktiviereNotifications = async () => {
       frequency: Number(frequency) || 0,
     };
 
-    // die Daten (inkl. ID) zurückbekommen (aus habitService)
+    // die Daten (inkl. ID) zurückbekommen 
     const { data, error } = await habitService.habbithinzufuegen(neuesHabit); 
 
     if (!error && data) {
-      // data[0] ist das vollständige Habit, das gerade in der DB erstellt wurde
       setHabits([...habits, data[0]]);
       setInputValue("");
-      setZielWert(""); // Leert auch das Zielfeld
+      setZielWert("");
       setFrequency("");
     } else {
       console.error("Supabase Error:", error);
@@ -209,7 +249,6 @@ const aktiviereNotifications = async () => {
   const habitLoeschen = async (id, index) => {
     // Bestätigungs-Dialog abfragen
     if (!window.confirm("Möchtest du diesen Habit wirklich löschen?")) {
-      // WICHTIG: Falls der User abbricht, darf setLoading nicht auf true hängen bleiben
       return; 
     }
 
@@ -222,14 +261,15 @@ const aktiviereNotifications = async () => {
 
       if (error) throw error;
 
-      // Lokal aus dem State entfernen
+      // Lokal entfernen
       const neueHabits = habits.filter((_, i) => i !== index);
       setHabits(neueHabits);
     } catch (error) {
       console.error("Fehler beim Löschen:", error.message);
       zeigeToast("Fehler beim Löschen des Habits.");
     } finally {
-      setLoading(false); // Spinner stoppen, egal ob Erfolg oder Fehler
+      setLoading(false); 
+      // Spinner stoppen
     }
   };
 
@@ -237,22 +277,22 @@ const aktiviereNotifications = async () => {
   const tagHinzufuegen = async (idVonDatenbank, indexInListe) => {
     const aktuellesHabit = habits[indexInListe];
     
-    // 1. Datum SICHER direkt in der Funktion generieren (verhindert Abstürze!)
+    //  Datum 
     const heuteString = new Date().toLocaleDateString('de-DE', {
       weekday: "long", day:"numeric", month: "long", year: "numeric"
     });
 
-    // 2. Ziel-Größe berechnen
+    //  Ziel-Größe 
     const isWochenziel = aktuellesHabit.type === "wochenziel";
     const zielGroeße = isWochenziel ? aktuellesHabit.frequency : aktuellesHabit.goal;
 
-    // 3. Sperre für Wochenziele
+    // Sperre für Wochenziele
     if (isWochenziel && aktuellesHabit.days >= zielGroeße) {
       zeigeToast("Du hast dein Wochenziel für diese Woche schon erreicht! 🎉");
       return;
     }
 
-    // 4. Sperre für tägliche Abstinenz (Prüft den Text-Stempel)
+    // Sperre für tägliche Abstinenz 
     if (!isWochenziel && aktuellesHabit.last_clicked === heuteString) {
       zeigeToast("Stark geblieben! Du hast für heute schon einen Tag eingetragen. Mach morgen weiter! 💪");
       return;
@@ -260,7 +300,7 @@ const aktiviereNotifications = async () => {
 
     const neuerWert = aktuellesHabit.days + 1;
     
-    // 5. Rekord prüfen
+    // Rekord prüfen
     let neuerRekord = aktuellesHabit.best_streak || 0;
     if (neuerWert > neuerRekord) {
       neuerRekord = neuerWert;
@@ -269,19 +309,19 @@ const aktiviereNotifications = async () => {
     const alteHistory = aktuellesHabit.history || [];
     const neueHistory = [...alteHistory, heuteString];
 
-    // 6. DB-Update an Supabase senden
+    // DB-Update an Supabase senden
     const { error } = await supabase
       .from("habits")
       .update({ 
         days: neuerWert, 
         best_streak: neuerRekord,
         last_clicked: heuteString,
-        history: neueHistory // <--- Hier speichern wir das Gedächtnis
+        history: neueHistory //
       })
       .eq("id", idVonDatenbank);
 
     if (!error) {
-      // Konfetti auslösen, falls ein Ziel erreicht wurde
+      // Konfetti
       if (neuerWert === zielGroeße && zielGroeße > 0) {
         confetti({
           particleCount: 150, spread: 70, origin: { y: 0.6 },
@@ -315,7 +355,7 @@ const aktiviereNotifications = async () => {
     if (!newName.trim()) return;
     setLoadingText("Aktualisiere Namen...");
     setLoading(true);
-    
+  
     const { data, error } = await supabase.auth.updateUser({
       data: { display_name: newName }
     });
@@ -324,7 +364,7 @@ const aktiviereNotifications = async () => {
       zeigeToast("Fehler beim Ändern des Namens: " + error.message);
     } else {
       zeigeToast("Name erfolgreich geändert!");
-      setUser(data.user); // Aktualisiert den Namen direkt auf dem Bildschirm
+      setUser(data.user); 
       setNewName("");
     }
     setLoading(false);
@@ -376,7 +416,10 @@ const aktiviereNotifications = async () => {
     setLoadingText("Melde dich ab...");
     setLoading(true);
     await supabase.auth.signOut();
-    setHabits([]); // Liste leeren beim Ausloggen
+    setHabits([]); // Liste leeren
+    setKiMotivation(""); // KI Text leeren
+    clearLogin(); // Formularfelder leeren
+    setAktuelleAnsicht("home"); // Zurück auf Start 
     setLoading(false);
   };
 
@@ -412,17 +455,17 @@ useEffect(() => {
       if (error) {
         console.log("Fehler beim Laden:", error);
       } else if (data) {
-        // Prüfen, ob wir Wochenziele auf 0 setzen müssen ---
+        // Prüfen, ob wir Wochenziele auf 0 setzen müssen 
         let aktuelleHabits = [...data];
 
         for (let i = 0; i < aktuelleHabits.length; i++) {
           const habit = aktuelleHabits[i];
 
-          // Wenn es ein Wochenziel ist UND die helper.js sagt "Neue Woche!"
+          
           if (habit.type === "wochenziel" && istNeueWoche(habit.last_reset)) {
-            //In der Cloud auf 0 setzen
+            // auf 0 setzen
             await habitService.wochenReset(habit.id);
-            //Auf dem Bildschirm auf 0 setzen
+            // auf 0 setzen
             aktuelleHabits[i].days = 0;
             aktuelleHabits[i].last_reset = new Date().toISOString();
           }
@@ -447,7 +490,6 @@ useEffect(() => {
 
     if (resetconfirm == true) {
     
-    // (aus habitService)
     const { error } = await habitService.tageUpdaten(idVonDatenbank, 0);
 
     if (!error) {
@@ -473,11 +515,11 @@ useEffect(() => {
     );
 
     if (bestaetigung) {
-      // Lösche alles, wo die ID größer als 0 ist (aus habitService)
+      
       const { error } = await habitService.datenbankLeeren();
 
       if (!error) {
-        setHabits([]); // Auch auf dem Bildschirm alles leeren
+        setHabits([]); //
         zeigeToast("Datenbank wurde komplett geleert!");
       } else {
         console.error("Fehler beim Leeren:", error.message);
@@ -495,14 +537,14 @@ useEffect(() => {
     setEmail("");
   }
 
-  //HTML
+  // -------------------------Ende Functions--------------------------------------------------------------
 
-  // --- AB HIER ERSETZEN --- //
+  // Begin -> HTML
+
   return (
     <div className="App">
       
       {loading ? (
-        /* Spinner-Anzeige - Jetzt garantiert zentriert */
         <div className="spinner-container" style={{
           display: "flex",
           flexDirection: "column",
@@ -522,7 +564,7 @@ useEffect(() => {
         </div>
       ) : !user ? (
         <div className="login-view fade-effekt">
-          {/* Logo in Login Ansicht */}
+         
           <img className="logo" src={logo} alt="Logo" style={{ width: "150px", marginBottom: "10px" }} />
           <h1>{isLoginMode ? "Willkommen zurück!" : "Konto erstellen"}</h1>
           
@@ -532,7 +574,7 @@ useEffect(() => {
                 ? "Melde dich an, um deine Habits zu tracken." 
                 : "Registriere dich und starte deine Reise."}
             </p>
-            {/* Nur bei Registrierung anzeigen */}
+            
             {!isLoginMode && (
               <input
                 className="habit-input"
@@ -654,63 +696,47 @@ useEffect(() => {
             </div>
           </header>
 
-          {/* SIDEBAR-MENÜ  */}
+          {/* SIDEBAR-MENÜ */}
           <>
             <div
-              style={{
-                position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-                backgroundColor: "rgba(0,0,0,0.6)", zIndex: 998,
-                opacity: isMenuOpen ? 1 : 0,
-                visibility: isMenuOpen ? "visible" : "hidden",
-                transition: "opacity 0.3s ease, visibility 0.3s ease"
-              }}
+              className={`sidebar-overlay ${isMenuOpen ? 'open' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             ></div>
 
-            {/* Menü-Fenster  */}
-            <div
-              style={{
-                position: "fixed", top: 0, left: 0, bottom: 0, width: "250px",
-                backgroundColor: "#16161a", padding: "20px", zIndex: 999,
-                display: "flex", flexDirection: "column", gap: "10px",
-                boxShadow: isMenuOpen ? "4px 0 15px rgba(0,0,0,0.8)" : "none",
-                transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
-                transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease"
-              }}
-            >
-              <h2 style={{ color: "#fff", borderBottom: "1px solid #444", paddingBottom: "15px", marginTop: "10px", marginBottom: "20px" }}>Menü</h2>
+            <div className={`sidebar-menu ${isMenuOpen ? 'open' : ''}`}>
+              <h2 className="sidebar-header">Menü</h2>
               
               <button
                 onClick={() => { setAktuelleAnsicht("home"); setIsMenuOpen(false); }}
-                style={{ background: "none", border: "none", color: aktuelleAnsicht === "home" ? "#007bff" : "#aaa", textAlign: "left", fontSize: "1.2rem", cursor: "pointer", padding: "10px 0", fontWeight: aktuelleAnsicht === "home" ? "bold" : "normal" }}
+                className={`sidebar-link ${aktuelleAnsicht === "home" ? "active" : ""}`}
               >
                 🏠 Tracker
               </button>
               <button
                 onClick={() => { setAktuelleAnsicht("stats"); setIsMenuOpen(false); }}
-                style={{ background: "none", border: "none", color: aktuelleAnsicht === "stats" ? "#007bff" : "#aaa", textAlign: "left", fontSize: "1.2rem", cursor: "pointer", padding: "10px 0", fontWeight: aktuelleAnsicht === "stats" ? "bold" : "normal" }}
+                className={`sidebar-link ${aktuelleAnsicht === "stats" ? "active" : ""}`}
               >
                 📊 Statistik
               </button>
               <button
                 onClick={() => { setAktuelleAnsicht("profile"); setIsMenuOpen(false); }}
-                style={{ background: "none", border: "none", color: aktuelleAnsicht === "profile" ? "#007bff" : "#aaa", textAlign: "left", fontSize: "1.2rem", cursor: "pointer", padding: "10px 0", fontWeight: aktuelleAnsicht === "profile" ? "bold" : "normal" }}
+                className={`sidebar-link ${aktuelleAnsicht === "profile" ? "active" : ""}`}
               >
                 👤 Profil
               </button>
 
-              <div style={{ flexGrow: 1 }}></div>
+              <div style={{ flexGrow: 1 }}></div> {/* Platzhalter */}
 
               <button
                 onClick={() => { handleLogout(); setIsMenuOpen(false); }}
-                style={{ background: "none", border: "none", color: "#ff4d4d", textAlign: "left", fontSize: "1.2rem", cursor: "pointer", padding: "15px 0", borderTop: "1px solid #444" }}
+                className="sidebar-link logout"
               >
                 🚪 Logout
               </button>
             </div>
           </>
 
-          {/* --- 1. ANSICHT: TRACKER HOME VIEW --- */}
+          {/* TRACKER HOME VIEW  */}
           {aktuelleAnsicht === "home" && (
             <div className="home-view fade-effekt" key="home-view">
               <h1>Schön, dass du da bist {user.user_metadata.display_name}!</h1>
@@ -727,7 +753,7 @@ useEffect(() => {
                 margin: "0 auto 30px auto" 
               }}>
                 
-                {/* 1. Typ-Auswahl  */}
+                {/* Typ-Auswahl  */}
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button
                     type="button"
@@ -757,29 +783,30 @@ useEffect(() => {
                   </button>
                 </div>
 
-                {/* 2. Haupt-Eingabefeld */}
+                {/* Haupt-Eingabefeld */}
                 <input
                   className="habit-input"
                   type="text"
                   placeholder="Was möchtest du tracken?"
                   value={eingabeWert}
+                  required
                   onChange={(e) => setInputValue(e.target.value)}
                   style={{ width: "100%", margin: 0 }}
                 />
 
-                {/* 3. Ziel-Wert & Emoji-Picker (Untere Reihe) */}
+                {/* Ziel-Wert & Emoji-Picker */}
                 <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
                     {habitType === "abstinenz" ? (
-    <input
-      className="goal-input"
-      type="number"
-      value={zielWert}
-      onChange={(e) => setZielWert(e.target.value)}
-      placeholder="Wie lange? (leer = ♾️)" /* <--- Hier geändert */
-      style={{ width: "100%", margin: 0 }}
-    />
-  ) : (
+                  <input
+                    className="goal-input"
+                    type="number"
+                    value={zielWert}
+                    onChange={(e) => setZielWert(e.target.value)}
+                    placeholder="Wie lange? (leer = ♾️)" 
+                    style={{ width: "100%", margin: 0 }}
+                  />
+                ) : (
                       <input
                         className="goal-input"
                         type="number"
@@ -792,41 +819,41 @@ useEffect(() => {
                   </div>
 
                   <div className="emoji-dropdown-container">
-  {/* Der Klick-Button zum Öffnen */}
-  <button 
-    type="button" 
-    className={`emoji-selector-btn ${zeigePicker ? 'active' : ''}`}
-    onClick={() => setZeigePicker(!zeigePicker)}
-  >
-    <span className="emoji-label"></span>
-    <span className="selected-emoji">{icon}</span>
-    
-  </button>
+                    {/* Button zum Öffnen */}
+                    <button 
+                      type="button" 
+                      className={`emoji-selector-btn ${zeigePicker ? 'active' : ''}`}
+                      onClick={() => setZeigePicker(!zeigePicker)}
+                    >
+                      <span className="emoji-label"></span>
+                      <span className="selected-emoji">{icon}</span>
+                      
+                    </button>
 
-  {/* Das aufklappbare Menü */}
-  {zeigePicker && (
-    <div className="emoji-picker-dropdown fade-effekt">
-      <div className="emoji-grid">
-        {emojiOptionen.map((e) => (
-          <button
-            key={e}
-            type="button"
-            className={`emoji-option ${icon === e ? "is-selected" : ""}`}
-            onClick={() => {
-              setIcon(e);
-              setZeigePicker(false); // Schließt das Menü nach der Wahl
-            }}
-          >
-            {e}
-          </button>
-        ))}
-      </div>
-    </div>
-  )}
-</div>
+                    {/* aufklappbare Menü */}
+                    {zeigePicker && (
+                      <div className="emoji-picker-dropdown fade-effekt">
+                        <div className="emoji-grid">
+                          {emojiOptionen.map((e) => (
+                            <button
+                              key={e}
+                              type="button"
+                              className={`emoji-option ${icon === e ? "is-selected" : ""}`}
+                              onClick={() => {
+                                setIcon(e);
+                                setZeigePicker(false); // Schließt das Menü 
+                              }}
+                            >
+                              {e}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* 4. Hinzufügen Button  */}
+                {/* Hinzufügen Button  */}
                 <button 
                   onClick={habbithinzufuegen} 
                   className="add-button" 
@@ -842,87 +869,61 @@ useEffect(() => {
                   const zielGroeße = isWochenziel ? habit.frequency : habit.goal;
                   const istErledigt = habit.days >= zielGroeße && zielGroeße > 0;
                   
-                  return (
-                    <li
-  key={habit.id || index}
-  className="habit-row fade-in-view"
-  style={{
-    display: "flex",
-    alignItems: "center",
-    backgroundColor: "#1e1e24",
-    marginBottom: "12px",
-    padding: "12px 15px", // Etwas weniger Padding für mehr Platz
-    borderRadius: "16px",
-    gap: "10px", // Kleinerer Gap zwischen den Blöcken
-    borderLeft: istErledigt ? "4px solid #28a745" : "4px solid #007bff",
-    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-    width: "100%", // Sicherstellen, dass es nicht breiter als der Screen wird
-    boxSizing: "border-box"
-  }}
->
-  {/* 1. Icon (Links) */}
-  <div style={{ fontSize: "1.6rem", minWidth: "35px", textAlign: "center" }}>
-    {habit.icon || "🔥"}
-  </div>
-  
-  {/* 2. Text (Mitte) */}
-<div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-  <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-    {habit.name}
-  </h3>
-  <span style={{ fontSize: "0.65rem", color: "#666", textTransform: "uppercase", display: "block" }}>
-    {isWochenziel ? "Wochenziel" : "Abstinenz"}
-  </span>
+                              return (
+                                <li
+              key={habit.id || index}
+              className="habit-row fade-in-view"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: "#1e1e24",
+                marginBottom: "12px",
+                padding: "12px 15px", 
+                borderRadius: "16px",
+                gap: "10px", 
+                borderLeft: istErledigt ? "4px solid #28a745" : "4px solid #007bff",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                width: "100%", 
+                boxSizing: "border-box"
+              }}
+            >
+              {/* Icons  */}
+              <div style={{ fontSize: "1.6rem", minWidth: "35px", textAlign: "center" }}>
+                {habit.icon || "🔥"}
+              </div>
+              
+              {/* Text  */}
+            <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+              <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {habit.name}
+              </h3>
+              <span style={{ fontSize: "0.65rem", color: "#666", textTransform: "uppercase", display: "block" }}>
+                {isWochenziel ? "Wochenziel" : "Abstinenz"}
+              </span>
 
-  {/* Progress Bar (Nur wenn Ziel > 0) */}
-  {zielGroeße > 0 && (
-    <div className="habit-progress-container" style={{ marginTop: "8px" }}>
-      <div 
-        className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
-        style={{ width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%` }}
-      ></div>
-    </div>
-  )}
+              {/* Progress Bar  */}
+              {zielGroeße > 0 && (
+                <div className="habit-progress-container" style={{ marginTop: "8px" }}>
+                  <div 
+                    className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
+                    style={{ width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%` }}
+                  ></div>
+                </div>
+              )}
 
-  {/* --- KALENDER SEKTION --- */}
+  {/* KALENDER SEKTION  */}
 <div className="calendar-section">
   <button 
-  className="calendar-trigger"
-  onClick={() => setOffenerKalender(habit)} // Speichert das ganze Habit-Objekt
->
-  📅 Kalender 
-</button>
-
-  {offenerKalender === habit.id && (
-    <div className="calendar-mini-grid fade-effekt">
-      {['M', 'D', 'M', 'D', 'F', 'S', 'S'].map((day, i) => (
-        <div key={i} className="calendar-weekday-label">{day}</div>
-      ))}
-      {holeTageImMonat().map((tagObj, i) => {
-  // Wenn es ein Leertag ist, rendern wir ein unsichtbares/leeres Kästchen
-  if (tagObj.leertag) {
-    return <div key={`empty-${i}`} className="calendar-day empty"></div>;
-  }
-
-  // Normaler Tag
-  const istErfolgreich = offenerKalender.history?.includes(tagObj.datum);
-  const istHeuteMarkiert = tagObj.datum === aktuellesdatum;
-
-  return (
-    <div 
-      key={tagObj.tag} 
-      className={`calendar-day ${istErfolgreich ? "success" : ""} ${istHeuteMarkiert ? "today" : ""}`}
-    >
-      {tagObj.tag}
-    </div>
-  );
-})}
-    </div>
-  )}
+    className="calendar-trigger"
+    onClick={() => setOffenerKalender(habit)} 
+    style={{ background: 'none', border: 'none', color: '#007bff', fontSize: '0.85rem', padding: '8px 0', cursor: 'pointer', textDecoration: 'underline' }}
+  >
+    📅 Kalender anzeigen
+  </button>
 </div>
 </div>
 
-  {/* 3. Zähler & Buttons (Rechts) - Alles kompakt zusammengefasst */}
+  {/*  Zähler & Buttons (Rechts)  */}
   <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
     
     {/* Zähler */}
@@ -931,21 +932,21 @@ useEffect(() => {
         {habit.days}
       </span>
       
-      {/* NEU: Zeigt das Ziel an, wenn es größer als 0 ist (egal ob Wochenziel oder Abstinenz) */}
+      
       {zielGroeße > 0 && (
         <span style={{ fontSize: "0.7rem", color: "#444" }}>/{zielGroeße}</span>
       )}
     </div>
     
-    {/* Rechte Seite: Vollflächige Touch-Zonen */}
+    {/*   Touch-Zonen */}
   <div className="habit-row-actions">
     <button
     onClick={() => tagHinzufuegen(habit.id, index)} 
-    /* WICHTIG: Kein 'disabled' mehr hier! */
+    
     className="action-zone-main"
     title="Tag hinzufügen"
     style={{ 
-      /* Macht den Button blass, wenn gesperrt */
+      
       opacity: ((isWochenziel && istErledigt) || (!isWochenziel && habit.last_clicked === aktuellesdatum)) ? 0.3 : 1 
     }}
   >
@@ -979,28 +980,46 @@ useEffect(() => {
             </div>
           )}
 
-          {/* --- 2. ANSICHT: STATS VIEW --- */}
+          {/* STATS VIEW */}
           {aktuelleAnsicht === "stats" && (
             <div className="stats-view fade-effekt" key="stats-view" style={{ textAlign: "center" }}>
               <h1 style={{ marginBottom: "10px" }}>Deine Erfolge 🏆</h1>
               <p className="quote" style={{ marginBottom: "30px" }}>Jeder Tag zählt auf deinem Weg.</p>
               
-              {/* Haupt-Statistik Karte */}
+              {/* Haupt- Karte */}
               <div className="stats-card" style={{ 
-                backgroundColor: "#1e1e24", 
-                padding: "30px", 
-                borderRadius: "20px", 
-                maxWidth: "500px", 
-                margin: "0 auto 40px auto",
-                boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
-                border: "1px solid #333"
               }}>
                 <p style={{ color: "#888", textTransform: "uppercase", fontSize: "0.8rem", letterSpacing: "1px", marginBottom: "10px" }}>
                   Insgesamt geschaffte Zeit
                 </p>
-                <h2 style={{ fontSize: "2rem", color: "#fff", margin: 0 }}>
+                <h2 style={{ fontSize: "1.4rem", color: "#fff", margin: 0 }}>
                   {berechnenWochen(habits.reduce((sum, h) => sum + h.days, 0))}
                 </h2>
+              </div>
+
+              {/* KI-Coach Karte */}
+              <div className="stats-card ki-card fade-effekt">
+                <h2 className="ki-header">
+                  KI Erfolgs-Coach 🤖
+                </h2>
+                
+                {kiMotivation ? (
+                  <p className="ki-text">
+                    "{kiMotivation.replace(/\*\*/g, '')}"
+                  </p>
+                ) : (
+                  <p className="ki-placeholder">
+                    Lass die KI deine Streak analysieren.
+                  </p>
+                )}
+                
+                <button 
+                  onClick={holeKIMotivation} 
+                  className="ki-btn" 
+                  disabled={isKiLoading}
+                >
+                  {isKiLoading ? "Analysiere..." : "Coach fragen"}
+                </button>
               </div>
 
               <div className="stats-grid">
@@ -1023,7 +1042,7 @@ useEffect(() => {
         </div>
       </div>
       
-      {/* Optional: Ein kleiner Fortschrittsbalken zum Rekord */}
+      {/* Fortschrittsbalken */}
       <div className="mini-progress-bg">
         <div 
           className="mini-progress-fill" 
@@ -1034,7 +1053,7 @@ useEffect(() => {
   ))}
 </div>
 
-              {/* Developer Sektion - Jetzt schicker und passend zum Header/Profil */}
+              {/* Developer   */}
               <div className="dangercard stats-view fade-effekt" style={{ 
                 maxWidth: "500px", 
                 margin: "0 auto", 
@@ -1065,7 +1084,7 @@ useEffect(() => {
             </div>
           )}
           
-          {/* --- 3. ANSICHT: PROFILE VIEW --- */}
+          {/*  PROFILE VIEW */}
           {aktuelleAnsicht === "profile" && (
             <div className="profile-view fade-effekt" key="profile-view">
               <h1>Dein Account ⚙️</h1>
@@ -1102,7 +1121,7 @@ useEffect(() => {
                 <h3>Name ändern</h3>
                 
                 
-                {/* Name ändern Sektion */}
+                {/* Name ändern  */}
                 <div className="profile-section">
                   
                   <div className="form-group">
@@ -1121,7 +1140,7 @@ useEffect(() => {
                 
                 <div className="profile-card">
                   <h3>Passwort ändern</h3>
-                {/* Passwort ändern Sektion */}
+                {/* Passwort ändern  */}
                 <div className="profile-section">
                   
                   <div className="form-group">
@@ -1163,7 +1182,7 @@ useEffect(() => {
           )}
         </>
       )}
-      {/* --- CUSTOM IOS INSTALL POPUP --- */}
+      {/* INSTALL POPUP  */}
       {showInstallPrompt && (
         <div className="ios-install-prompt fade-effekt">
           <button 
@@ -1180,7 +1199,7 @@ useEffect(() => {
           
         </div>
       )}
-      {/* --- IN-APP TOAST NOTIFICATION --- */}
+      {/*  TOASTs */}
       {toast && (
         <div className="custom-toast">
           {toast}
@@ -1189,7 +1208,7 @@ useEffect(() => {
 
 
 
-      {/* --- CALENDAR MODAL POPUP --- */}
+      {/*  CALENDAR MODAL */}
 {offenerKalender && (
   <div className="modal-overlay" onClick={() => setOffenerKalender(null)}>
     <div className="modal-content fade-effekt" onClick={(e) => e.stopPropagation()}>
@@ -1204,12 +1223,19 @@ useEffect(() => {
         {['M', 'D', 'M', 'D', 'F', 'S', 'S'].map((day, i) => (
           <div key={i} className="calendar-weekday-label">{day}</div>
         ))}
-        {holeTageImMonat().map((tagObj) => {
+        {holeTageImMonat().map((tagObj, i) => {
+          //   Leertag? 
+          if (tagObj.leertag) {
+            return <div key={`empty-${i}`} className="calendar-day empty"></div>;
+          }
+          
+          //  Normaler Tag
           const istErfolgreich = offenerKalender.history?.includes(tagObj.datum);
           const istHeuteMarkiert = tagObj.datum === aktuellesdatum;
+          
           return (
             <div 
-              key={tagObj.tag} 
+              key={`tag-${tagObj.tag}`} 
               className={`calendar-day ${istErfolgreich ? "success" : ""} ${istHeuteMarkiert ? "today" : ""}`}
             >
               {tagObj.tag}
