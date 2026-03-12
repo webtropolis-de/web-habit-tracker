@@ -32,7 +32,7 @@ function App() {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const aktuellesdatum = new Date().toLocaleDateString('de-DE', {weekday: "long", day:"numeric", month: "long", year: "numeric"});
   const [toast, setToast] = useState(null);
-  const [offenerKalender, setOffenerKalender] = useState(null); // Speichert die ID des Habits
+  const [offenerKalender, setOffenerKalender] = useState(null); // Speichert  ID des Habits
   const [erinnerungZeit, setErinnerungZeit] = useState(localStorage.getItem("reminder_time") || "09:00");
   const speichereZeit = (neueZeit) => {setErinnerungZeit(neueZeit);localStorage.setItem("reminder_time", neueZeit);toast.success(`Wecker auf ${neueZeit} Uhr gestellt! ⏰`);};
   

@@ -656,7 +656,7 @@ h3 {
 }
 
 .emoji-selector-btn {
-  height: 48px;
+  height: 44px;
   width: 50px;
   background-color: #2a2a35;
   border: 1px solid #444;
@@ -667,6 +667,7 @@ h3 {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  padding: 0px;
 }
 
 .emoji-selector-btn:active {
