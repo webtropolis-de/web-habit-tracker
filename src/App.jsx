@@ -1822,20 +1822,6 @@ function App() {
                     <span className="stat-value">{xp}</span>
                   </div>
                 </div>
-                <div className="xp-progress-section">
-                  <div className="xp-label-row">
-                    <span>Erfahrung</span>
-                    <span>
-                      {levelInfo.xpImAktuellenLevel} / {levelInfo.xpForNext}
-                    </span>
-                  </div>
-                  <div className="xp-bar-bg">
-                    <div
-                      className="xp-bar-fill"
-                      style={{ width: `${levelInfo.progressProzent}%` }}
-                    ></div>
-                  </div>
-                </div>
               </div>
               <br></br>
               <div className="profile-card">
