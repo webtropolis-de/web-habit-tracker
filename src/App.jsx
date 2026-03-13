@@ -1110,10 +1110,7 @@ function App() {
               onClick={() => setAktuelleAnsicht("profile")}
               title="Zum Profil"
             >
-              <div
-                className="profile-avatar-circle"
-                style={{ overflow: "hidden", border: "2px solid #007bff" }}
-              >
+              <div className="profile-avatar-circle">
                 <img
                   src={getAvatarUrl(avatarSeed)}
                   alt="Avatar"

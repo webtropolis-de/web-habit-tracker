@@ -1523,16 +1523,10 @@ button:focus-visible {
 
 .profile-avatar-circle {
   position: relative;
-  width: 40px;
-  height: 40px;
-  background-color: #2a2a35;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888;
-  border: 1px solid #444;
-  transition: all 0.2s ease;
+  border: 2px solid #007bff;
 }
 
 .header-profile-zone:hover .profile-avatar-circle {
@@ -1547,16 +1541,18 @@ button:focus-visible {
   bottom: -2px;
   right: -2px;
   background: linear-gradient(135deg, #ffc107, #ff9800);
-  color: #000;
-  font-size: 0.65rem;
+  color: #000 !important; /* Schwarz auf Gelb */
+  font-size: 0.7rem;
   font-weight: 900;
-  width: 18px;
-  height: 18px;
+  width: 20px; /* Minimal größer für bessere Lesbarkeit */
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #1e1e24;
+  border: 1.5px solid #121214;
+  z-index: 999; /* Ganz nach oben */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* --- RPG CHARACTER CARD --- */
