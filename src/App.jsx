@@ -1049,24 +1049,28 @@ function App() {
                     validatePassword(password).length ? "valid" : "invalid"
                   }
                 >
-                  {validatePassword(password).length ? "✔" : "✘"} Mind. 12
-                  Zeichen
+                  <span>{validatePassword(password).length ? "✅" : "🔘"}</span>
+                  Mind. 12 Zeichen
                 </p>
                 <p
                   className={
                     validatePassword(password).hasNumber ? "valid" : "invalid"
                   }
                 >
-                  {validatePassword(password).hasNumber ? "✔" : "✘"} Eine Zahl
-                  enthalten
+                  <span>
+                    {validatePassword(password).hasNumber ? "✅" : "🔘"}
+                  </span>
+                  Eine Zahl enthalten
                 </p>
                 <p
                   className={
                     validatePassword(password).hasSpecial ? "valid" : "invalid"
                   }
                 >
-                  {validatePassword(password).hasSpecial ? "✔" : "✘"} Ein
-                  Sonderzeichen
+                  <span>
+                    {validatePassword(password).hasSpecial ? "✅" : "🔘"}
+                  </span>
+                  Ein Sonderzeichen
                 </p>
               </div>
             )}
