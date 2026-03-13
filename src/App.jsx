@@ -12,7 +12,43 @@ import {
 import { habitService } from "./habitService"; // Supabase Services
 import confetti from "canvas-confetti";
 
+// -Level Rechner ---------------------------------------------------------------
+const berechneLevelInfo = (aktuelleXp) => {
+  let level = 1;
+  let xpForNext = 100; // Für Level 2 brauchst du 100 XP
+  let xpBase = 0; // Startpunkt des aktuellen Levels
+
+  // Solange du genug XP hast, um das nächste Level zu knacken
+  while (aktuelleXp >= xpBase + xpForNext) {
+    xpBase += xpForNext;
+    level++;
+    xpForNext = Math.floor(xpForNext * 1.5); // Jedes Level wird 50% schwerer!
+  }
+
+  const xpImAktuellenLevel = aktuelleXp - xpBase;
+  const progressProzent = Math.min((xpImAktuellenLevel / xpForNext) * 100, 100);
+
+  return {
+    level,
+    xpImAktuellenLevel,
+    xpForNext,
+    progressProzent,
+  };
+};
+// ----------------------------Avatar section-----------------------------------------------
+
+const getAvatarUrl = (seed) => {
+  if (!seed) return "avatars/MaleHelmetWarrior16.png";
+  return `avatars/${seed}.png`;
+};
+
+// ---------------------------------------------------------------------------
+
 function App() {
+  const [tippModalOffen, setTippModalOffen] = useState(null); // Speichert das Habit, für das Tipps geladen werden
+  const [habitTipps, setHabitTipps] = useState("");
+  const [isTippLoading, setIsTippLoading] = useState(false);
+  const [xp, setXp] = useState(0);
   const [aktuelleAnsicht, setAktuelleAnsicht] = useState("home");
   const [eingabeWert, setInputValue] = useState("");
   const [zielWert, setZielWert] = useState("");
@@ -56,6 +92,7 @@ function App() {
     month: "long",
     year: "numeric",
   });
+  const levelInfo = berechneLevelInfo(xp);
   const [toast, setToast] = useState(null);
   const [offenerKalender, setOffenerKalender] = useState(null); // Speichert  ID des Habits
   const [erinnerungZeit, setErinnerungZeit] = useState(
@@ -72,6 +109,59 @@ function App() {
     localStorage.getItem("gemini_api_key") || "",
   );
   const [kiMotivation, setKiMotivation] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [avatarSeed, setAvatarSeed] = useState("Hero1");
+  const [galerieOffen, setGalerieOffen] = useState(false);
+
+  // ---------------------------- KI Habit Tipps --------------------------------- //
+  const holeHabitTipps = async (habit) => {
+    if (!apiKey) {
+      zeigeToast("⚠️ Bitte trage zuerst deinen API-Key im Profil ein!");
+      setAktuelleAnsicht("profile");
+      return;
+    }
+
+    setTippModalOffen(habit); // Öffnet sofort das Modal für dieses Habit
+    setIsTippLoading(true);
+    setHabitTipps("");
+
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    try {
+      // Der Prompt passt sich dynamisch an, ob es Abstinenz oder ein Wochenziel ist
+      const zielTyp =
+        habit.type === "wochenziel"
+          ? "Ich möchte das regelmäßig schaffen."
+          : "Ich möchte komplett darauf verzichten / abstinent bleiben.";
+
+      const prompt = `Du bist ein Habit-Coach. Mein Ziel heißt: "${habit.name}". ${zielTyp} 
+      Gib mir exakt 3 extrem kurze, psychologisch fundierte und direkt anwendbare Tipps, wie ich das durchziehe. 
+      Formatiere es als kurze Liste. Keine langen Einleitungen, komm direkt zur Sache!`;
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.candidates && data.candidates[0].content.parts[0].text) {
+        setHabitTipps(data.candidates[0].content.parts[0].text);
+      } else {
+        throw new Error("Ungültige Antwort von der KI.");
+      }
+    } catch (err) {
+      console.error("KI Tipp Fehler:", err);
+      setHabitTipps(
+        "Die KI konnte gerade keine Tipps laden. Versuch es später nochmal!",
+      );
+    } finally {
+      setIsTippLoading(false);
+    }
+  };
 
   // ----------------  Kalender Function -------------------------------  //
 
@@ -364,6 +454,91 @@ function App() {
       .eq("id", idVonDatenbank);
 
     if (!error) {
+      // --- NEU: MEILENSTEINE & LEVEL-UP ---
+      let verdienteXp = 10;
+      let bonusXp = 0;
+      let milestoneText = "";
+
+      if (isWochenziel) {
+        if (neuerWert === zielGroeße) {
+          verdienteXp = 50;
+        }
+      } else {
+        // Abstinenz: Streak-Multiplikator
+        if (neuerWert >= 30) {
+          verdienteXp = 50;
+        } else if (neuerWert >= 14) {
+          verdienteXp = 30;
+        } else if (neuerWert >= 7) {
+          verdienteXp = 20;
+        } else if (neuerWert >= 3) {
+          verdienteXp = 15;
+        }
+
+        // Abstinenz: Die großen Meilenstein-Boni!
+        if (neuerWert === 7) {
+          bonusXp = 100;
+          milestoneText = "1 Woche geschafft!";
+        } else if (neuerWert === 14) {
+          bonusXp = 250;
+          milestoneText = "2 Wochen stark geblieben!";
+        } else if (neuerWert === 30) {
+          bonusXp = 1000;
+          milestoneText = "1 MONAT! Wahnsinn!";
+        } else if (neuerWert === 90) {
+          bonusXp = 5000;
+          milestoneText = "90 TAGE! Legende!";
+        } else if (neuerWert === 365) {
+          bonusXp = 20000;
+          milestoneText = "1 JAHR! Unfassbar!";
+        }
+      }
+
+      const gesamtXpDazu = verdienteXp + bonusXp;
+      const neuesXp = xp + gesamtXpDazu;
+
+      // 1. Wir checken, auf welchem Level du VOR dem Klick warst
+      const altesLevel = berechneLevelInfo(xp).level;
+      // 2. Wir checken, auf welchem Level du NACH dem Klick bist
+      const neuesLevel = berechneLevelInfo(neuesXp).level;
+
+      // --- TOASTS & KONFETTI LOGIK ---
+      if (neuesLevel > altesLevel) {
+        // LEVEL UP! Goldene Konfetti-Explosion
+        confetti({
+          particleCount: 200,
+          spread: 100,
+          origin: { y: 0.5 },
+          colors: ["#ffc107", "#ff9800", "#ffffff"],
+          zIndex: 3000,
+        });
+        zeigeToast(`🎉 LEVEL UP! Du bist jetzt Level ${neuesLevel}! 🎉`);
+      } else if (bonusXp > 0) {
+        // Nur ein Meilenstein erreicht (aber kein Level Up)
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+          zIndex: 3000,
+        });
+        zeigeToast(`🏆 ${milestoneText} +${gesamtXpDazu} XP!`);
+      } else {
+        // Normaler Klick
+        if (isWochenziel && neuerWert === zielGroeße) {
+          zeigeToast(`Wochenziel erreicht! +50 XP 🎯`);
+        } else if (!isWochenziel && verdienteXp > 10) {
+          zeigeToast(`🔥 Streak-Bonus! +${verdienteXp} XP`);
+        } else {
+          zeigeToast(`+10 XP gesammelt! ✨`);
+        }
+      }
+
+      setXp(neuesXp);
+
+      supabase.auth.updateUser({
+        data: { xp: neuesXp },
+      });
+      // ------------------------------------
       // Konfetti
       if (neuerWert === zielGroeße && zielGroeße > 0) {
         confetti({
@@ -483,12 +658,16 @@ function App() {
   const handleLogin = async () => {
     setLoadingText("Melde dich an...");
     setLoading(true);
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (error) zeigeToast("Login fehlgeschlagen: " + error.message);
-    setLoading(false);
+
+    if (error) {
+      zeigeToast("Login fehlgeschlagen: " + error.message);
+      setLoading(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -499,7 +678,6 @@ function App() {
     setKiMotivation(""); // KI Text leeren
     clearLogin(); // Formularfelder leeren
     setAktuelleAnsicht("home"); // Zurück auf Start
-    setLoading(false);
   };
 
   // ---------------------db anbindung---------------------------------------//
@@ -509,14 +687,32 @@ function App() {
   // 1. Session prüfen
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (!session) setLoading(false); // Wenn nicht eingeloggt, Lade-Ende
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      // --- NEU: Daten beim ersten Laden aus den Metadaten ziehen ---
+      if (currentUser) {
+        setAvatarSeed(currentUser.user_metadata?.avatar_seed || "Hero1");
+        setXp(currentUser.user_metadata?.xp || 0);
+      }
+      // -------------------------------------------------------------
+
+      if (!session) setLoading(false);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      // Auch beim Auth-Wechsel (Login/Logout) Daten setzen ---
+      if (currentUser) {
+        setAvatarSeed(currentUser.user_metadata?.avatar_seed || "Hero1");
+        setXp(currentUser.user_metadata?.xp || 0);
+      }
+      // ---------------------------------------------------------------
+
       if (!session) setLoading(false);
     });
 
@@ -525,7 +721,9 @@ function App() {
 
   // --------------------- Daten laden -------------------------------------
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
+      // Lädt die XP
+      setXp(user.user_metadata?.xp || 0);
       const datenLaden = async () => {
         setLoading(true); // Spinner AN
 
@@ -557,21 +755,38 @@ function App() {
       };
       datenLaden();
     }
-  }, [user]);
+  }, [user?.id]);
 
   // ---------------------------- habitReset ----------------------- //
-
   const habitReset = async (idVonDatenbank, indexInListe) => {
     setLoading(true);
+    const aktuellesHabit = habits[indexInListe];
     const resetconfirm = window.confirm(
-      "Möchtest du den Zähler wirklich zurücksetzen?",
+      "Möchtest du den Zähler wirklich zurücksetzen? Das kostet dich 50 XP!",
     );
 
-    if (resetconfirm == true) {
+    if (resetconfirm === true) {
       const { error } = await habitService.tageUpdaten(idVonDatenbank, 0);
 
       if (!error) {
-        // Anzeige  aktualisieren
+        // XP Strafe bei Reset ---
+        let xpStrafe = 0;
+        if (aktuellesHabit.days > 0) {
+          // Ziehe 50 XP ab
+          xpStrafe = Math.min(50, xp);
+        }
+
+        if (xpStrafe > 0) {
+          const neuesXp = xp - xpStrafe;
+          setXp(neuesXp);
+          supabase.auth.updateUser({ data: { xp: neuesXp } });
+          zeigeToast(`Streak gebrochen. -${xpStrafe} XP 📉`);
+        } else {
+          zeigeToast("Zähler auf 0 gesetzt.");
+        }
+        // --------------------------------
+
+        // Anzeige aktualisieren
         const neueListe = [...habits];
         neueListe[indexInListe].days = 0;
         setHabits(neueListe);
@@ -665,7 +880,6 @@ function App() {
               if (isLoginMode) {
                 handleLogin();
               } else {
-                // Beim Registrieren nochmal sichergehen, dass das Passwort gültig ist
                 if (
                   validatePassword(password).length &&
                   validatePassword(password).hasNumber
@@ -702,14 +916,56 @@ function App() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <input
-              className="habit-input"
-              type="password"
-              placeholder="Passwort"
-              value={password}
-              autoComplete={isLoginMode ? "current-password" : "new-password"}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="password-wrapper">
+              <input
+                className="habit-input"
+                type={showPassword ? "text" : "password"}
+                placeholder="Passwort"
+                value={password}
+                autoComplete={isLoginMode ? "current-password" : "new-password"}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <span
+                className="password-toggle-icon"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  /* Durchgestrichenes Auge  */
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                    <line x1="2" y1="2" x2="22" y2="22" />
+                  </svg>
+                ) : (
+                  /* Passwort versteckt */
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </span>
+            </div>
 
             {!isLoginMode && password.length > 0 && (
               <div className="password-hints fade-effekt">
@@ -848,19 +1104,23 @@ function App() {
                 {aktuellesdatum}
               </p>
             </h2>
-            {/* Logo  */}
+            {/* Profil-Icon oben rechts */}
             <div
-              style={{
-                width: "50px",
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
+              className="header-profile-zone"
+              onClick={() => setAktuelleAnsicht("profile")}
+              title="Zum Profil"
             >
-              <img
-                src={logo}
-                alt="Logo"
-                style={{ height: "50px", width: "auto" }}
-              />
+              <div
+                className="profile-avatar-circle"
+                style={{ overflow: "hidden", border: "2px solid #007bff" }}
+              >
+                <img
+                  src={getAvatarUrl(avatarSeed)}
+                  alt="Avatar"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+                <span className="mini-level-indicator">{levelInfo.level}</span>
+              </div>
             </div>
           </header>
 
@@ -918,6 +1178,57 @@ function App() {
             <div className="home-view fade-effekt" key="home-view">
               <h1>Schön, dass du da bist {user.user_metadata.display_name}!</h1>
               <p className="quote">{spruch}</p>
+
+              {/* RPG DASHBOARD AUF DEM HOME SCREEN */}
+              <div
+                className="rpg-card dashboard-mini fade-effekt"
+                style={{ margin: "20px auto", maxWidth: "500px" }}
+              >
+                <div className="rpg-card-header dashboard-header">
+                  <div className="avatar-frame mini">
+                    <img src={getAvatarUrl(avatarSeed)} alt="Held" />
+                  </div>
+                  <div className="char-info">
+                    <h2
+                      className="char-name mini"
+                      style={{ textAlign: "left" }}
+                    >
+                      {user.user_metadata.display_name}
+                    </h2>
+                    <div className="char-rank mini">
+                      {levelInfo.level >= 50
+                        ? "🏆 Legende"
+                        : levelInfo.level >= 20
+                          ? "⚔️ Ritter"
+                          : levelInfo.level >= 10
+                            ? "🛡️ Krieger"
+                            : "🪵 Novize"}
+                    </div>
+                  </div>
+                  <div className="level-badge-compact">
+                    ⭐ Lvl {levelInfo.level}
+                  </div>
+                </div>
+
+                <div className="xp-progress-section dashboard-xp">
+                  <div className="xp-label-row">
+                    <span style={{ fontSize: "0.8rem", color: "#888" }}>
+                      Erfahrung
+                    </span>
+                    <span style={{ fontSize: "0.8rem", color: "#888" }}>
+                      {levelInfo.xpImAktuellenLevel} / {levelInfo.xpForNext} XP
+                    </span>
+                  </div>
+                  <div className="xp-bar-bg">
+                    <div
+                      className="xp-bar-fill"
+                      style={{ width: `${levelInfo.progressProzent}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="xp-progress-section dashboard-xp"></div>
 
               <div
                 className="input-group"
@@ -1153,18 +1464,18 @@ function App() {
                           <button
                             className="calendar-trigger"
                             onClick={() => setOffenerKalender(habit)}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#007bff",
-                              fontSize: "0.85rem",
-                              padding: "8px 0",
-                              cursor: "pointer",
-                              textDecoration: "underline",
-                            }}
                           >
                             📅 Kalender
                           </button>
+
+                          {apiKey && (
+                            <button
+                              className="calendar-trigger tipps-trigger"
+                              onClick={() => holeHabitTipps(habit)}
+                            >
+                              💡 Tipps holen
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -1265,6 +1576,11 @@ function App() {
 
               {/* Haupt- Karte */}
               <div className="stats-card" style={{}}>
+                <div style={{ marginBottom: "15px" }}>
+                  <span className="level-badge">
+                    ⭐ Level {levelInfo.level}
+                  </span>
+                </div>
                 <p
                   style={{
                     color: "#888",
@@ -1367,28 +1683,156 @@ function App() {
               <p className="quote">
                 Verwalte deine persönlichen Einstellungen.
               </p>
-              <p className="profile-email-info">
-                Angemeldet als: <br />
-                <strong>{user.email}</strong>
-              </p>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setIsMenuOpen(false);
-                }}
-                style={{
-                  background: "#af0000",
-                  border: "none",
-                  color: "#ffffff",
-                  textAlign: "center",
-                  fontSize: "1rem",
-                  cursor: "pointer",
-                  padding: "8px",
-                  borderTop: "0px solid #444",
-                }}
-              >
-                Logout
-              </button>
+              <div className="rpg-card">
+                <div className="rpg-card-header">
+                  <div className="avatar-frame">
+                    <img src={getAvatarUrl(avatarSeed)} alt="Held" />
+                  </div>
+
+                  <div className="char-info">
+                    <h2 className="char-name">
+                      {user.user_metadata.display_name}
+                    </h2>
+
+                    <div className="char-rank">
+                      {levelInfo.level >= 50
+                        ? "🏆 Legende"
+                        : levelInfo.level >= 20
+                          ? "⚔️ Ritter"
+                          : levelInfo.level >= 10
+                            ? "🛡️ Krieger"
+                            : "🪵 Novize"}
+                    </div>
+                  </div>
+                </div>
+                {!galerieOffen ? (
+                  /* ZUGEKLAPPT: Zeigt nur den Button zum Ändern */
+                  <button
+                    className="rpg-button-secondary"
+                    onClick={() => setGalerieOffen(true)}
+                    style={{ width: "100%", marginTop: "10px" }}
+                  >
+                    🛡️ Klasse wechseln
+                  </button>
+                ) : (
+                  /* OFFEN: Die Galerie */
+                  <div className="fade-effekt">
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "15px",
+                      }}
+                    >
+                      <h3 className="selection-title" style={{ margin: 0 }}>
+                        Wähle deine Klasse
+                      </h3>
+                      <button
+                        onClick={() => setGalerieOffen(false)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#888",
+                          cursor: "pointer",
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="avatar-grid">
+                      {[
+                        {
+                          id: "MaleHelmetWarrior16",
+                          label: "Ritter",
+                          minLevel: 1,
+                        },
+                        {
+                          id: "FemaleWarrior13",
+                          label: "Kriegerin",
+                          minLevel: 1,
+                        },
+                        { id: "FemaleRouge7", label: "Schurkin", minLevel: 5 },
+                        {
+                          id: "FemaleElves2",
+                          label: "Waldläuferin",
+                          minLevel: 5,
+                        },
+                        { id: "Werwolfs41", label: "Werwolf", minLevel: 10 },
+                        { id: "Skeletons20", label: "Skelett", minLevel: 15 },
+                      ].map((char) => {
+                        const isLocked = levelInfo.level < char.minLevel;
+
+                        return (
+                          <div
+                            key={char.id}
+                            className={`avatar-card ${avatarSeed === char.id ? "active" : ""} ${isLocked ? "locked" : ""}`}
+                            onClick={() => {
+                              if (isLocked) {
+                                zeigeToast(
+                                  `🔒 Erst ab Level ${char.minLevel} verfügbar!`,
+                                );
+                                return;
+                              }
+                              setAvatarSeed(char.id);
+                              supabase.auth.updateUser({
+                                data: { avatar_seed: char.id },
+                              });
+                              zeigeToast(`${char.label} ausgewählt!`);
+                              setGalerieOffen(false);
+                            }}
+                          >
+                            <div className="avatar-preview-box">
+                              <img
+                                src={getAvatarUrl(char.id)} // Nutzt jetzt die korrigierte Funktion
+                                alt={char.label}
+                                style={{
+                                  filter: isLocked
+                                    ? "grayscale(1) brightness(0.4)"
+                                    : "none",
+                                  imageRendering: "pixelated",
+                                  width: "100%", // Sicherstellen, dass es den Container füllt
+                                  height: "100%",
+                                  display: "block",
+                                }}
+                              />
+                              {isLocked && <div className="lock-icon">🔒</div>}
+                            </div>
+                            <span className="avatar-label">
+                              {isLocked ? `Lvl ${char.minLevel}` : char.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}{" "}
+                <div className="rpg-stats-row">
+                  <div className="stat-item">
+                    <span className="stat-label">STUFE</span>
+                    <span className="stat-value">{levelInfo.level}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">GESAMT XP</span>
+                    <span className="stat-value">{xp}</span>
+                  </div>
+                </div>
+                <div className="xp-progress-section">
+                  <div className="xp-label-row">
+                    <span>Erfahrung</span>
+                    <span>
+                      {levelInfo.xpImAktuellenLevel} / {levelInfo.xpForNext}
+                    </span>
+                  </div>
+                  <div className="xp-bar-bg">
+                    <div
+                      className="xp-bar-fill"
+                      style={{ width: `${levelInfo.progressProzent}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
               <br></br>
               <div className="profile-card">
                 <h3>Daily Reminder 🔔</h3>
@@ -1700,6 +2144,84 @@ function App() {
                 Schließen
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TIPP MODAL */}
+      {tippModalOffen && (
+        <div className="modal-overlay" onClick={() => setTippModalOffen(null)}>
+          <div
+            className="modal-content fade-effekt"
+            onClick={(e) => e.stopPropagation()}
+            style={{ textAlign: "left" }}
+          >
+            <div className="modal-header" style={{ marginBottom: "15px" }}>
+              <h2 style={{ fontSize: "1.2rem", textAlign: "left", padding: 0 }}>
+                💡 Tipps für:{" "}
+                <span style={{ color: "#007bff" }}>{tippModalOffen.name}</span>
+              </h2>
+            </div>
+
+            <div
+              className="ki-modal-body"
+              style={{
+                background: "rgba(255, 193, 7, 0.05)",
+                border: "1px solid rgba(255, 193, 7, 0.2)",
+                alignItems: "flex-start",
+                padding: "15px",
+              }}
+            >
+              {isTippLoading ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    width: "100%",
+                    padding: "20px 0",
+                  }}
+                >
+                  <div
+                    className="spinner"
+                    style={{ borderLeftColor: "#ffc107" }}
+                  ></div>
+                  <p
+                    style={{
+                      marginTop: "15px",
+                      color: "#aaa",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    Coach sucht die besten Strategien...
+                  </p>
+                </div>
+              ) : (
+                <div
+                  className="ki-text"
+                  style={{
+                    fontSize: "0.95rem",
+                    lineHeight: "1.6",
+                    color: "#e0e0e0",
+                  }}
+                  /* Nutzt Markdown-ähnliche Formatierung von der KI simpel als Text */
+                >
+                  {habitTipps.split("\n").map((line, i) => (
+                    <p key={i} style={{ marginBottom: "8px" }}>
+                      {line.replace(/\*\*/g, "")}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button
+              className="modal-btn-close"
+              onClick={() => setTippModalOffen(null)}
+              style={{ background: "#ffc107", color: "#000" }}
+            >
+              Verstanden, los geht's!
+            </button>
           </div>
         </div>
       )}
