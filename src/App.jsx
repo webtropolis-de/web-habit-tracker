@@ -38,8 +38,8 @@ const berechneLevelInfo = (aktuelleXp) => {
 // ----------------------------Avatar section-----------------------------------------------
 
 const getAvatarUrl = (seed) => {
-  if (!seed) return "avatars/MaleHelmetWarrior16.png";
-  return `avatars/${seed}.png`;
+  const finalSeed = seed || "MaleHelmetWarrior16";
+  return `avatars/${finalSeed}.png`;
 };
 
 // ---------------------------------------------------------------------------
@@ -110,7 +110,7 @@ function App() {
   );
   const [kiMotivation, setKiMotivation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [avatarSeed, setAvatarSeed] = useState("Hero1");
+  const [avatarSeed, setAvatarSeed] = useState("MaleHelmetWarrior16");
   const [galerieOffen, setGalerieOffen] = useState(false);
 
   // ---------------------------- KI Habit Tipps --------------------------------- //
@@ -692,7 +692,9 @@ function App() {
 
       // --- NEU: Daten beim ersten Laden aus den Metadaten ziehen ---
       if (currentUser) {
-        setAvatarSeed(currentUser.user_metadata?.avatar_seed || "Hero1");
+        setAvatarSeed(
+          currentUser.user_metadata?.avatar_seed || "MaleHelmetWarrior16",
+        );
         setXp(currentUser.user_metadata?.xp || 0);
       }
       // -------------------------------------------------------------
@@ -1114,7 +1116,12 @@ function App() {
                 <img
                   src={getAvatarUrl(avatarSeed)}
                   alt="Avatar"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%", // Rundet nur das Bild ab
+                    objectFit: "cover",
+                  }}
                 />
                 <span className="mini-level-indicator">{levelInfo.level}</span>
               </div>
@@ -1203,7 +1210,7 @@ function App() {
                     </div>
                   </div>
                   <div className="level-badge-compact">
-                    ⭐ Lvl {levelInfo.level}
+                    Lvl {levelInfo.level}
                   </div>
                 </div>
 
@@ -1470,7 +1477,7 @@ function App() {
                               className="calendar-trigger tipps-trigger"
                               onClick={() => holeHabitTipps(habit)}
                             >
-                              💡 Tipps holen
+                              💡 Tipps
                             </button>
                           )}
                         </div>
@@ -1845,7 +1852,7 @@ function App() {
                     display: "flex",
                     gap: "10px",
                     alignItems: "center",
-                    justifyContent: "center",
+                    justifyContent: "left",
                   }}
                 >
                   <input

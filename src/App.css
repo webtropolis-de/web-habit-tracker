@@ -504,11 +504,14 @@ h3 {
 }
 
 .profile-section h3 {
+  font-family: Georgia, serif;
   font-size: 1rem;
+  color: #c0a080;
+  text-transform: uppercase;
   border-bottom: 1px solid #333;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
   margin-bottom: 15px;
-  color: #fff;
+  text-align: left;
 }
 
 /* Fix für die Formulare im Profil */
@@ -1470,7 +1473,7 @@ button:focus-visible {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
 }
 
 .calendar-trigger {
@@ -1776,8 +1779,8 @@ button:focus-visible {
 }
 
 .avatar-frame.mini {
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: 100px;
   border-width: 2px;
 }
 
@@ -1809,4 +1812,277 @@ button:focus-visible {
   border-color: #c0a080;
   transform: translateY(-2px);
   transition: all 0.2s ease;
+}
+
+/* AB HIER NEU */
+/* --- RPG PIXEL-ART BUTTON STYLE --- */
+.add-button,
+.login-button,
+.btn-checkin,
+.rpg-button-secondary {
+  /* 1. Die Basis-Farben (Dunkelgrau für Stein) */
+  background-color: #3a3a45;
+  color: #fff;
+
+  /* 2. Die eckige Form und Pixel-Schrift */
+  border-radius: 0; /* Weg mit den runden Ecken! */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 900;
+  font-size: 0.9rem;
+
+  /* 3. Der wichtigste Trick: Die Pixel-Kante */
+  /* Wir nutzen Box-Shadow, um einen echten, harten 2-Pixel-Rand zu simulieren */
+  border: none; /* Deaktiviert den normalen Rand */
+  box-shadow:
+    inset 0 2px 0 #555,
+    /* Hellerer Rand oben (Licht) */ inset 0 -4px 0 #222,
+    /* Dunklerer Rand unten (Schatten) */ 0 0 0 2px #000; /* Schwarzer Außenrand (2px breit) */
+
+  /* 4. Padding anpassen, damit der Text trotz Kante mittig sitzt */
+  padding: 14px 20px 18px 20px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.1s ease;
+}
+
+/* --- HOVER EFFEKT: GOLDENES LEUCHTEN --- */
+.add-button:hover,
+.login-button:hover,
+.btn-checkin:hover,
+.rpg-button-secondary:hover {
+  background-color: #4a4a5a; /* Etwas hellerer Stein */
+  color: #ffc107; /* Goldener Text */
+
+  /* Goldener Pixel-Rand und Leuchten */
+  box-shadow:
+    inset 0 2px 0 #ffd700,
+    /* Gold oben */ inset 0 -4px 0 #b8860b,
+    /* Dunkelgold unten */ 0 0 0 2px #ff9800,
+    /* Goldener Außenrand */ 0 0 15px rgba(255, 193, 7, 0.4); /* Dezent goldener Glow */
+}
+
+/* --- AKTIV-EFFEKT: RUNTERDRÜCKEN --- */
+.add-button:active,
+.login-button:active,
+.btn-checkin:active,
+.rpg-button-secondary:active {
+  transform: translateY(2px); /* Der Button "sinkt" ein */
+
+  /* Schatten umdrehen, damit es gedrückt aussieht */
+  box-shadow:
+    inset 0 4px 0 #222,
+    /* Schatten jetzt oben */ inset 0 -2px 0 #444,
+    /* Licht jetzt unten */ 0 0 0 2px #000;
+
+  padding: 16px 20px 16px 20px; /* Padding ausgleichen */
+}
+
+/* --- RPG PIXEL-ART INPUT STYLE --- */
+.habit-input,
+.goal-input {
+  background-color: #1a1a20; /* Dunklerer "Slot"-Hintergrund */
+  color: #fff;
+  border-radius: 0; /* Weg mit den runden Ecken */
+  border: none;
+  outline: none;
+}
+
+/* Fokus-Effekt: Wenn du reinklickst, leuchtet der Slot blau */
+.habit-input:focus,
+.goal-input:focus {
+  background-color: #202028;
+  box-shadow:
+    inset 0 4px 0 #000,
+    inset 0 -2px 0 #007bff,
+    /* Dein Blau als Fokus-Leuchten */ 0 0 0 2px #007bff;
+}
+
+/* Den Placeholder etwas dezenter machen */
+.habit-input::placeholder,
+.goal-input::placeholder {
+  color: #555;
+  font-style: italic;
+  text-transform: none; /* Placeholder nicht in Caps */
+}
+
+/* --- OPTIONAL: Die Typ-Buttons (Abstinenz / Wochenziel) --- */
+/* Falls du die oberen Buttons auch pixelig willst: */
+.input-group div button {
+  border-radius: 0 !important;
+  border: 2px solid #333 !important;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* --- RPG QUEST-ITEM (HABIT ROW) STYLE --- */
+.habit-row {
+  background-color: #1a1a20; /* Gleicher dunkler Slot-Grund wie bei den Inputs */
+  border-radius: 0; /* Eckig für den Pixel-Look */
+  border: none;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+
+  /* Der Rahmen-Effekt: Eine Kombination aus Stein-Optik und blauer Markierung */
+  box-shadow:
+    inset 0 0 0 2px #333,
+    /* Innerer dunkler Rahmen */ 0 0 0 2px #000; /* Schwarzer Außenrand */
+
+  border-left: 6px solid #007bff; /* Deine "Aktiv"-Markierung als dicker Balken */
+  transition: transform 0.1s ease;
+}
+
+.habit-row:hover {
+  transform: translateX(
+    4px
+  ); /* Schiebt sich beim Drüberfahren leicht nach rechts */
+  box-shadow:
+    inset 0 0 0 2px #444,
+    0 0 10px rgba(0, 123, 255, 0.2),
+    0 0 0 2px #000;
+}
+
+/* Wenn das Ziel erreicht ist, färben wir den "Quest-Balken" grün */
+.habit-row.completed {
+  border-left-color: #28a745;
+}
+
+/* Der Bereich mit dem Emoji und Namen */
+.habit-info-main {
+  padding: 15px;
+  flex-grow: 1;
+}
+
+.habit-progress-bar {
+  background: linear-gradient(90deg, #007bff, #00d2ff);
+  border-radius: 0;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Der Aktions-Bereich (Plus-Button rechts) */
+.action-zone-main {
+  width: 70px;
+  background-color: #3a3a45; /* Gleicher Stein-Look wie der Add-Button */
+  color: #fff;
+  border-left: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: inset 2px 0 0 #555; /* Lichtkante links am Button */
+}
+
+.action-zone-main:active {
+  background-color: #222;
+  box-shadow: inset 4px 4px 0 #000;
+}
+
+.action-zone-main:hover {
+  color: #ffc107; /* Plus-Zeichen leuchtet Gold beim Hover */
+}
+
+/* --- 10. RPG STYLE STATISTIK (STATS VIEW) --- */
+.stats-view h1 {
+  color: #c0a080 !important; /* Dein Gold-Ton */
+  font-family: Georgia, serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0px #000;
+}
+
+/* Die Statistik-Karten wie eingravierte Steintafeln stylen */
+.stats-card,
+.xp-container {
+  background-color: #1a1a20; /* Gleicher Slot-Grund wie bei den Inputs */
+  border: 4px solid #4a3121; /* Dunkelbrauner Rahmen */
+  border-radius: 0; /* Eckig für den Pixel-Look */
+  box-shadow:
+    inset 0 0 15px rgba(0, 0, 0, 0.5),
+    /* Tiefe nach innen */ 0 0 0 2px #000; /* Schwarzer Außenrand */
+  color: #ffffff; /* Dunkler Text auf hellem Grund */
+}
+
+/* XP Container Header */
+.xp-header,
+.stats-header {
+  border-bottom: 1px solid #c0a080;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+/* Level-Badge goldener und plastischer machen */
+.level-badge,
+.level-badge-compact {
+  background: linear-gradient(135deg, #ffd700, #b8860b);
+  color: #000 !important;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 5px 15px;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  border: 1px solid #000;
+}
+
+/* Statistikelemente Texte Pergamentfarben */
+.stat-label {
+  color: #c0a080; /* Dein Gold-Ton */
+}
+
+/* Statistikelemente Werte Goldfett */
+.stat-value {
+  font-weight: 900;
+  color: #fff !important;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-shadow: 1px 1px 0px #000;
+}
+
+/* Rekord Statistikelement Gold-Text */
+.best-streak .stat-value {
+  color: #ffc107 !important; /* Goldene Farbe für den Rekord */
+}
+
+/* Fortschrittsbalken Gold/Blauer Verlauf */
+.xp-bar-fill,
+.progress-bar {
+  background: linear-gradient(90deg, #ffd700, #ffc107);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Rekord Fortschrittsbalken Goldfett */
+.mini-progress-fill {
+  background: #ffc107;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* --- EINHEITLICHE RPG TITEL (Tracker, Profil, Stats) --- */
+.home-view h1,
+.profile-view h1,
+.stats-view h1 {
+  color: #c0a080 !important; /* Dein Gold-Ton */
+  font-family: Georgia, serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0px #000; /* Der harte RPG-Schatten */
+  margin-top: 25px;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+/* Der Untertitel (z.B. "Schön, dass du da bist") */
+.home-view .quote,
+.profile-view .profile-email-info,
+.stats-view p {
+  color: #888;
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  text-align: center;
 }
