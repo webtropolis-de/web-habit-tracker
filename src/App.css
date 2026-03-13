@@ -5,11 +5,11 @@
   padding: 0;
 }
 
-
 body {
   overflow-x: hidden; /* Verhindert horizontales Scrollen auf der ganzen Seite */
   width: 100vw;
   background-color: #121214;
+  overscroll-behavior-y: none;
 }
 
 #root {
@@ -27,7 +27,9 @@ body {
 }
 
 /* --- ANSICHTEN (Views) --- */
-.home-view, .stats-view, .profile-view {
+.home-view,
+.stats-view,
+.profile-view {
   width: 100%;
   max-width: 500px; /* Deine gewählte Standard-Breite */
   margin: 0 auto;
@@ -38,10 +40,15 @@ body {
 }
 
 /* Überschriften-Fix damit sie nicht schieben */
-h1, h2 {
+h1,
+h2 {
   color: #ffffff;
   text-align: center;
-  font-size: clamp(1.5rem, 5vw, 2rem); /* Schrumpft auf kleinen Handys automatisch */
+  font-size: clamp(
+    1.5rem,
+    5vw,
+    2rem
+  ); /* Schrumpft auf kleinen Handys automatisch */
   max-width: 100%;
   word-wrap: break-word;
 }
@@ -49,7 +56,11 @@ h1, h2 {
 h3 {
   color: #ffffff;
   text-align: left;
-  font-size: clamp(1.5rem, 5vw, 2rem); /* Schrumpft auf kleinen Handys automatisch */
+  font-size: clamp(
+    1.5rem,
+    5vw,
+    2rem
+  ); /* Schrumpft auf kleinen Handys automatisch */
   max-width: 100%;
   word-wrap: break-word;
 }
@@ -67,13 +78,14 @@ h3 {
   background-color: #1e1e24;
   padding: 20px;
   border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   margin-bottom: 20px; /* Abstand zur Liste */
   box-sizing: border-box;
   border: 1px solid #333;
 }
 
-.habit-input, .goal-input {
+.habit-input,
+.goal-input {
   background-color: #2a2a35;
   border: 1px solid #444;
   color: white;
@@ -84,28 +96,33 @@ h3 {
   transition: border-color 0.2s;
 }
 
-.habit-input:focus, .goal-input:focus {
+.habit-input:focus,
+.goal-input:focus {
   border-color: #007bff;
 }
 
 /* --- BUTTONS --- */
-.add-button, .login-button {
+.add-button,
+.login-button {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 12px 20px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
   font-size: 1rem;
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
 }
 
-.add-button:hover, .login-button:hover {
+.add-button:hover,
+.login-button:hover {
   background-color: #0056b3;
 }
 
-.add-button:active, .login-button:active {
+.add-button:active,
+.login-button:active {
   transform: scale(0.97);
 }
 
@@ -137,7 +154,7 @@ h3 {
   background-color: #1e1e24;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -239,7 +256,8 @@ h3 {
   width: 100%;
 }
 
-.reset-button, .delete-button {
+.reset-button,
+.delete-button {
   flex: 1;
   padding: 10px;
   border: none;
@@ -253,14 +271,19 @@ h3 {
   background-color: #444;
   color: #fff;
 }
-.reset-button:hover { background-color: #555; }
+.reset-button:hover {
+  background-color: #555;
+}
 
 .delete-button {
   background-color: rgba(220, 53, 69, 0.1);
   color: #dc3545;
   border: 1px solid #dc3545;
 }
-.delete-button:hover { background-color: #dc3545; color: white; }
+.delete-button:hover {
+  background-color: #dc3545;
+  color: white;
+}
 
 /* --- SPINNER --- */
 .spinner-container {
@@ -281,8 +304,12 @@ h3 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- ANIMATIONEN --- */
@@ -291,8 +318,14 @@ h3 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .emoji-picker-container {
@@ -303,22 +336,25 @@ h3 {
 
 .emoji-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 99;
 }
 
-.home-view h1, .stats-view h1, .profile-view h1 {
+.home-view h1,
+.stats-view h1,
+.profile-view h1 {
   text-align: center;
   margin-top: 20px;
 }
-
 
 /* Container für die Action-Gruppe rechts */
 .habit-row-actions {
   display: flex;
   align-items: stretch;
   height: 100%;
-  
 }
 
 /* Der große Plus-Bereich */
@@ -360,7 +396,6 @@ h3 {
 }
 
 .action-zone-small.reset {
-  
   color: #888;
 }
 
@@ -373,7 +408,9 @@ h3 {
 }
 
 /* Neuer, moderner Plus-Button (Eckig, abgerundet) */
-.btn-plus, .btn-reset, .btn-delete {
+.btn-plus,
+.btn-reset,
+.btn-delete {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -400,17 +437,27 @@ h3 {
   transform: scale(0.95); /* Leichtes Schrumpfen beim Klicken */
 }
 
-.btn-reset, .btn-delete {
+.btn-reset,
+.btn-delete {
   background-color: #2a2a35;
   font-size: 1rem;
 }
 
-.btn-plus:hover { background-color: #0056b3; }
-.btn-reset:hover { color: #007bff; background-color: #3a3a45; }
-.btn-delete:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.1); }
+.btn-plus:hover {
+  background-color: #0056b3;
+}
+.btn-reset:hover {
+  color: #007bff;
+  background-color: #3a3a45;
+}
+.btn-delete:hover {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+}
 
 /* Klick-Zustand für Reset- und Lösch-Buttons */
-.btn-reset:active, .btn-delete:active {
+.btn-reset:active,
+.btn-delete:active {
   transform: scale(0.95); /* Leichtes Schrumpfen beim Klicken */
 }
 
@@ -434,7 +481,7 @@ h3 {
   border-radius: 20px;
   width: 100%; /* Nutzt die 100% der übergeordneten View */
   max-width: 500px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   border: 1px solid #333;
   text-align: left;
   margin: 0 auto;
@@ -483,12 +530,15 @@ h3 {
 
 /* Die Liste der Habits (Unten) */
 .habit-list {
-  width: 100%; /* Ebenfalls volle 500px */
-  padding: 0;
-  margin: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  list-style: none;
+  padding-bottom: 80px !important;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0;
   list-style: none;
 }
 
@@ -498,7 +548,6 @@ h3 {
   display: flex;
   align-items: stretch; /* Zwingt die Action-Box auf die volle Zeilenhöhe */
 }
-
 
 /* Container für den Balken */
 .habit-progress-container {
@@ -570,8 +619,8 @@ h3 {
   font-size: 0.9rem;
   color: #aaa;
   text-align: center; /* Zwingt den Text in die Mitte */
-  width: 100%;        /* Nutzt die volle Breite der Karte */
-  display: block;     /* Sicherstellen, dass es eine eigene Zeile ist */
+  width: 100%; /* Nutzt die volle Breite der Karte */
+  display: block; /* Sicherstellen, dass es eine eigene Zeile ist */
 }
 
 .toggle-auth span {
@@ -580,7 +629,7 @@ h3 {
   font-weight: bold;
   text-decoration: none;
   display: inline-block; /* Erlaubt feineres Alignment */
-  margin-top: 5px;       /* Kleiner Abstand zur oberen Zeile */
+  margin-top: 5px; /* Kleiner Abstand zur oberen Zeile */
 }
 
 .toggle-auth span:hover {
@@ -617,7 +666,7 @@ h3 {
 
 .emoji-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); 
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
   width: 100%;
 }
@@ -681,15 +730,17 @@ h3 {
 
 .emoji-picker-dropdown {
   position: absolute;
-  top: 55px;         /* Öffnet sich nach unten */
-  right: 0;          /* Richtet sich rechts am Button aus, wächst nach links */
-  width: 220px;      /* Sicherere Breite für kleine Displays */
-  max-width: calc(100vw - 40px); /* Garantiert, dass es nicht aus dem Screen läuft */
+  top: 55px; /* Öffnet sich nach unten */
+  right: 0; /* Richtet sich rechts am Button aus, wächst nach links */
+  width: 220px; /* Sicherere Breite für kleine Displays */
+  max-width: calc(
+    100vw - 40px
+  ); /* Garantiert, dass es nicht aus dem Screen läuft */
   background-color: #1e1e24;
   border: 1px solid #444;
   border-radius: 12px;
   padding: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
   z-index: 2000;
 }
 
@@ -716,7 +767,6 @@ h3 {
   border-color: #007bff;
   background-color: rgba(0, 123, 255, 0.1);
 }
-
 
 /* Der Overlay-Schutz, um das Menü durch Tippen daneben zu schließen */
 .emoji-overlay {
@@ -751,8 +801,13 @@ h3 {
   font-size: 0.9rem;
 }
 
-.stat-label { color: #888; }
-.stat-value { font-weight: bold; color: #fff; }
+.stat-label {
+  color: #888;
+}
+.stat-value {
+  font-weight: bold;
+  color: #fff;
+}
 
 .best-streak .stat-value {
   color: #ffc107; /* Goldene Farbe für den Rekord */
@@ -779,11 +834,12 @@ h3 {
   left: 50%;
   transform: translateX(-50%);
   background-color: rgba(30, 30, 36, 0.95);
+  -webkit-backdrop-filter: blur(10px); /* Safari/iOS support */
   backdrop-filter: blur(10px);
   border: 1px solid #444;
   padding: 10px 20px;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
   z-index: 9999;
   width: 90%;
   max-width: 400px;
@@ -821,8 +877,13 @@ h3 {
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
 }
 
 /* --- CUSTOM TOAST --- */
@@ -831,40 +892,41 @@ h3 {
   bottom: 40px; /* Etwas mehr Abstand für Daumen-Bedienung */
   left: 50%;
   transform: translateX(-50%);
-  width: 85%; 
+  width: 85%;
   max-width: 380px;
-  
+
   /* Hintergrund passend zu deinen Karten (#1e1e24) mit Transparenz */
   background-color: rgba(30, 30, 36, 0.92);
+  -webkit-backdrop-filter: blur(10px); /* Safari/iOS support */
   backdrop-filter: blur(10px); /* Der schicke Glas-Effekt */
-  
+
   /* Dein Blau als Akzent-Rahmen */
-  border: 1px solid #007bff; 
+  border: 1px solid #007bff;
   color: white;
-  
+
   padding: 16px 22px;
   border-radius: 16px; /* Gleicher Radius wie deine Habit-Karten */
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
   z-index: 10000;
-  
+
   font-weight: 500;
   font-size: 0.95rem;
   text-align: center;
   line-height: 1.4;
-  
+
   /* Die Animation von unten nach oben */
   animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes slideUp {
-  from { 
-    bottom: -100px; 
-    opacity: 0; 
+  from {
+    bottom: -100px;
+    opacity: 0;
     transform: translateX(-50%) scale(0.9); /* Kleiner "Pop"-Effekt beim Erscheinen */
   }
-  to { 
-    bottom: 40px; 
-    opacity: 1; 
+  to {
+    bottom: 40px;
+    opacity: 1;
     transform: translateX(-50%) scale(1);
   }
 }
@@ -877,8 +939,8 @@ h3 {
 }
 
 .calendar-trigger {
-  background-color:rgba(0, 123, 255, 0.1);
-  
+  background-color: rgba(0, 123, 255, 0.1);
+
   color: #e0e0e0;
   font-size: 0.9rem; /* Größerer Trigger wie gewünscht */
   font-weight: 600;
@@ -888,7 +950,6 @@ h3 {
   align-items: center;
   gap: 5px;
   transition: color 0.2s;
-
 }
 
 .calendar-trigger:hover {
@@ -905,7 +966,7 @@ h3 {
   background: rgba(0, 0, 0, 0.4); /* Dunkler für besseren Kontrast zur Karte */
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .calendar-weekday-label {
@@ -944,7 +1005,6 @@ h3 {
   background: rgba(0, 123, 255, 0.1);
 }
 
-
 /* --- MODAL STYLES --- */
 .modal-overlay {
   position: fixed;
@@ -953,6 +1013,7 @@ h3 {
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(8px); /* Safari/iOS support */
   backdrop-filter: blur(8px); /* Hintergrund wird weichgezeichnet */
   display: flex;
   align-items: center;
@@ -968,7 +1029,7 @@ h3 {
   border-radius: 24px;
   padding: 25px;
   border: 1px solid #333;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   text-align: center;
 }
 
@@ -1007,7 +1068,7 @@ h3 {
   justify-content: center;
   font-size: 1.2rem;
   transition: background 0.2s;
-  display:none;
+  display: none;
 }
 
 .close-modal:hover {
@@ -1026,7 +1087,7 @@ h3 {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   padding: 15px;
   border-radius: 16px;
 }
@@ -1040,7 +1101,7 @@ h3 {
 
 .calendar-day {
   aspect-ratio: 1/1;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -1139,15 +1200,20 @@ h3 {
   box-shadow: none;
 }
 
-
 /* --- SIDEBAR MENU --- */
 .sidebar-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0,0,0,0.6);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 998;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 .sidebar-overlay.open {
   opacity: 1;
@@ -1155,32 +1221,55 @@ h3 {
 }
 
 .sidebar-menu {
-  position: fixed; top: 0; left: 0; bottom: 0; width: 250px;
-  background-color: #16161a; padding: 20px; z-index: 999;
-  display: flex; flex-direction: column; gap: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 250px;
+  background-color: #16161a;
+  padding: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   box-shadow: none;
   transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease;
 }
 .sidebar-menu.open {
   transform: translateX(0);
-  box-shadow: 4px 0 15px rgba(0,0,0,0.8);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.8);
 }
 
 .sidebar-header {
-  color: #fff; border-bottom: 1px solid #444; padding-bottom: 15px; margin-top: 10px; margin-bottom: 20px;
+  color: #fff;
+  border-bottom: 1px solid #444;
+  padding-bottom: 15px;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 .sidebar-link {
-  background: none; border: none; color: #aaa; text-align: left; font-size: 1.2rem; cursor: pointer; padding: 10px 0; font-weight: normal;
+  background: none;
+  border: none;
+  color: #aaa;
+  text-align: left;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 10px 0;
+  font-weight: normal;
 }
 .sidebar-link.active {
-  color: #007bff; font-weight: bold;
+  color: #007bff;
+  font-weight: bold;
 }
 .sidebar-link.logout {
-  color: #ff4d4d; padding: 15px 0; border-top: 1px solid #444;
+  color: #ff4d4d;
+  padding: 15px 0;
+  border-top: 1px solid #444;
 }
-
 
 /* --- FLOATING KI BUTTON --- */
 .fab-ki {
@@ -1194,10 +1283,10 @@ h3 {
   font-size: 50px; /* Größeres Emoji */
   cursor: pointer;
   z-index: 900;
-  
+
   /* Blauer Glow-Effekt */
   filter: drop-shadow(0 0 10px rgba(0, 123, 255, 0.7));
-  
+
   /* Schwebe-Animation */
   animation: float 3s ease-in-out infinite;
   transition: transform 0.2s ease;
@@ -1209,9 +1298,15 @@ h3 {
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .fab-ki:active {
