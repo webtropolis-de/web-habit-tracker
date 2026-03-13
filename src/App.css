@@ -1853,13 +1853,6 @@ button:focus-visible {
 .rpg-button-secondary:hover {
   background-color: #4a4a5a; /* Etwas hellerer Stein */
   color: #ffc107; /* Goldener Text */
-
-  /* Goldener Pixel-Rand und Leuchten */
-  box-shadow:
-    inset 0 2px 0 #ffd700,
-    /* Gold oben */ inset 0 -4px 0 #b8860b,
-    /* Dunkelgold unten */ 0 0 0 2px #ff9800,
-    /* Goldener Außenrand */ 0 0 15px rgba(255, 193, 7, 0.4); /* Dezent goldener Glow */
 }
 
 /* --- AKTIV-EFFEKT: RUNTERDRÜCKEN --- */

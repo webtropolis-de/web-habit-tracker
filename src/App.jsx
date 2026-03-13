@@ -710,7 +710,9 @@ function App() {
 
       // Auch beim Auth-Wechsel (Login/Logout) Daten setzen ---
       if (currentUser) {
-        setAvatarSeed(currentUser.user_metadata?.avatar_seed || "Hero1");
+        setAvatarSeed(
+          currentUser.user_metadata?.avatar_seed || "MaleHelmetWarrior16",
+        );
         setXp(currentUser.user_metadata?.xp || 0);
       }
       // ---------------------------------------------------------------
@@ -1940,7 +1942,14 @@ function App() {
                   style={{ textAlign: "left", marginBottom: "15px" }}
                 >
                   Trage hier deinen Google Gemini API-Key ein. Er wird nur lokal
-                  und sicher auf deinem Gerät gespeichert.
+                  und sicher auf deinem Gerät gespeichert. Du kannsr ihn dir
+                  hier kostenfrei generieren{" "}
+                  <a
+                    href="https://aistudio.google.com/api-keys?"
+                    target="blank"
+                  >
+                    API Key holen
+                  </a>
                 </p>
                 <div className="form-group">
                   <input
