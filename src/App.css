@@ -2168,3 +2168,73 @@ button:focus-visible {
     0 0 0 2px #000,
     0 0 15px rgba(255, 77, 77, 0.3);
 }
+
+/* In deine App.css für Fehlermeldungen */
+.custom-toast.error {
+  border: 2px solid #ff4d4d;
+  background: #2a1010;
+  color: #ffcccc;
+  box-shadow:
+    0 0 15px rgba(255, 77, 77, 0.5),
+    inset 0 0 10px #000;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* --- RPG STYLE TOASTS --- */
+.custom-toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85%;
+  max-width: 400px;
+  z-index: 10000;
+  padding: 16px 20px;
+
+  /* Pixel-Style */
+  border-radius: 0;
+  font-family: Georgia, serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  text-align: center;
+
+  /* Basis-Rahmen */
+  border: none;
+  box-shadow: 0 0 0 2px #000;
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Erfolg: Blaues/Goldenes Glühen */
+.custom-toast.success {
+  background-color: #1a1a20;
+  color: #c0a080; /* Dein Gold-Ton */
+  border-top: 4px solid #007bff;
+  box-shadow:
+    0 0 0 2px #000,
+    0 10px 30px rgba(0, 123, 255, 0.3);
+}
+
+/* Fehler: Rotes Glühen */
+.custom-toast.error {
+  background-color: #2a1010; /* Dunkles Blutrot */
+  color: #ff4d4d;
+  border-top: 4px solid #ff4d4d;
+  box-shadow:
+    0 0 0 2px #000,
+    0 10px 30px rgba(255, 77, 77, 0.3);
+}
+
+@keyframes slideUp {
+  from {
+    bottom: -100px;
+    opacity: 0;
+    transform: translateX(-50%) scale(0.9);
+  }
+  to {
+    bottom: 40px;
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}

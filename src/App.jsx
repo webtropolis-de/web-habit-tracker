@@ -194,11 +194,15 @@ function App() {
   };
 
   // -------------- Toast Funktion ------------------------------------- //
-  const zeigeToast = (nachricht) => {
-    setToast(nachricht);
+  const zeigeToast = (nachricht, typ = "success") => {
+    const toastId = Date.now();
+    // Erstelle das Toast-Objekt mit Nachricht und Typ
+    setToast({ id: toastId, text: nachricht, type: typ });
+
+    // Nach 4 Sekunden automatisch ausblenden
     setTimeout(() => {
       setToast(null);
-    }, 3000);
+    }, 4000);
   };
   // ------------------- PWA POPup -------------------------------------- //
   useEffect(() => {
@@ -642,21 +646,48 @@ function App() {
   // ---------------------- LOGIN System -------------------------------------//
 
   const handleRegister = async () => {
-    const { error } = await supabase.auth.signUp({
+    setLoadingText("Heuere neuen Helden an...");
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           display_name: username,
+          avatar_seed: "MaleHelmetWarrior16", // Standard-Held für neue User
+          xp: 0,
         },
       },
     });
-    if (error) zeigeToast("Registrierung fehlgeschlagen: " + error.message);
-    else zeigeToast("Check deine E-Mails für den Bestätigungslink!");
+
+    if (error) {
+      // Prüfen, ob der Held bereits existiert
+      if (
+        error.message.includes("already registered") ||
+        error.status === 400
+      ) {
+        zeigeToast(
+          "Dieser Held ist bereits bekannt! Nutze den Login.",
+          "error",
+        );
+      } else {
+        zeigeToast("Registrierung fehlgeschlagen: " + error.message, "error");
+      }
+      setLoading(false);
+    } else if (data?.user && data?.session) {
+      // Sofort-Login Erfolg (wenn Confirm Email OFF ist)
+      zeigeToast("Willkommen in der Gilde, " + username + "!", "success");
+      // Der User wird durch den onAuthStateChange in Supabase automatisch gesetzt
+    } else {
+      // Falls Confirm Email doch noch AN ist
+      zeigeToast("Check deine E-Mails für den Bestätigungslink!", "success");
+      setLoading(false);
+    }
   };
 
   const handleLogin = async () => {
-    setLoadingText("Melde dich an...");
+    setLoadingText("Betrete die Taverne...");
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -665,19 +696,29 @@ function App() {
     });
 
     if (error) {
-      zeigeToast("Login fehlgeschlagen: " + error.message);
+      zeigeToast("Login fehlgeschlagen: " + error.message, "error");
       setLoading(false);
+    } else {
+      zeigeToast("Willkommen zurück!", "success");
     }
   };
 
   const handleLogout = async () => {
-    setLoadingText("Melde dich ab...");
+    setLoadingText("Verlasse die Gruppe...");
     setLoading(true);
-    await supabase.auth.signOut();
-    setHabits([]); // Liste leeren
-    setKiMotivation(""); // KI Text leeren
-    clearLogin(); // Formularfelder leeren
-    setAktuelleAnsicht("home"); // Zurück auf Start
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      zeigeToast("Logout fehlgeschlagen: " + error.message, "error");
+    } else {
+      setHabits([]);
+      setKiMotivation("");
+      clearLogin();
+      setAktuelleAnsicht("home");
+      zeigeToast("Sicher zurückgekehrt!", "success");
+    }
+    setLoading(false);
   };
 
   // ---------------------db anbindung---------------------------------------//
@@ -2002,7 +2043,12 @@ function App() {
         </div>
       )}
       {/*  TOASTs */}
-      {toast && <div className="custom-toast">{toast}</div>}
+      {toast && (
+        <div className={`custom-toast ${toast.type} fade-effekt`}>
+          {toast.type === "error" ? "⚠️ " : "📜 "}
+          {toast.text}
+        </div>
+      )}
 
       {/*  CALENDAR MODAL */}
       {offenerKalender && (
