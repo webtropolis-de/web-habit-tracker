@@ -765,39 +765,40 @@ function App() {
   }, []);
 
   // --------------------- Daten laden -------------------------------------
+  // --------------------- Daten laden (MIT RPG-DELAY) -------------------------------------
   useEffect(() => {
     if (user?.id) {
-      // Lädt die XP
       setXp(user.user_metadata?.xp || 0);
-      const datenLaden = async () => {
-        setLoading(true); // Spinner AN
 
-        // (aus habitService)
+      const datenLaden = async () => {
+        setLoadingText("Initialisiere Quest...");
+        setLoading(true);
+
+        // 1. Die echten Daten aus Supabase holen
         const { data, error } = await habitService.datenLaden();
 
         if (error) {
           console.log("Fehler beim Laden:", error);
         } else if (data) {
-          // Prüfen, ob wir Wochenziele auf 0 setzen müssen
           let aktuelleHabits = [...data];
-
           for (let i = 0; i < aktuelleHabits.length; i++) {
             const habit = aktuelleHabits[i];
-
             if (habit.type === "wochenziel" && istNeueWoche(habit.last_reset)) {
-              // auf 0 setzen
               await habitService.wochenReset(habit.id);
-              // auf 0 setzen
               aktuelleHabits[i].days = 0;
               aktuelleHabits[i].last_reset = new Date().toISOString();
             }
           }
-
           setHabits(aktuelleHabits);
         }
 
-        setLoading(false); // Spinner AUS
+        // 2. DER DELAY: Wir warten hier 2 Sekunden (2000ms)
+        // Das gibt deinem Ladebalken im CSS genug Zeit zum Füllen
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        setLoading(false); // Erst jetzt blenden wir den Ladebildschirm aus
       };
+
       datenLaden();
     }
   }, [user?.id]);
@@ -874,6 +875,35 @@ function App() {
   };
 
   // -------------------------Ende Functions--------------------------------------------------------------
+
+  if (loading) {
+    return (
+      <div className="spinner-container">
+        {/* Das Logo über dem Balken */}
+        <img
+          src={logo}
+          alt="Logo"
+          style={{
+            width: "120px",
+            marginBottom: "10px",
+            filter: "drop-shadow(0 0 10px rgba(0,0,0,0.5))",
+          }}
+        />
+
+        {/* Der neue Ladebalken */}
+        <div className="loading-bar-container">
+          <div className="loading-bar-fill"></div>
+        </div>
+
+        <p
+          className="fade-effekt"
+          style={{ fontSize: "0.8rem", letterSpacing: "2px", opacity: 0.8 }}
+        >
+          {loadingText || "INITIALISIERE QUEST..."}
+        </p>
+      </div>
+    );
+  }
 
   // Begin -> HTML
 

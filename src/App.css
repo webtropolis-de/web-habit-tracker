@@ -285,30 +285,74 @@ h3 {
   color: white;
 }
 
-/* --- SPINNER --- */
+/* --- RPG LOADING BAR --- */
 .spinner-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
+  background-color: #121214;
+  color: #c0a080;
+  gap: 20px;
 }
 
-.spinner {
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border-left-color: #007bff;
-  animation: spin 1s linear infinite;
+/* Der Rahmen des Ladebalkens */
+.loading-bar-container {
+  width: 250px;
+  height: 24px;
+  background-color: #1a1a20;
+  border: 4px solid #4a3121; /* Holz/Stein Rahmen */
+  box-shadow: 0 0 0 2px #000;
+  position: relative;
+  overflow: hidden;
 }
 
-@keyframes spin {
+/* Die eigentliche Füllung */
+.loading-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c0a080, #ffd700);
+  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3);
+  width: 0%; /* Startet bei 0 */
+  animation: fill-bar 2.5s infinite ease-in-out; /* Endlosschleife für den Lade-Effekt */
+  animation: fill-bar 1.8s ease-out forwards;
+}
+
+/* Glanz-Effekt der über den Balken wischt */
+.loading-bar-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shine-bar 1.5s infinite;
+}
+
+@keyframes fill-bar {
   0% {
-    transform: rotate(0deg);
+    width: 0%;
+  }
+  50% {
+    width: 70%;
   }
   100% {
-    transform: rotate(360deg);
+    width: 100%;
+  }
+}
+
+@keyframes shine-bar {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
   }
 }
 
