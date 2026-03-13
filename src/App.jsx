@@ -138,10 +138,17 @@ function App() {
 
     try {
       // Der Prompt passt sich dynamisch an, ob es Abstinenz oder ein Wochenziel ist
-      const zielTyp =
-        habit.type === "wochenziel"
-          ? "Ich möchte das regelmäßig schaffen."
-          : "Ich möchte komplett darauf verzichten / abstinent bleiben.";
+      let zielTyp = "";
+      if (habit.type === "wochenziel") {
+        zielTyp =
+          "Das ist ein Wochenziel, das ich mehrfach pro Woche erreichen muss.";
+      } else if (habit.type === "taeglich") {
+        zielTyp =
+          "Das ist eine tägliche Quest, die ich jeden Tag ohne Ausnahme meistern will.";
+      } else {
+        zielTyp =
+          "Das ist ein Laster, dem ich entsage. Ich möchte abstinent bleiben.";
+      }
 
       const prompt = `Du bist ein Habit-Coach. Mein Ziel heißt: "${habit.name}". ${zielTyp} 
       Gib mir exakt 3 extrem kurze, psychologisch fundierte und direkt anwendbare Tipps, wie ich das durchziehe. 
@@ -1314,13 +1321,14 @@ function App() {
                 }}
               >
                 {/* Typ-Auswahl  */}
+                {/* Typ-Auswahl */}
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button
                     type="button"
                     onClick={() => setHabitType("abstinenz")}
                     style={{
                       flex: 1,
-                      padding: "12px",
+                      padding: "10px",
                       borderRadius: "12px",
                       border:
                         habitType === "abstinenz"
@@ -1334,34 +1342,60 @@ function App() {
                       cursor: "pointer",
                       fontWeight: "bold",
                       transition: "0.2s",
-                      fontSize: "0.9rem",
+                      fontSize: "0.8rem",
                     }}
                   >
-                    ⏳ Abstinenz
+                    🛡️ Abstinenz
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setHabitType("taeglich")}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      borderRadius: "12px",
+                      border:
+                        habitType === "taeglich"
+                          ? "2px solid #28a745"
+                          : "1px solid #444",
+                      backgroundColor:
+                        habitType === "taeglich"
+                          ? "rgba(40, 167, 69, 0.15)"
+                          : "transparent",
+                      color: habitType === "taeglich" ? "#fff" : "#aaa",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      transition: "0.2s",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    💧 Täglich
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setHabitType("wochenziel")}
                     style={{
                       flex: 1,
-                      padding: "12px",
+                      padding: "10px",
                       borderRadius: "12px",
                       border:
                         habitType === "wochenziel"
-                          ? "2px solid #007bff"
+                          ? "2px solid #ffc107"
                           : "1px solid #444",
                       backgroundColor:
                         habitType === "wochenziel"
-                          ? "rgba(0, 123, 255, 0.15)"
+                          ? "rgba(255, 193, 7, 0.15)"
                           : "transparent",
                       color: habitType === "wochenziel" ? "#fff" : "#aaa",
                       cursor: "pointer",
                       fontWeight: "bold",
                       transition: "0.2s",
-                      fontSize: "0.9rem",
+                      fontSize: "0.8rem",
                     }}
                   >
-                    📅 Wochenziel
+                    📅 Woche
                   </button>
                 </div>
 
@@ -1369,26 +1403,35 @@ function App() {
                 <input
                   className="habit-input"
                   type="text"
-                  placeholder="Was möchtest du tracken?"
+                  placeholder={
+                    habitType === "abstinenz"
+                      ? "Welchem Laster entsagst du?"
+                      : habitType === "taeglich"
+                        ? "Welche tägliche Quest trittst du an?"
+                        : "Welches Wochen-Abenteuer planst du?"
+                  }
                   value={eingabeWert}
                   required
                   onChange={(e) => setInputValue(e.target.value)}
                   style={{ width: "100%", margin: 0 }}
                 />
 
-                {/* Ziel-Wert & Emoji-Picker */}
+                {/* Ziel-Wert Eingabefeld */}
                 <div
                   style={{ display: "flex", gap: "10px", alignItems: "center" }}
                 >
                   <div style={{ flex: 1 }}>
-                    {habitType === "abstinenz" ? (
+                    {habitType === "abstinenz" || habitType === "taeglich" ? (
                       <input
                         className="goal-input"
                         type="number"
                         value={zielWert}
-                        required
                         onChange={(e) => setZielWert(e.target.value)}
-                        placeholder="Wie lange? (leer = ♾️)"
+                        placeholder={
+                          habitType === "taeglich"
+                            ? "Ziel (Tage) – Leer für ♾️"
+                            : "Abstinent bleiben für (Tage)"
+                        }
                         style={{ width: "100%", margin: 0 }}
                       />
                     ) : (
@@ -1396,9 +1439,8 @@ function App() {
                         className="goal-input"
                         type="number"
                         value={frequency}
-                        required
                         onChange={(e) => setFrequency(e.target.value)}
-                        placeholder="Wie oft/Woche?"
+                        placeholder="Wiederholungen pro Woche"
                         style={{ width: "100%", margin: 0 }}
                       />
                     )}
@@ -1511,7 +1553,11 @@ function App() {
                             display: "block",
                           }}
                         >
-                          {isWochenziel ? "Wochenziel" : "Abstinenz"}
+                          {habit.type === "wochenziel"
+                            ? "Wochenziel"
+                            : habit.type === "taeglich"
+                              ? "Tägliches Habit"
+                              : "Abstinenz"}
                         </span>
 
                         {/* Progress Bar  */}
