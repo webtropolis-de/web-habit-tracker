@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css"; // Stylesheet importieren
 import logo from "./assets/logo.png"; // Logo importieren
-import EmojiPicker from "emoji-picker-react"; // Emoji Picker
 import { supabase } from "./supabaseClient";
 import {
   berechnenWochen,
