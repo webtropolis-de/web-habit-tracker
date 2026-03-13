@@ -141,18 +141,18 @@ function App() {
       let zielTyp = "";
       if (habit.type === "wochenziel") {
         zielTyp =
-          "Das ist ein Wochenziel, das ich mehrfach pro Woche erreichen muss.";
+          "Das ist ein wichtiges Wochen-Abenteuer, das ich mehrfach meistern muss.";
       } else if (habit.type === "taeglich") {
         zielTyp =
-          "Das ist eine tägliche Quest, die ich jeden Tag ohne Ausnahme meistern will.";
+          "Das ist eine heilige tägliche Pflicht, die ich ohne Ausnahme jeden Tag erfüllen will.";
       } else {
         zielTyp =
-          "Das ist ein Laster, dem ich entsage. Ich möchte abstinent bleiben.";
+          "Das ist ein dunkles Laster, dem ich entsage. Ich will meine Standhaftigkeit beweisen.";
       }
 
-      const prompt = `Du bist ein Habit-Coach. Mein Ziel heißt: "${habit.name}". ${zielTyp} 
-      Gib mir exakt 3 extrem kurze, psychologisch fundierte und direkt anwendbare Tipps, wie ich das durchziehe. 
-      Formatiere es als kurze Liste. Keine langen Einleitungen, komm direkt zur Sache!`;
+      const prompt = `Du bist ein weiser Mentor in einer RPG-Gilde. Mein Ziel heißt: "${habit.name}". ${zielTyp} 
+  Gib mir exakt 3 extrem kurze, motivierende und psychologisch fundierte Tipps im RPG-Stil, wie ich diese Quest erfolgreich abschließe. 
+  Keine Einleitung, direkt zur Sache!`;
 
       const response = await fetch(API_URL, {
         method: "POST",
@@ -329,7 +329,10 @@ function App() {
             {
               parts: [
                 {
-                  text: `Du bist ein motivierender Coach. Analysiere diese Habits: ${habitZusammenfassung}. Schreib einen extrem kurzen, kraftvollen Coaching-Spruch auf Deutsch (max 2 Sätze) und sprich den Nutzer direkt mit Namen (${user.user_metadata.display_name} an) an`,
+                  text: `Du bist der weise Mentor einer Abenteurer-Gilde. Analysiere diese Quests (Habits): ${habitZusammenfassung}. 
+             Schreib einen extrem kurzen, kraftvollen Mentor-Zuspruch auf Deutsch (max 2 Sätze) im RPG-Stil. 
+             Nutze Begriffe wie 'Quest', 'Krieger', 'Pfad' oder 'Festung' und sprich den Nutzer direkt mit Namen (${user.user_metadata.display_name}) an.
+             Keine Markdown-Formatierung wie fett oder kursiv!`,
                 },
               ],
             },
@@ -1370,7 +1373,7 @@ function App() {
                       fontSize: "0.8rem",
                     }}
                   >
-                    💧 Täglich
+                    💧 Tägliche Quest
                   </button>
 
                   <button
@@ -1502,21 +1505,18 @@ function App() {
                   return (
                     <li
                       key={habit.id || index}
-                      className="habit-row fade-in-view"
+                      className={`habit-row fade-in-view habit-card-${habit.type} ${istErledigt ? "completed" : ""}`}
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        backgroundColor: "#1e1e24",
                         marginBottom: "12px",
                         padding: "12px 15px",
                         borderRadius: "16px",
                         gap: "10px",
-                        borderLeft: istErledigt
-                          ? "4px solid #28a745"
-                          : "4px solid #007bff",
-                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
                         width: "100%",
                         boxSizing: "border-box",
+                        // Wir entfernen backgroundColor, borderLeft und boxShadow hier,
+                        // damit das CSS aus der App.css greifen kann!
                       }}
                     >
                       {/* Icons  */}
@@ -1670,9 +1670,9 @@ function App() {
                       holeKIMotivation();
                     }
                   }}
-                  title="KI Coach fragen"
+                  title="Gilden-Mentor um Rat fragen" // Titel angepasst
                 >
-                  🤖
+                  🧙‍♂️ {/* Hier das neue Icon einfügen: Magier */}
                 </button>
               )}
             </div>
@@ -2067,7 +2067,7 @@ function App() {
                 <br></br>
               </p>
               <div className="profile-card">
-                <h3>🤖 KI Coach aktivieren</h3>
+                <h3>🧙‍♂️ Gilden-Mentor aktivieren</h3>
                 <p
                   className="modal-subtitle"
                   style={{ textAlign: "left", marginBottom: "15px" }}
@@ -2213,7 +2213,7 @@ function App() {
           >
             <div className="modal-header">
               <h2 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                🤖 KI Coach
+                🧙‍♂️ Rat des Gilden-Mentors
               </h2>
               <button
                 className="close-modal"
@@ -2224,6 +2224,7 @@ function App() {
             </div>
 
             <div className="ki-modal-body">
+              {/* HIER IST DER SPINNER-FIX */}
               {isKiLoading ? (
                 <div
                   style={{
@@ -2233,26 +2234,30 @@ function App() {
                     padding: "30px 0",
                   }}
                 >
-                  <div className="spinner"></div>
+                  {/* Wir nutzen die gleiche Klasse wie bei den Tipps */}
+                  <div className="rpg-loader-diamond"></div>
                   <p style={{ marginTop: "20px", color: "#aaa" }}>
-                    Coach analysiert deine aktuelle Streak...
+                    Der Mentor befragt die alten Runen...
                   </p>
                 </div>
               ) : kiMotivation ? (
                 <p
                   className="ki-text"
-                  style={{ fontSize: "1.1rem", marginBottom: 0 }}
+                  style={{
+                    fontSize: "1.1rem",
+                    marginBottom: 0,
+                    fontStyle: "italic",
+                  }}
                 >
-                  "{kiMotivation.replace(/\*\*/g, "")}"
+                  "{kiMotivation}"
                 </p>
               ) : (
                 <p className="ki-placeholder" style={{ marginBottom: 0 }}>
-                  Lass die KI deine Erfolge analysieren.
+                  Fordere den Rat deines Mentors an.
                 </p>
               )}
             </div>
 
-            {/*  BUTTON   */}
             <div
               style={{
                 display: "flex",
@@ -2267,16 +2272,15 @@ function App() {
                 disabled={isKiLoading}
                 style={{ width: "100%" }}
               >
-                {isKiLoading ? "Analysiere..." : "Neue Analyse anfordern"}
+                {isKiLoading ? "Befrage die Runen..." : "Neuen Rat einholen"}
               </button>
 
-              {/*  Schließen Button */}
               <button
                 onClick={() => setIsKiModalOpen(false)}
                 className="modal-btn-close"
                 style={{ width: "100%", margin: 0 }}
               >
-                Schließen
+                Zurück zum Pfad
               </button>
             </div>
           </div>
@@ -2293,8 +2297,8 @@ function App() {
           >
             <div className="modal-header" style={{ marginBottom: "15px" }}>
               <h2 style={{ fontSize: "1.2rem", textAlign: "left", padding: 0 }}>
-                💡 Tipps für:{" "}
-                <span style={{ color: "#007bff" }}>{tippModalOffen.name}</span>
+                📜 Strategie für:{" "}
+                <span style={{ color: "#ffc107" }}>{tippModalOffen.name}</span>
               </h2>
             </div>
 
@@ -2317,10 +2321,8 @@ function App() {
                     padding: "20px 0",
                   }}
                 >
-                  <div
-                    className="spinner"
-                    style={{ borderLeftColor: "#ffc107" }}
-                  ></div>
+                  {/* Hier ist dein goldener Diamant-Loader */}
+                  <div className="rpg-loader-diamond"></div>
                   <p
                     style={{
                       marginTop: "15px",
@@ -2328,7 +2330,7 @@ function App() {
                       fontSize: "0.9rem",
                     }}
                   >
-                    Coach sucht die besten Strategien...
+                    Der Mentor studiert die alten Schriften...
                   </p>
                 </div>
               ) : (
@@ -2338,8 +2340,8 @@ function App() {
                     fontSize: "0.95rem",
                     lineHeight: "1.6",
                     color: "#e0e0e0",
+                    fontStyle: "italic",
                   }}
-                  /* Nutzt Markdown-ähnliche Formatierung von der KI simpel als Text */
                 >
                   {habitTipps.split("\n").map((line, i) => (
                     <p key={i} style={{ marginBottom: "8px" }}>
@@ -2353,9 +2355,13 @@ function App() {
             <button
               className="modal-btn-close"
               onClick={() => setTippModalOffen(null)}
-              style={{ background: "#ffc107", color: "#000" }}
+              style={{
+                background: "linear-gradient(to bottom, #444, #222)",
+                color: "#fff",
+                border: "1px solid #555",
+              }}
             >
-              Verstanden, los geht's!
+              Quest annehmen
             </button>
           </div>
         </div>

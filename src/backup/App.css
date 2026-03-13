@@ -101,6 +101,16 @@ h3 {
   border-color: #007bff;
 }
 
+.add-button:hover,
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.add-button:active,
+.login-button:active {
+  transform: scale(0.97);
+}
+
 /* Emojis */
 .emoji-trigger-btn {
   background-color: #2a2a35;
@@ -116,9 +126,40 @@ h3 {
 }
 
 /* --- HABIT KARTEN (Aktuelles Layout) --- */
+.habit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
 
 .habit-card:hover {
   transform: translateY(-3px);
+}
+
+.habit-card.erledigt {
+  border-top-color: #28a745;
+}
+
+.habit-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.habit-name {
+  margin: 5px 0 15px 0;
+}
+
+.success-badge {
+  background-color: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 /* --- FORTSCHRITT & TEXTE --- */
