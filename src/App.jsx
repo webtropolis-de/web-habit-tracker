@@ -538,7 +538,7 @@ function App() {
 
       setXp(neuesXp);
 
-      supabase.auth.updateUser({
+      await supabase.auth.updateUser({
         data: { xp: neuesXp },
       });
       // ------------------------------------
@@ -1848,19 +1848,40 @@ function App() {
                           <div
                             key={char.id}
                             className={`avatar-card ${avatarSeed === char.id ? "active" : ""} ${isLocked ? "locked" : ""}`}
-                            onClick={() => {
+                            onClick={async () => {
+                              // WICHTIG: Das 'async' wurde hinzugefügt
                               if (isLocked) {
                                 zeigeToast(
                                   `🔒 Erst ab Level ${char.minLevel} verfügbar!`,
+                                  "error",
                                 );
                                 return;
                               }
+
+                              // Sofort das Bild in der UI ändern (fühlt sich schneller an)
                               setAvatarSeed(char.id);
-                              supabase.auth.updateUser({
-                                data: { avatar_seed: char.id },
-                              });
-                              zeigeToast(`${char.label} ausgewählt!`);
                               setGalerieOffen(false);
+
+                              // 2. WICHTIG: Das 'await' zwingt die App, auf Supabase zu warten
+                              const { data, error } =
+                                await supabase.auth.updateUser({
+                                  data: { avatar_seed: char.id },
+                                });
+
+                              // 3. Fehler abfangen oder den Haupt-User aktualisieren
+                              if (error) {
+                                zeigeToast(
+                                  "Die Verwandlung schlug fehl: " +
+                                    error.message,
+                                  "error",
+                                );
+                              } else if (data?.user) {
+                                setUser(data.user); // HIER IST DER TRICK: Aktualisiert den Cache!
+                                zeigeToast(
+                                  `${char.label} ausgewählt!`,
+                                  "success",
+                                );
+                              }
                             }}
                           >
                             <div className="avatar-preview-box">
