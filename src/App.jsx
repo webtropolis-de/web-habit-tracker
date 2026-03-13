@@ -95,13 +95,8 @@ function App() {
   const [toast, setToast] = useState(null);
   const [offenerKalender, setOffenerKalender] = useState(null); // Speichert  ID des Habits
   const [erinnerungZeit, setErinnerungZeit] = useState(
-    localStorage.getItem("reminder_time") || "09:00",
+    localStorage.getItem("reminder_time") || "20:00",
   );
-  const speichereZeit = (neueZeit) => {
-    setErinnerungZeit(neueZeit);
-    localStorage.setItem("reminder_time", neueZeit);
-    zeigeToast(`Wecker auf ${neueZeit} Uhr gestellt! ⏰`);
-  };
   const [isKiLoading, setIsKiLoading] = useState(false);
   const [isKiModalOpen, setIsKiModalOpen] = useState(false); // Floating AI Coach
   const [apiKey, setApiKey] = useState(
@@ -111,6 +106,21 @@ function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [avatarSeed, setAvatarSeed] = useState("MaleHelmetWarrior16");
   const [galerieOffen, setGalerieOffen] = useState(false);
+
+  // ---------------------------- Zeit speichern ---------------------------------- //
+
+  // Wird aufgerufen, wenn der User die Uhrzeit ändert
+  const speichereZeit = (neueZeit) => {
+    setErinnerungZeit(neueZeit);
+    localStorage.setItem("reminder_time", neueZeit); // Speichert es lokal
+
+    // Wenn OneSignal da ist, aktualisieren wir das Etikett sofort lautlos im Hintergrund
+    if (window.OneSignalDeferred) {
+      window.OneSignalDeferred.push(function (OneSignal) {
+        OneSignal.User.addTag("weckzeit", neueZeit);
+      });
+    }
+  };
 
   // ---------------------------- KI Habit Tipps --------------------------------- //
   const holeHabitTipps = async (habit) => {
@@ -261,39 +271,19 @@ function App() {
 
   // ------------------------ Notifications --------------------------------//
 
-  const aktiviereErinnerung = async () => {
-    if (!("Notification" in window)) {
-      zeigeToast("Browser unterstützt keine Mitteilungen", "error");
-      return;
-    }
+  // Wird aufgerufen, wenn der User auf den "Aktivieren"-Button klickt
+  const aktiviereNotifications = () => {
+    if (window.OneSignalDeferred) {
+      window.OneSignalDeferred.push(async function (OneSignal) {
+        // 1. Fragt den User offiziell nach der Erlaubnis (falls noch nicht passiert)
+        await OneSignal.Slidedown.promptPush();
 
-    const erlaubnis = await Notification.requestPermission();
-    if (erlaubnis === "granted") {
-      zeigeToast("Erinnerungen aktiviert! 🔔");
-      new Notification("Check-In bereit", {
-        body: "Deine Habits warten auf dich!",
-        icon: "/logo.png",
+        // 2. Klebt das Etikett (z.B. "20:00") fest an den User in der Datenbank
+        OneSignal.User.addTag("weckzeit", erinnerungZeit);
       });
+      alert(`Push-Magie für ${erinnerungZeit} Uhr aktiviert! 🔔`);
     } else {
-      zeigeToast("Mitteilungen wurden blockiert.", "error");
-    }
-  };
-
-  const aktiviereNotifications = async () => {
-    if (!("Notification" in window)) {
-      alert("Benachrichtigungen werden nicht unterstützt.");
-      return;
-    }
-
-    const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (reg) {
-        reg.showNotification("Aktiviert! 🔔", {
-          body: "Du wirst ab jetzt an deinen Check-In erinnert.",
-          icon: "/logo192.png",
-        });
-      }
+      alert("Der Kommunikations-Kristall (OneSignal) lädt noch...");
     }
   };
 
