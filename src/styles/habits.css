@@ -1,0 +1,375 @@
+/* --- HABIT KARTEN & REIHEN --- */
+.habit-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Habit-Row RPG/Quest Style */
+.habit-row {
+  position: relative;
+  background-color: #1a1a20;
+  border-radius: 0;
+  border: none;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 2px #333,
+    0 0 0 2px #000;
+  border-left: 6px solid #007bff;
+  transition: transform 0.1s ease;
+}
+
+.habit-row:hover {
+  transform: translateX(4px);
+  box-shadow:
+    inset 0 0 0 2px #444,
+    0 0 10px rgba(0, 123, 255, 0.2),
+    0 0 0 2px #000;
+}
+
+.habit-row.completed {
+  border-left-color: #28a745;
+}
+
+/* Habit Hauptinfo */
+.habit-info-main {
+  padding: 15px;
+  flex-grow: 1;
+}
+
+/* Habit-Progress */
+.habit-progress-container {
+  width: 100%;
+  height: 6px;
+  background-color: #2a2a35;
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.habit-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #00d2ff);
+  border-radius: 0;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  transition: width 0.5s ease-out;
+}
+
+.habit-progress-bar.completed {
+  background-color: #28a745;
+}
+
+/* Kartenspezifische Buttons */
+.plus-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 15px;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.plus-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.reset-button,
+.delete-button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s;
+}
+
+.reset-button {
+  background-color: #444;
+  color: #fff;
+}
+
+.reset-button:hover {
+  background-color: #555;
+}
+
+.delete-button {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+.delete-button:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Moderner Plus/Reset/Delete Button-Stil (Icons rechts) */
+.btn-plus,
+.btn-reset,
+.btn-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-plus {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+.btn-plus:hover {
+  background-color: #0056b3;
+}
+
+.btn-plus:active {
+  transform: scale(0.95);
+}
+
+.btn-reset,
+.btn-delete {
+  background-color: #2a2a35;
+  font-size: 1rem;
+}
+
+.btn-reset:hover {
+  color: #007bff;
+  background-color: #3a3a45;
+}
+
+.btn-delete:hover {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.btn-reset:active,
+.btn-delete:active {
+  transform: scale(0.95);
+}
+
+/* Action-Bereich rechts */
+.habit-row-actions {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
+.action-zone-main {
+  width: 70px;
+  background-color: #3a3a45;
+  color: #fff;
+  border-left: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: inset 2px 0 0 #555;
+}
+
+.action-zone-main:active {
+  background-color: #222;
+  box-shadow: inset 4px 4px 0 #000;
+}
+
+.action-zone-main:hover {
+  color: #ffc107;
+}
+
+.action-side-column {
+  display: flex;
+  flex-direction: column;
+  width: 45px;
+}
+
+.action-zone-small {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background 0.2s;
+}
+
+.action-zone-small.reset {
+  color: #888;
+}
+
+.action-zone-small.delete {
+  color: #555;
+}
+
+.action-zone-small:active {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Habit Typ-Farben (Abstinenz / täglich / Woche) */
+.habit-card-abstinenz {
+  border-left: 4px solid #e74c3c !important;
+  box-shadow: inset 5px 0 15px -5px rgba(231, 76, 60, 0.3);
+}
+
+.habit-card-abstinenz .habit-progress-bar.completed {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.habit-card-taeglich {
+  border-left: 4px solid #3498db !important;
+  box-shadow: inset 5px 0 15px -5px rgba(52, 152, 219, 0.3);
+}
+
+.habit-card-taeglich .habit-progress-bar {
+  background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+.habit-card-wochenziel {
+  border-left: 4px solid #f1c40f !important;
+  box-shadow: inset 5px 0 15px -5px rgba(241, 196, 15, 0.3);
+}
+
+.habit-card-wochenziel .habit-progress-bar {
+  background: linear-gradient(90deg, #f1c40f, #f39c12);
+}
+
+/* Kleine Stats-Karte (Home/Stats) */
+.stats-card {
+  background-color: #1e1e24;
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid #333;
+  margin-bottom: 15px;
+}
+
+.stats-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.stat-label {
+  color: #888;
+}
+
+.stat-value {
+  font-weight: bold;
+  color: #fff;
+}
+
+.best-streak .stat-value {
+  color: #ffc107;
+}
+
+.mini-progress-bg {
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  margin-top: 10px;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: #ffc107;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* RPG Loading Screen (falls Habit-Loading) */
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #121214;
+  color: #c0a080;
+  gap: 20px;
+}
+
+.loading-bar-container {
+  width: 250px;
+  height: 24px;
+  background-color: #1a1a20;
+  border: 4px solid #4a3121;
+  box-shadow: 0 0 0 2px #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c0a080, #ffd700);
+  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3);
+  width: 0%;
+  animation: fill-bar 1.8s ease-out forwards;
+}
+
+.loading-bar-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shine-bar 1.5s infinite;
+}
+
+/* Container für den Text, damit er den restlichen Platz einnimmt */
+.habit-text-container {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+/* Der Habit-Name: Erlaubt jetzt Zeilenumbrüche! */
+.habit-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  word-break: break-word; /* WICHTIG: Das verhindert das Abschneiden und bricht lange Texte um */
+}
+
+/* Die kleine Gilden-Beschreibung darunter */
+.habit-subtitle {
+  font-size: 0.65rem;
+  color: #aaa; /* Etwas heller für besseren Kontrast auf Mobile */
+  text-transform: uppercase;
+  display: block;
+  margin-top: 4px;
+}

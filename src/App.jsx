@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import "./App.css"; // Stylesheet importieren
+//import "./App.css"; // Stylesheet importieren
 import logo from "./assets/logo.png"; // Logo importieren
 import { supabase } from "./supabaseClient";
 import {
@@ -10,6 +10,10 @@ import {
 } from "./helper";
 import { habitService } from "./habitService"; // Supabase Services
 import confetti from "canvas-confetti";
+import "./styles/base.css";
+import "./styles/layout.css";
+import "./styles/habits.css";
+import "./styles/auth-profile-rpg.css";
 
 // -Level Rechner ---------------------------------------------------------------
 const berechneLevelInfo = (aktuelleXp) => {
@@ -106,6 +110,7 @@ function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [avatarSeed, setAvatarSeed] = useState("MaleHelmetWarrior16");
   const [galerieOffen, setGalerieOffen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // ---------------------------- Zeit speichern ---------------------------------- //
 
@@ -395,6 +400,7 @@ function App() {
       setInputValue("");
       setZielWert("");
       setFrequency("");
+      setIsAddModalOpen(false);
     } else {
       console.error("Supabase Error:", error);
       zeigeToast("Fehler beim Speichern in der Cloud!", "error");
@@ -1310,188 +1316,19 @@ function App() {
 
               <div className="xp-progress-section dashboard-xp"></div>
 
-              <div
-                className="input-group"
+              {/* BUTTON  FORMULAR */}
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="add-button"
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "15px",
-                  backgroundColor: "#1e1e24",
-                  padding: "20px",
-                  borderRadius: "15px",
-                  maxWidth: "500px",
-                  margin: "0 auto 30px auto",
+                  width: "100%",
+                  marginBottom: "25px",
+                  padding: "16px",
+                  fontSize: "1.1rem",
                 }}
               >
-                {/* Typ-Auswahl  */}
-                {/* Typ-Auswahl */}
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <button
-                    type="button"
-                    onClick={() => setHabitType("abstinenz")}
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      borderRadius: "12px",
-                      border:
-                        habitType === "abstinenz"
-                          ? "2px solid #007bff"
-                          : "1px solid #444",
-                      backgroundColor:
-                        habitType === "abstinenz"
-                          ? "rgba(0, 123, 255, 0.15)"
-                          : "transparent",
-                      color: habitType === "abstinenz" ? "#fff" : "#aaa",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      transition: "0.2s",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    🛡️ Abstinenz
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setHabitType("taeglich")}
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      borderRadius: "12px",
-                      border:
-                        habitType === "taeglich"
-                          ? "2px solid #28a745"
-                          : "1px solid #444",
-                      backgroundColor:
-                        habitType === "taeglich"
-                          ? "rgba(40, 167, 69, 0.15)"
-                          : "transparent",
-                      color: habitType === "taeglich" ? "#fff" : "#aaa",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      transition: "0.2s",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    💧 Tägliche Quest
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setHabitType("wochenziel")}
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      borderRadius: "12px",
-                      border:
-                        habitType === "wochenziel"
-                          ? "2px solid #ffc107"
-                          : "1px solid #444",
-                      backgroundColor:
-                        habitType === "wochenziel"
-                          ? "rgba(255, 193, 7, 0.15)"
-                          : "transparent",
-                      color: habitType === "wochenziel" ? "#fff" : "#aaa",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      transition: "0.2s",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    📅 Woche
-                  </button>
-                </div>
-
-                {/* Haupt-Eingabefeld */}
-                <input
-                  className="habit-input"
-                  type="text"
-                  placeholder={
-                    habitType === "abstinenz"
-                      ? "Welchem Laster entsagst du?"
-                      : habitType === "taeglich"
-                        ? "Welche tägliche Quest trittst du an?"
-                        : "Welches Wochen-Abenteuer planst du?"
-                  }
-                  value={eingabeWert}
-                  required
-                  onChange={(e) => setInputValue(e.target.value)}
-                  style={{ width: "100%", margin: 0 }}
-                />
-
-                {/* Ziel-Wert Eingabefeld */}
-                <div
-                  style={{ display: "flex", gap: "10px", alignItems: "center" }}
-                >
-                  <div style={{ flex: 1 }}>
-                    {habitType === "abstinenz" || habitType === "taeglich" ? (
-                      <input
-                        className="goal-input"
-                        type="number"
-                        value={zielWert}
-                        onChange={(e) => setZielWert(e.target.value)}
-                        placeholder={
-                          habitType === "taeglich"
-                            ? "Ziel (Tage) – Leer für ♾️"
-                            : "Abstinent bleiben für (Tage)"
-                        }
-                        style={{ width: "100%", margin: 0 }}
-                      />
-                    ) : (
-                      <input
-                        className="goal-input"
-                        type="number"
-                        value={frequency}
-                        onChange={(e) => setFrequency(e.target.value)}
-                        placeholder="Wiederholungen pro Woche"
-                        style={{ width: "100%", margin: 0 }}
-                      />
-                    )}
-                  </div>
-
-                  <div className="emoji-dropdown-container">
-                    {/* Button zum Öffnen */}
-                    <button
-                      type="button"
-                      className={`emoji-selector-btn ${zeigePicker ? "active" : ""}`}
-                      onClick={() => setZeigePicker(!zeigePicker)}
-                    >
-                      <span className="emoji-label"></span>
-                      <span className="selected-emoji">{icon}</span>
-                    </button>
-
-                    {/* aufklappbare Menü */}
-                    {zeigePicker && (
-                      <div className="emoji-picker-dropdown fade-effekt">
-                        <div className="emoji-grid">
-                          {emojiOptionen.map((e) => (
-                            <button
-                              key={e}
-                              type="button"
-                              className={`emoji-option ${icon === e ? "is-selected" : ""}`}
-                              onClick={() => {
-                                setIcon(e);
-                                setZeigePicker(false); // Schließt das Menü
-                              }}
-                            >
-                              {e}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Hinzufügen Button  */}
-                <button
-                  onClick={habbithinzufuegen}
-                  className="add-button"
-                  style={{ width: "100%", marginTop: "5px", padding: "14px" }}
-                >
-                  Habit starten
-                </button>
-              </div>
+                ➕ Neue Quest starten
+              </button>
 
               <ul className="habit-list">
                 {habits.map((habit, index) => {
@@ -1531,33 +1368,14 @@ function App() {
                       </div>
 
                       {/* Text  */}
-                      <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-                        <h3
-                          style={{
-                            margin: 0,
-                            fontSize: "1rem",
-                            fontWeight: "600",
-                            color: "#fff",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {habit.name}
-                        </h3>
-                        <span
-                          style={{
-                            fontSize: "0.65rem",
-                            color: "#666",
-                            textTransform: "uppercase",
-                            display: "block",
-                          }}
-                        >
+                      <div className="habit-text-container">
+                        <h3 className="habit-title">{habit.name}</h3>
+                        <span className="habit-subtitle">
                           {habit.type === "wochenziel"
-                            ? "Wochenziel"
+                            ? "🏰 Wochen-Quest"
                             : habit.type === "taeglich"
-                              ? "Tägliches Habit"
-                              : "Abstinenz"}
+                              ? "⚔️ Tägliche Pflicht"
+                              : "🛡️ Standhaftigkeit"}
                         </span>
 
                         {/* Progress Bar  */}
@@ -2363,6 +2181,203 @@ function App() {
             >
               Quest annehmen
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* NEUE QUEST MODAL */}
+      {isAddModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsAddModalOpen(false)}>
+          <div
+            className="modal-content fade-effekt"
+            onClick={(e) => e.stopPropagation()}
+            style={{ padding: "25px 20px" }}
+          >
+            <div className="modal-header" style={{ marginBottom: "20px" }}>
+              <h2
+                style={{ fontSize: "1.3rem", margin: 0, textAlign: "center" }}
+              >
+                📜 Neue Gilden-Quest
+              </h2>
+              <button
+                className="close-modal"
+                onClick={() => setIsAddModalOpen(false)}
+                style={{ display: "flex" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Hier ist dein altes Formular, leicht angepasst für das Modal */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "15px",
+                textAlign: "left",
+              }}
+            >
+              {/* Typ-Auswahl */}
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  onClick={() => setHabitType("abstinenz")}
+                  style={{
+                    flex: 1,
+                    padding: "10px 5px",
+                    borderRadius: "0",
+                    border:
+                      habitType === "abstinenz"
+                        ? "2px solid #cc3300"
+                        : "1px solid #444",
+                    backgroundColor:
+                      habitType === "abstinenz"
+                        ? "rgba(204, 51, 0, 0.15)"
+                        : "#2a2a35",
+                    color: habitType === "abstinenz" ? "#fff" : "#aaa",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: "0.75rem",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  🛡️ Abstinenz
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHabitType("taeglich")}
+                  style={{
+                    flex: 1,
+                    padding: "10px 5px",
+                    borderRadius: "0",
+                    border:
+                      habitType === "taeglich"
+                        ? "2px solid #007bff"
+                        : "1px solid #444",
+                    backgroundColor:
+                      habitType === "taeglich"
+                        ? "rgba(0, 123, 255, 0.15)"
+                        : "#2a2a35",
+                    color: habitType === "taeglich" ? "#fff" : "#aaa",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: "0.75rem",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  💧 Täglich
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHabitType("wochenziel")}
+                  style={{
+                    flex: 1,
+                    padding: "10px 5px",
+                    borderRadius: "0",
+                    border:
+                      habitType === "wochenziel"
+                        ? "2px solid #ffc107"
+                        : "1px solid #444",
+                    backgroundColor:
+                      habitType === "wochenziel"
+                        ? "rgba(255, 193, 7, 0.15)"
+                        : "#2a2a35",
+                    color: habitType === "wochenziel" ? "#fff" : "#aaa",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: "0.75rem",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  📅 Woche
+                </button>
+              </div>
+
+              {/* Eingabefelder */}
+              <input
+                className="habit-input"
+                type="text"
+                placeholder={
+                  habitType === "abstinenz"
+                    ? "Welchem Laster entsagst du?"
+                    : habitType === "taeglich"
+                      ? "Welche tägliche Quest trittst du an?"
+                      : "Welches Wochen-Abenteuer planst du?"
+                }
+                value={eingabeWert}
+                required
+                onChange={(e) => setInputValue(e.target.value)}
+                style={{ width: "100%", margin: 0 }}
+              />
+
+              <div
+                style={{ display: "flex", gap: "10px", alignItems: "center" }}
+              >
+                <div style={{ flex: 1 }}>
+                  {habitType === "abstinenz" || habitType === "taeglich" ? (
+                    <input
+                      className="goal-input"
+                      type="number"
+                      value={zielWert}
+                      onChange={(e) => setZielWert(e.target.value)}
+                      placeholder={
+                        habitType === "taeglich"
+                          ? "Ziel (Tage) – Leer für ♾️"
+                          : "Abstinent für (Tage)"
+                      }
+                      style={{ width: "100%", margin: 0 }}
+                    />
+                  ) : (
+                    <input
+                      className="goal-input"
+                      type="number"
+                      value={frequency}
+                      onChange={(e) => setFrequency(e.target.value)}
+                      placeholder="Wiederholungen pro Woche"
+                      style={{ width: "100%", margin: 0 }}
+                    />
+                  )}
+                </div>
+
+                <div className="emoji-dropdown-container">
+                  <button
+                    type="button"
+                    className={`emoji-selector-btn ${zeigePicker ? "active" : ""}`}
+                    onClick={() => setZeigePicker(!zeigePicker)}
+                  >
+                    <span className="selected-emoji">{icon}</span>
+                  </button>
+
+                  {zeigePicker && (
+                    <div className="emoji-picker-dropdown fade-effekt">
+                      <div className="emoji-grid">
+                        {emojiOptionen.map((e) => (
+                          <button
+                            key={e}
+                            type="button"
+                            className={`emoji-option ${icon === e ? "is-selected" : ""}`}
+                            onClick={() => {
+                              setIcon(e);
+                              setZeigePicker(false);
+                            }}
+                          >
+                            {e}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={habbithinzufuegen}
+                className="add-button"
+                style={{ width: "100%", marginTop: "10px" }}
+              >
+                Quest ins Logbuch eintragen
+              </button>
+            </div>
           </div>
         </div>
       )}

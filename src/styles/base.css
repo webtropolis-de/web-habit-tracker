@@ -1,0 +1,234 @@
+/* --- GRUNDLAYOUT & DARK MODE --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100vw;
+  background-color: #121214;
+  overscroll-behavior-y: none;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* --- TYPOGRAFIE --- */
+h1,
+h2 {
+  color: #ffffff;
+  text-align: center;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+h3 {
+  color: #ffffff;
+  text-align: left;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.home-view h1,
+.stats-view h1,
+.profile-view h1 {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.quote {
+  color: #888;
+  font-style: italic;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+/* --- GENERISCHE INPUTS & BUTTONS --- */
+.habit-input,
+.goal-input {
+  background-color: #2a2a35;
+  border: 1px solid #444;
+  color: white;
+  padding: 12px 15px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.habit-input:focus,
+.goal-input:focus {
+  border-color: #007bff;
+}
+
+button:focus,
+button:focus-visible {
+  outline: none !important;
+}
+
+/* Passwort-Auge Wrapper (generisch) */
+.password-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 10px;
+  top: 60%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Versteckt Browser-Autofill Icons */
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}
+
+/* --- GENERISCHE PROGRESSBAR --- */
+.progress-container {
+  width: 100%;
+  background-color: #333;
+  border-radius: 10px;
+  height: 8px;
+  margin: 10px 0;
+  position: relative;
+}
+
+.progress-bar {
+  background-color: #007bff;
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.erledigt .progress-bar {
+  background-color: #28a745;
+}
+
+.progress-percentage {
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+/* Fortschrittstext */
+.progress-text {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin: 10px 0 5px 0;
+}
+
+.start-date {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+/* --- BASIS-ANIMATIONEN --- */
+.fade-effekt {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* RPG-Spinner Keyframes (global) */
+@keyframes rotation-rpg {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* RPG Loading Bar Keyframes */
+@keyframes fill-bar {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes shine-bar {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Toast Animation */
+@keyframes slideUp {
+  from {
+    bottom: -100px;
+    opacity: 0;
+    transform: translateX(-50%) scale(0.9);
+  }
+  to {
+    bottom: 40px;
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+/* Bounce & Float (Icons/FAB) */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}

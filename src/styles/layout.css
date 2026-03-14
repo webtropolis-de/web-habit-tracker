@@ -1,0 +1,655 @@
+/* --- ANSICHTEN (Views) --- */
+.home-view,
+.stats-view,
+.profile-view {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Input-Gruppen / Kartenrahmen */
+.input-group {
+  width: 100%;
+  background-color: #1e1e24;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  border: 1px solid #333;
+}
+
+/* Habit-Liste */
+.habit-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  padding-bottom: 80px !important;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Habit-Row Layout */
+.habit-row {
+  padding-right: 0 !important;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Header Profil / Avatar im Header */
+.header-profile-zone {
+  width: 50px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.header-profile-zone:active {
+  transform: scale(0.9);
+}
+
+.profile-avatar-circle {
+  position: relative;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid #007bff;
+}
+
+.header-profile-zone:hover .profile-avatar-circle {
+  border-color: #007bff;
+  color: #fff;
+  background-color: #333;
+}
+
+/* Mini Level Indicator am Avatar */
+.mini-level-indicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  color: #000 !important;
+  font-size: 0.7rem;
+  font-weight: 900;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #121214;
+  z-index: 999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Emoji Picker Container / Overlay global */
+.emoji-picker-container {
+  position: absolute;
+  z-index: 100;
+  margin-top: 10px;
+}
+
+.emoji-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}
+
+/* Emoji Dropdown */
+.emoji-dropdown-container {
+  position: relative;
+  width: 50px;
+  flex-shrink: 0;
+}
+
+.emoji-selector-btn {
+  height: 44px;
+  width: 50px;
+  background-color: #2a2a35;
+  border: 1px solid #444;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0px;
+}
+
+.emoji-selector-btn:active {
+  transform: scale(0.95);
+  border-color: #007bff;
+}
+
+.emoji-selector-btn:hover {
+  background-color: #3a3a45;
+}
+
+.emoji-picker-dropdown {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  width: 220px;
+  max-width: calc(100vw - 40px);
+  background-color: #1e1e24;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+}
+
+.emoji-option {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: #2a2a35;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.emoji-option:hover {
+  background-color: #3a3a45;
+}
+
+.emoji-option.is-selected {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Emoji Grid */
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+@media (max-width: 400px) {
+  .emoji-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Emoji Auswahl im Profil/Habit Input */
+.emoji-selection-wrapper {
+  width: 100%;
+  background-color: #2a2a35;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #444;
+  margin-top: 5px;
+}
+
+.current-emoji-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #444;
+}
+
+.current-emoji-display span {
+  font-size: 0.8rem;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.selected-icon {
+  font-size: 1.5rem;
+}
+
+/* Emoji Trigger Button allgemein */
+.emoji-trigger-btn {
+  background-color: #2a2a35;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.emoji-trigger-btn:hover {
+  background-color: #3a3a45;
+}
+
+/* --- CALENDAR SECTION & TRIGGER (Allgemein) --- */
+.calendar-section {
+  width: 100%;
+  margin-top: 10px;
+  clear: both;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.calendar-trigger {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 0;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition:
+    color 0.2s ease,
+    transform 0.1s;
+}
+
+.calendar-trigger:hover {
+  color: #3391ff;
+}
+
+.calendar-trigger:active {
+  transform: scale(0.95);
+}
+
+.tipps-trigger {
+  color: #ffc107;
+}
+
+.tipps-trigger:hover {
+  color: #ffca28;
+}
+
+/* Calendar Mini Grid (in Karten/Modal, allgemeine Version) */
+.calendar-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.calendar-weekday-label {
+  font-size: 0.7rem;
+  color: #007bff;
+  font-weight: 800;
+  text-align: center;
+  padding-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.calendar-day.success {
+  background: #28a745;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+}
+
+.calendar-day.today {
+  border: 2px solid #007bff;
+  color: #fff;
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.calendar-day.empty {
+  background: transparent;
+  border: none;
+}
+
+/* --- MODAL STYLES --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: #1e1e24;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 24px;
+  padding: 25px;
+  border: 1px solid #333;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.modal-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 10px 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: white;
+  text-align: center;
+  padding: 0 40px;
+}
+
+.close-modal {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: background 0.2s;
+  display: none;
+}
+
+.close-modal:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-subtitle {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.modal-btn-close {
+  margin-top: 25px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Zeit-Input im Modal */
+.time-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  color: white;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+.time-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* --- SIDEBAR MENU --- */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 270px;
+  background-color: #1e1e24;
+  border-right: 1px solid #333;
+  padding: 25px 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transform: translateX(-100%);
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease;
+}
+
+.sidebar-menu.open {
+  transform: translateX(0);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+}
+
+.sidebar-header {
+  color: #fff;
+  font-size: 1.8rem;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  padding-bottom: 20px;
+  margin-top: 0;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
+}
+
+.sidebar-link {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  text-align: left;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  transform: translateX(6px);
+}
+
+.sidebar-link.active {
+  color: #fff;
+  background-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  font-weight: bold;
+}
+
+.sidebar-link.active:hover {
+  transform: none;
+  background-color: #0056b3;
+}
+
+.sidebar-link.logout {
+  color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.08);
+  margin-top: 15px;
+}
+
+.sidebar-link.logout:hover {
+  background-color: #ff4d4d;
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(255, 77, 77, 0.3);
+}
+
+/* --- FLOATING KI BUTTON --- */
+.fab-ki {
+  position: fixed;
+  bottom: 40px;
+  right: 30px;
+  width: 70px;
+  height: 80px;
+  background: none;
+  border: none;
+  font-size: 50px;
+  cursor: pointer;
+  z-index: 900;
+  filter: drop-shadow(0 0 10px rgba(0, 123, 255, 0.7));
+  animation: float 3s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+
+.fab-ki:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 15px rgba(0, 123, 255, 0.9));
+}
+
+.fab-ki:active {
+  transform: scale(0.95);
+}
+
+/* --- CUSTOM TOAST --- */
+.custom-toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85%;
+  max-width: 380px;
+  background-color: rgba(30, 30, 36, 0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid #007bff;
+  color: white;
+  padding: 16px 22px;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-align: center;
+  line-height: 1.4;
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- iOS INSTALL PROMPT --- */
+.ios-install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(30, 30, 36, 0.95);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid #444;
+  padding: 10px 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  color: #fff;
+}
+
+.ios-install-prompt p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+.ios-install-prompt strong {
+  color: #fff;
+}
+
+.close-prompt {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.prompt-arrow {
+  font-size: 1.5rem;
+  color: #007bff;
+  margin-top: 10px;
+  animation: bounce 1.5s infinite;
+}
+
+/* --- GENERISCHER SPINNER (RPG-Style) --- */
+.spinner {
+  display: block !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin: 20px auto !important;
+  border: 4px double #ffc107 !important;
+  background-color: transparent !important;
+  animation: rotation-rpg 1.5s linear infinite !important;
+  transform-origin: center center !important;
+}
