@@ -5,31 +5,45 @@
 
 /* Habit-Row RPG/Quest Style */
 .habit-row {
-  position: relative;
-  background-color: #1a1a20;
-  border-radius: 0;
-  border: none;
-  margin-bottom: 12px;
+  background: #1e1e24 !important; /* Dunkler Stein-Hintergrund */
+  margin-bottom: 18px;
   display: flex;
-  align-items: stretch;
-  overflow: hidden;
+  align-items: center;
+  padding: 12px 15px !important;
+  gap: 12px;
+
+  /* ⚔️ DAS RPG KARTEN DESIGN: Eckig, harte Ränder, 3D Block-Effekt */
+  border-radius: 0 !important; /* Weg mit den runden Ecken! */
+  border: 2px solid #000 !important; /* Harter, schwarzer Rahmen */
+
+  /* Der 3D-Karten-Effekt: Licht von oben, Schatten unten, und ein harter Drop-Shadow */
   box-shadow:
-    inset 0 0 0 2px #333,
-    0 0 0 2px #000;
-  border-left: 6px solid #007bff;
-  transition: transform 0.1s ease;
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.4),
+    4px 4px 0 rgba(0, 0, 0, 0.5) !important;
+
+  /* WICHTIG für Drag & Drop: Erlaubt dem Skript die Bewegung */
+  transition:
+    box-shadow 0.1s ease,
+    transform 0.1s ease,
+    background-color 0.2s ease !important;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* Hover-Effekt: Die Karte wird leicht "reingedrückt" */
 .habit-row:hover {
-  transform: translateX(4px);
+  transform: translate(2px, 2px);
   box-shadow:
-    inset 0 0 0 2px #444,
-    0 0 10px rgba(0, 123, 255, 0.2),
-    0 0 0 2px #000;
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.4),
+    2px 2px 0 rgba(0, 0, 0, 0.5) !important;
 }
 
+/* ✅ Erledigte Quests: Weg vom Neon-Grün, hin zu einem edlen Smaragdgrün */
 .habit-row.completed {
-  border-left-color: #28a745;
+  border-left: 6px solid #2e7d32 !important; /* Waldläufer-Grün */
+  background: #18221a !important; /* Sehr dunkles, kühles Moosgrün als Hintergrund */
 }
 
 /* Habit Hauptinfo */
@@ -38,26 +52,43 @@
   flex-grow: 1;
 }
 
-/* Habit-Progress */
+/* --- 📊 FORTSCHRITTSBALKEN RPG STYLE --- */
+
+/* --- 📊 FORTSCHRITTSBALKEN RPG STYLE --- */
+
 .habit-progress-container {
-  width: 100%;
-  height: 6px;
-  background-color: #2a2a35;
-  border-radius: 3px;
-  margin-top: 8px;
-  overflow: hidden;
+  background-color: #0d0d12 !important; /* Sehr tiefer, dunkler Stein-Schlitz */
+  border: 2px solid #000 !important; /* Harter schwarzer Rand */
+  border-radius: 0 !important;
+  height: 14px !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.9) !important; /* Tiefer Innenschatten */
+  overflow: hidden; /* Verhindert, dass die Füllung über den Rand schwappt */
 }
 
 .habit-progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #007bff, #00d2ff);
-  border-radius: 0;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2);
-  transition: width 0.5s ease-out;
+  height: 100% !important; /* WICHTIG: Damit er überhaupt eine Höhe hat! */
+  background: linear-gradient(
+    to bottom,
+    #d4af37,
+    #8b6508
+  ) !important; /* Edles, feuriges RPG-Gold */
+  border-radius: 0 !important;
+
+  /* Der 3D-Glanz auf der Füllung */
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4) !important;
+
+  transition: width 0.3s ease-in-out !important; /* Füllt sich weich auf */
 }
 
+/* Wenn die Quest komplett erledigt ist (100%) */
 .habit-progress-bar.completed {
-  background-color: #28a745;
+  background: linear-gradient(
+    to bottom,
+    #4caf50,
+    #1b5e20
+  ) !important; /* Strahlendes Smaragdgrün */
 }
 
 /* Kartenspezifische Buttons */
@@ -173,21 +204,19 @@
 }
 
 .action-zone-main {
-  width: 70px;
-  background-color: #3a3a45;
-  color: #fff;
-  border-left: 2px solid #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  cursor: pointer;
-  box-shadow: inset 2px 0 0 #555;
+  background-color: #3a3a45 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important; /* Eckiger Pixel-Look */
+  box-shadow:
+    inset 0 2px 0 #555,
+    inset 0 -3px 0 #222 !important;
+  color: #fff !important;
+  transition: all 0.1s ease !important;
 }
 
 .action-zone-main:active {
-  background-color: #222;
-  box-shadow: inset 4px 4px 0 #000;
+  transform: translateY(2px);
+  box-shadow: inset 0 3px 0 #222 !important;
 }
 
 .action-zone-main:hover {
@@ -197,19 +226,17 @@
 .action-side-column {
   display: flex;
   flex-direction: column;
-  width: 45px;
+  gap: 4px; /* Abstand zwischen Reset und Delete */
 }
 
 .action-zone-small {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: background 0.2s;
+  background-color: #2a2a35 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 0 2px 0 #444,
+    inset 0 -2px 0 #111 !important;
+  transition: all 0.1s ease !important;
 }
 
 .action-zone-small.reset {
@@ -221,7 +248,8 @@
 }
 
 .action-zone-small:active {
-  background-color: rgba(255, 255, 255, 0.05);
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 0 #111 !important;
 }
 
 /* Habit Typ-Farben (Abstinenz / täglich / Woche) */
@@ -372,4 +400,44 @@
   text-transform: uppercase;
   display: block;
   margin-top: 4px;
+}
+
+/* 🛡️ Typ-Farben: Entsättigte, edle RPG-Töne statt greller Web-Farben */
+.habit-card-abstinenz {
+  border-left: 6px solid #8b2525 !important; /* Drachenblut-Rot (Dunkel, ernst, edel) */
+}
+.habit-card-taeglich {
+  border-left: 6px solid #325d88 !important; /* Manatrank-Blau (Mystisch, gedeckt) */
+}
+.habit-card-wochenziel {
+  border-left: 6px solid #b8860b !important; /* Antikes Bronze/Gold (Passend zu deinen Gilden-Rahmen) */
+}
+
+/* --- DRAG & DROP RPG EFFEKTE --- */
+
+/* Die Karte, die du gerade mit der Maus/dem Finger festhältst */
+.rpg-drag {
+  opacity: 1 !important;
+  background: #22222a !important;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.9),
+    0 0 15px rgba(0, 123, 255, 0.3) !important;
+  cursor: grabbing !important;
+  z-index: 9999 !important;
+  transition: none !important;
+}
+
+/* Der Platzhalter (die Lücke, wo die Karte vorher war oder abgelegt wird) */
+.rpg-ghost {
+  opacity: 0.3 !important; /* Nur noch als Schatten sichtbar */
+  background: rgba(0, 0, 0, 0.4) !important;
+  border: 2px dashed #555 !important; /* Gestrichelter Rahmen, der den leeren Slot markiert */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8) !important;
+  transform: scale(1);
+}
+
+/* --- 🫲 DRAG ANFASSER --- */
+.drag-handle {
+  color: #888 !important;
+  text-shadow: 1px 1px 0 #000 !important; /* Lässt das Menü-Icon in den Stein graviert aussehen */
 }

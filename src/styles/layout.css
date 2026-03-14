@@ -439,7 +439,7 @@
   cursor: pointer;
 }
 
-/* --- SIDEBAR MENU --- */
+/* --- SIDEBAR MENU (RPG STYLE) --- */
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -462,19 +462,22 @@
   visibility: visible;
 }
 
+/* Das Menü selbst (Die schwere Eisentafel) */
 .sidebar-menu {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   width: 270px;
-  background-color: #1e1e24;
-  border-right: 1px solid #333;
+  background-color: #16161c; /* Dunkler Stein/Eisen */
+  border-right: 4px solid #000;
   padding: 25px 20px;
   z-index: 999;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px; /* Etwas mehr Platz zwischen den klobigen Buttons */
+
+  /* WICHTIG FÜR DIE ANIMATION (Auf/Zuklappen): */
   transform: translateX(-100%);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -483,64 +486,85 @@
 
 .sidebar-menu.open {
   transform: translateX(0);
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    inset -2px 0 0 rgba(255, 255, 255, 0.05),
+    10px 0 25px rgba(0, 0, 0, 0.9);
 }
 
+/* Überschrift "Menü" */
 .sidebar-header {
-  color: #fff;
+  color: #b8860b; /* Antikes Gold */
   font-size: 1.8rem;
   text-align: center;
-  border-bottom: 1px solid #333;
-  padding-bottom: 20px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 #000; /* Eingraviert-Effekt */
+  border-bottom: 2px solid #000;
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.05);
+  padding-bottom: 15px;
   margin-top: 0;
   margin-bottom: 25px;
   letter-spacing: 1px;
 }
 
+/* Standard Menü-Knöpfe (Steinblöcke) */
 .sidebar-link {
-  background: transparent;
-  border: none;
-  color: #aaa;
+  background-color: #2a2a35;
+  color: #ccc;
+  border: 2px solid #000;
+  border-radius: 0; /* Eckig, passend zu den Habits! */
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.4);
   text-align: left;
   font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
   padding: 14px 18px;
-  border-radius: 12px;
-  font-weight: 500;
   display: flex;
   align-items: center;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease; /* Schnelles Einrasten */
 }
 
-.sidebar-link:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+/* Klick & Hover für Standard-Knöpfe */
+.sidebar-link:hover,
+.sidebar-link:active {
+  background-color: #323240;
   color: #fff;
-  transform: translateX(6px);
+  transform: translateY(2px); /* Knopf wird physisch reingedrückt */
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.8);
 }
 
+/* 🌟 Aktiver Tab (Eingedrückter Stein mit Goldrand) */
 .sidebar-link.active {
+  background-color: #121214;
   color: #fff;
-  background-color: #007bff;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-  font-weight: bold;
+  border-left: 6px solid #b8860b; /* Goldener Gilden-Rand */
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.9);
+  transform: translateY(2px); /* Bleibt physisch unten */
 }
 
 .sidebar-link.active:hover {
-  transform: none;
-  background-color: #0056b3;
+  background-color: #121214;
 }
 
+/* 🚪 Logout Button (Drachenblut-Rot) */
 .sidebar-link.logout {
-  color: #ff4d4d;
-  background-color: rgba(255, 77, 77, 0.08);
+  color: #fff;
+  background-color: #8b2525;
+  border-left: 2px solid #000;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.5);
   margin-top: 15px;
 }
 
-.sidebar-link.logout:hover {
-  background-color: #ff4d4d;
-  color: #fff;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(255, 77, 77, 0.3);
+.sidebar-link.logout:hover,
+.sidebar-link.logout:active {
+  background-color: #631717;
+  transform: translateY(2px);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.9);
 }
 
 /* --- FLOATING KI BUTTON --- */
@@ -652,4 +676,203 @@
   background-color: transparent !important;
   animation: rotation-rpg 1.5s linear infinite !important;
   transform-origin: center center !important;
+}
+
+/* ========================================================================== */
+/* 1. RPG CHARAKTER-DASHBOARD (Obere Karte) STYLE                               */
+/* ========================================================================== */
+
+/* Die Haupt-Charakterkarte */
+.rpg-card.dashboard-mini {
+  background-color: #2a2a35 !important; /* Hellerer Stein, passend zum Button! */
+  border: 2px solid #000 !important; /* Harter, schwarzer Rahmen */
+  border-radius: 0 !important; /* Eckig! */
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.4),
+    4px 4px 0 rgba(0, 0, 0, 0.5) !important;
+  padding: 20px !important;
+  margin-bottom: 25px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Gibt dem Text und den Elementen Luft zum Atmen */
+}
+
+/* Avatar-Rahmen: Eckig und rustikal */
+.avatar-frame.mini {
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  background: #1e1e24 !important;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5) !important;
+  padding: 0 !important;
+}
+
+/* Das Avatar-Bild selbst */
+.avatar-frame.mini img {
+  border-radius: 0 !important;
+}
+
+/* Level-Abzeichen: Eckige Metall-Plakette */
+.level-badge-compact {
+  background: linear-gradient(
+    to bottom,
+    #d4af37,
+    #8b6508
+  ) !important; /* Edles Gold */
+  color: #000 !important;
+  font-weight: 900 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+    2px 2px 0 rgba(0, 0, 0, 0.5) !important;
+  padding: 4px 8px !important;
+}
+
+/* Charakter-Infos */
+.char-name.mini {
+  color: #fff !important;
+  text-shadow: 1px 1px 0 #000 !important;
+}
+
+.char-rank.mini {
+  color: #aaa !important;
+}
+
+/* --- DER XP BALKEN FIX --- */
+
+/* Der unsichtbare Wrapper um Text und Balken */
+.xp-progress-section.dashboard-xp {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  height: auto !important; /* WICHTIG: Damit der Text nicht gequetscht wird! */
+  margin-top: 0 !important;
+}
+
+/* Die Zeile für den Text (Erfahrung ... 120/337) */
+.xp-label-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px !important;
+}
+
+/* Der tiefe, leere Steinschlitz für den Balken */
+.xp-bar-bg {
+  background-color: #0d0d12 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  height: 16px !important; /* HIER gehört die Höhe hin! */
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.9) !important;
+  width: 100%;
+}
+
+/* Die magische blaue XP-Füllung */
+.xp-bar-fill {
+  background: linear-gradient(
+    to bottom,
+    #007bff,
+    #004494
+  ) !important; /* Klassisches, tiefes RPG-Blau */
+  border-radius: 0 !important;
+  height: 100% !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+/* --- Kopfzeilen-Text --- */
+.home-view h1 {
+  color: #fff !important;
+  text-shadow: 2px 2px 0 #000 !important; /* Festerer Schatten für die Begrüßung */
+}
+
+p.quote {
+  color: #c0a080 !important; /* Altes Pergament */
+  font-style: italic;
+}
+
+/* ========================================================================== */
+/* 🏰 HEADER & TOP NAV BAR (RPG STYLE)                                        */
+/* ========================================================================== */
+
+/* Die Kopfzeile selbst (Überschreibt die Inline-Styles) */
+header {
+  background-color: #16161c !important; /* Sehr dunkler, schwerer Stein */
+  border-bottom: 3px solid #000 !important; /* Harter Abschluss nach unten */
+  box-shadow:
+    0 6px 15px rgba(0, 0, 0, 0.8),
+    inset 0 -2px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Die Überschrift im Header ("Today", "Statistik", "Profil") */
+header h2 {
+  font-family:
+    "Fondamento", cursive, sans-serif !important; /* Rustikale Schrift */
+  color: #d4af37 !important; /* Altes Gold */
+  text-shadow: 2px 2px 0 #000 !important; /* In den Stein graviert */
+  letter-spacing: 1px !important;
+}
+
+/* Das Datum unter der Überschrift */
+header h2 p {
+  color: #888 !important;
+  font-family: sans-serif !important; /* Bleibt modern lesbar */
+  text-shadow: none !important;
+  letter-spacing: 0 !important;
+  margin-top: 4px !important;
+}
+
+/* Der Burger-Menü Button (☰) */
+header button {
+  text-shadow: 2px 2px 0 #000 !important;
+  transition: transform 0.1s ease !important;
+}
+
+header button:active {
+  transform: translateY(2px) !important; /* Physisches Reindrücken */
+}
+
+/* --- DAS PROFILBILD OBEN RECHTS --- */
+
+/* Der Rahmen (Kein Blau mehr, eckig, 3D) */
+.profile-avatar-circle {
+  border-radius: 0 !important; /* Eckig! */
+  border: 2px solid #000 !important; /* Schwarzer Eisenrand */
+  background-color: #2a2a35 !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.5),
+    2px 2px 0 rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Das Bild selbst zwingend eckig machen (überschreibt das inline "50%") */
+.profile-avatar-circle img {
+  border-radius: 0 !important;
+}
+
+/* Hover-Effekt: Goldener Rand statt App-Blau */
+.header-profile-zone:hover .profile-avatar-circle {
+  border-color: #b8860b !important; /* Antikes Gold */
+  background-color: #1e1e24 !important;
+}
+
+/* Der winzige Level-Indikator am Bild */
+.header-profile-zone .mini-level-indicator {
+  border-radius: 0 !important; /* Eckige Plakette */
+  background: linear-gradient(
+    to bottom,
+    #d4af37,
+    #8b6508
+  ) !important; /* Edles Gold */
+  color: #000 !important;
+  border: 2px solid #000 !important; /* Harter Rand */
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7) !important;
+  font-family: "Fondamento", cursive, sans-serif !important;
+  right: -5px !important;
+  bottom: -5px !important;
+  padding: 2px 4px !important;
+  width: auto !important;
+  min-width: 20px;
 }

@@ -14,6 +14,7 @@ import "./styles/base.css";
 import "./styles/layout.css";
 import "./styles/habits.css";
 import "./styles/auth-profile-rpg.css";
+import { ReactSortable } from "react-sortablejs";
 
 // -Level Rechner ---------------------------------------------------------------
 const berechneLevelInfo = (aktuelleXp) => {
@@ -770,7 +771,6 @@ function App() {
   }, []);
 
   // --------------------- Daten laden -------------------------------------
-  // --------------------- Daten laden (MIT RPG-DELAY) -------------------------------------
   useEffect(() => {
     if (user?.id) {
       setXp(user.user_metadata?.xp || 0);
@@ -807,7 +807,28 @@ function App() {
       datenLaden();
     }
   }, [user?.id]);
+  // --------------------- Daten laden -------------------------------------
 
+  // --- DER AUTO-ARCHIVAR (Speichert Drag & Drop im Hintergrund) ---
+  useEffect(() => {
+    // Wenn die Liste leer ist, mach nichts
+    if (!habits || habits.length === 0) return;
+
+    // Wartet 1 Sekunde nach dem Loslassen, bevor er speichert
+    const speicherTimer = setTimeout(() => {
+      habits.forEach(async (habit, index) => {
+        // Nur speichern, wenn sich die Position wirklich geändert hat
+        if (habit.sort_order !== index) {
+          await supabase
+            .from("habits")
+            .update({ sort_order: index })
+            .eq("id", habit.id);
+        }
+      });
+    }, 1000);
+
+    return () => clearTimeout(speicherTimer);
+  }, [habits]);
   // ---------------------------- habitReset ----------------------- //
   const habitReset = async (idVonDatenbank, indexInListe) => {
     setLoading(true);
@@ -1330,7 +1351,20 @@ function App() {
                 ➕ Neue Quest starten
               </button>
 
-              <ul className="habit-list">
+              {/* --- DIE MAGISCHE DRAG & DROP LISTE --- */}
+              <ReactSortable
+                list={habits}
+                setList={
+                  setHabits
+                } /* <--- NUR noch das hier! (Speichert sofort auf dem Bildschirm) */
+                animation={200}
+                handle=".drag-handle"
+                delayOnTouchOnly={true}
+                delay={150}
+                className="habit-list"
+                tag="ul"
+                ghostClass="rpg-ghost"
+              >
                 {habits.map((habit, index) => {
                   const isWochenziel = habit.type === "wochenziel";
                   const zielGroeße = isWochenziel
@@ -1343,19 +1377,22 @@ function App() {
                     <li
                       key={habit.id || index}
                       className={`habit-row fade-in-view habit-card-${habit.type} ${istErledigt ? "completed" : ""}`}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: "12px",
-                        padding: "12px 15px",
-                        borderRadius: "16px",
-                        gap: "10px",
-                        width: "100%",
-                        boxSizing: "border-box",
-                        // Wir entfernen backgroundColor, borderLeft und boxShadow hier,
-                        // damit das CSS aus der App.css greifen kann!
-                      }}
                     >
+                      {/* NEU: Der Drag-Anfasser */}
+                      <div
+                        className="drag-handle"
+                        style={{
+                          cursor: "grab",
+                          color: "#555",
+                          fontSize: "1.2rem",
+                          paddingRight: "10px",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        ⋮
+                      </div>
+
                       {/* Icons  */}
                       <div
                         style={{
@@ -1413,7 +1450,7 @@ function App() {
                         </div>
                       </div>
 
-                      {/*  Zähler & Buttons (Rechts)  */}
+                      {/* Zähler & Buttons (Rechts)  */}
                       <div
                         style={{
                           display: "flex",
@@ -1441,7 +1478,7 @@ function App() {
                           )}
                         </div>
 
-                        {/*   Touch-Zonen */}
+                        {/* Touch-Zonen */}
                         <div className="habit-row-actions">
                           <button
                             onClick={() => tagHinzufuegen(habit.id, index)}
@@ -1478,7 +1515,7 @@ function App() {
                     </li>
                   );
                 })}
-              </ul>
+              </ReactSortable>
               {apiKey && (
                 <button
                   className="fab-ki fade-effekt"
