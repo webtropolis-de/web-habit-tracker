@@ -9,7 +9,7 @@
   margin-bottom: 18px;
   display: flex;
   align-items: center;
-  padding: 12px 15px !important;
+  padding: 8px 10px !important;
   gap: 12px;
 
   /* ⚔️ DAS RPG KARTEN DESIGN: Eckig, harte Ränder, 3D Block-Effekt */
@@ -413,31 +413,153 @@
   border-left: 6px solid #b8860b !important; /* Antikes Bronze/Gold (Passend zu deinen Gilden-Rahmen) */
 }
 
-/* --- DRAG & DROP RPG EFFEKTE --- */
+/* --- ⬆️⬇️ SORTIER-BUTTONS RPG STYLE --- */
+.sort-buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-right: 15px;
+}
 
-/* Die Karte, die du gerade mit der Maus/dem Finger festhältst */
-.rpg-drag {
-  opacity: 1 !important;
-  background: #22222a !important;
+.sort-btn {
+  background-color: #2a2a35 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.9),
-    0 0 15px rgba(0, 123, 255, 0.3) !important;
-  cursor: grabbing !important;
-  z-index: 9999 !important;
-  transition: none !important;
-}
-
-/* Der Platzhalter (die Lücke, wo die Karte vorher war oder abgelegt wird) */
-.rpg-ghost {
-  opacity: 0.3 !important; /* Nur noch als Schatten sichtbar */
-  background: rgba(0, 0, 0, 0.4) !important;
-  border: 2px dashed #555 !important; /* Gestrichelter Rahmen, der den leeren Slot markiert */
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8) !important;
-  transform: scale(1);
-}
-
-/* --- 🫲 DRAG ANFASSER --- */
-.drag-handle {
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.5) !important;
   color: #888 !important;
-  text-shadow: 1px 1px 0 #000 !important; /* Lässt das Menü-Icon in den Stein graviert aussehen */
+  font-size: 0.8rem !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.1s ease !important;
+}
+
+.sort-btn:active:not(:disabled) {
+  transform: translateY(2px) !important;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+.sort-btn:hover:not(:disabled) {
+  color: #d4af37 !important; /* Goldenes Leuchten beim Hover */
+  background-color: #3a3a45 !important;
+}
+
+/* Wenn die Karte ganz oben oder ganz unten ist */
+.sort-btn:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+/* ========================================================================== */
+/* 📜 RPG TRIGGER BUTTONS (Kalender & Tipps)                                  */
+/* ========================================================================== */
+
+.calendar-section {
+  display: flex;
+  gap: 15px;
+  margin-top: 12px !important;
+}
+
+.rpg-trigger {
+  background: #1a1a20 !important; /* Tiefer Slot-Grund */
+  border: 1px solid #000 !important;
+  border-radius: 0 !important; /* Absolute Gilden-Pflicht: Eckig! */
+  color: #888 !important; /* Dezent graviert */
+  padding: 6px 10px !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.8),
+    1px 1px 0 rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.2s ease;
+}
+
+/* Die Icons (Runen) innerhalb der Buttons */
+.rpg-trigger .rune {
+  filter: grayscale(1) brightness(0.8); /* Macht die bunten Emojis "steinig" */
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+/* Magischer Leuchteffekt beim Hover */
+.rpg-trigger:hover {
+  border-color: #325d88 !important; /* Mana-Blau */
+  color: #3391ff !important;
+  background-color: #22222a !important;
+  transform: translateY(-1px);
+}
+
+.rpg-trigger:hover .rune {
+  filter: grayscale(0) brightness(1.2); /* Das Icon erwacht zum Leben */
+}
+
+/* Spezifisch für die Tipps (Goldenes Leuchten) */
+.rpg-trigger.tipps:hover {
+  border-color: #b8860b !important;
+  color: #ffd700 !important;
+}
+
+/* Aktiv-Zustand: Der Stein gibt nach */
+.rpg-trigger:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 5px #000 !important;
+}
+
+/* Die neue Leiste unter dem Balken */
+.rpg-info-bar {
+  display: flex !important;
+  gap: 15px !important;
+  margin-top: 12px !important;
+  padding-top: 8px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  width: 100%;
+}
+
+.rpg-rune-btn {
+  background: none !important;
+  border: none !important;
+  color: #666 !important;
+  font-size: 0.7rem !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  padding: 0 !important;
+  box-shadow: none !important; /* Weg mit dem klobigen Schatten hier */
+}
+
+.rpg-rune-btn span {
+  filter: grayscale(1) opacity(0.5);
+  font-size: 0.9rem;
+}
+
+/* Hover-Effekte: Die Runen fangen an zu glühen */
+.rpg-rune-btn:hover {
+  color: #3391ff !important;
+}
+.rpg-rune-btn:hover span {
+  filter: grayscale(0) opacity(1);
+  text-shadow: 0 0 8px #3391ff;
+}
+
+.rpg-rune-btn.gold:hover {
+  color: #d4af37 !important;
+}
+.rpg-rune-btn.gold:hover span {
+  text-shadow: 0 0 8px #d4af37;
 }

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-//import "./App.css"; // Stylesheet importieren
 import logo from "./assets/logo.png"; // Logo importieren
 import { supabase } from "./supabaseClient";
 import {
@@ -14,7 +13,6 @@ import "./styles/base.css";
 import "./styles/layout.css";
 import "./styles/habits.css";
 import "./styles/auth-profile-rpg.css";
-import { ReactSortable } from "react-sortablejs";
 
 // -Level Rechner ---------------------------------------------------------------
 const berechneLevelInfo = (aktuelleXp) => {
@@ -56,8 +54,6 @@ function App() {
   const [aktuelleAnsicht, setAktuelleAnsicht] = useState("home");
   const [eingabeWert, setInputValue] = useState("");
   const [zielWert, setZielWert] = useState("");
-  const [zeigePicker, setZeigePicker] = useState(false);
-  const [icon, setIcon] = useState("🔥"); // Standard-Emoji
   const [habits, setHabits] = useState([]);
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
@@ -72,23 +68,6 @@ function App() {
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const emojiOptionen = [
-    "🔥",
-    "💪",
-    "🥗",
-    "💧",
-    "🧘",
-    "📚",
-    "🚭",
-    "🍺",
-    "🛌",
-    "🏃",
-    "🎯",
-    "💰",
-    "♥️",
-    "🎮",
-    "💵",
-  ];
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const aktuellesdatum = new Date().toLocaleDateString("de-DE", {
     weekday: "long",
@@ -126,6 +105,25 @@ function App() {
         OneSignal.User.addTag("weckzeit", neueZeit);
       });
     }
+  };
+
+  // --------------------------------------------------KARTEN SORTIEREN --- //
+  const bewegeHoch = (index) => {
+    if (index === 0) return; // Ist schon ganz oben
+    const neueListe = [...habits];
+    const temp = neueListe[index - 1];
+    neueListe[index - 1] = neueListe[index];
+    neueListe[index] = temp;
+    setHabits(neueListe); // Der Auto-Archivar speichert das dann automatisch!
+  };
+
+  const bewegeRunter = (index) => {
+    if (index === habits.length - 1) return; // Ist schon ganz unten
+    const neueListe = [...habits];
+    const temp = neueListe[index + 1];
+    neueListe[index + 1] = neueListe[index];
+    neueListe[index] = temp;
+    setHabits(neueListe); // Der Auto-Archivar speichert auch das!
   };
 
   // ---------------------------- KI Habit Tipps --------------------------------- //
@@ -386,8 +384,6 @@ function App() {
     const neuesHabit = {
       name: eingabeWert,
       days: 0,
-      icon: icon,
-      // Abstinenz Ziel leer (also 0 = unendlich)
       goal: zielWert === "" ? 0 : Number(zielWert),
       type: habitType,
       frequency: Number(frequency) || 0,
@@ -1351,20 +1347,8 @@ function App() {
                 ➕ Neue Quest starten
               </button>
 
-              {/* --- DIE MAGISCHE DRAG & DROP LISTE --- */}
-              <ReactSortable
-                list={habits}
-                setList={
-                  setHabits
-                } /* <--- NUR noch das hier! (Speichert sofort auf dem Bildschirm) */
-                animation={200}
-                handle=".drag-handle"
-                delayOnTouchOnly={true}
-                delay={150}
-                className="habit-list"
-                tag="ul"
-                ghostClass="rpg-ghost"
-              >
+              {/* --- DIE MASSIVE STEIN-LISTE (OHNE DRAG & DROP) --- */}
+              <ul className="habit-list">
                 {habits.map((habit, index) => {
                   const isWochenziel = habit.type === "wochenziel";
                   const zielGroeße = isWochenziel
@@ -1378,48 +1362,46 @@ function App() {
                       key={habit.id || index}
                       className={`habit-row fade-in-view habit-card-${habit.type} ${istErledigt ? "completed" : ""}`}
                     >
-                      {/* NEU: Der Drag-Anfasser */}
-                      <div
-                        className="drag-handle"
-                        style={{
-                          cursor: "grab",
-                          color: "#555",
-                          fontSize: "1.2rem",
-                          paddingRight: "10px",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        ⋮
+                      {/* ⬆️⬇️ Rauf / Runter Buttons */}
+                      <div className="sort-buttons-container">
+                        <button
+                          onClick={() => bewegeHoch(index)}
+                          disabled={index === 0}
+                          className="sort-btn"
+                          title="Quest nach oben verschieben"
+                        >
+                          ▲
+                        </button>
+                        <button
+                          onClick={() => bewegeRunter(index)}
+                          disabled={index === habits.length - 1}
+                          className="sort-btn"
+                          title="Quest nach unten verschieben"
+                        >
+                          ▼
+                        </button>
                       </div>
 
-                      {/* Icons  */}
-                      <div
-                        style={{
-                          fontSize: "1.6rem",
-                          minWidth: "35px",
-                          textAlign: "center",
-                        }}
-                      >
-                        {habit.icon || "🔥"}
-                      </div>
-
-                      {/* Text  */}
+                      {/* 📜 Text-Bereich & Info-Bar */}
                       <div className="habit-text-container">
-                        <h3 className="habit-title">{habit.name}</h3>
-                        <span className="habit-subtitle">
-                          {habit.type === "wochenziel"
-                            ? "🏰 Wochen-Quest"
-                            : habit.type === "taeglich"
-                              ? "⚔️ Tägliche Pflicht"
-                              : "🛡️ Standhaftigkeit"}
-                        </span>
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <h3 className="habit-title">{habit.name}</h3>
+                          <span className="habit-subtitle">
+                            {habit.type === "wochenziel"
+                              ? "Wochen-Quest"
+                              : habit.type === "taeglich"
+                                ? "Tägliche Pflicht"
+                                : "Abstinenz"}
+                          </span>
+                        </div>
 
-                        {/* Progress Bar  */}
+                        {/* Progress Bar */}
                         {zielGroeße > 0 && (
                           <div
                             className="habit-progress-container"
-                            style={{ marginTop: "8px" }}
+                            style={{ margin: "10px 0" }}
                           >
                             <div
                               className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
@@ -1430,27 +1412,26 @@ function App() {
                           </div>
                         )}
 
-                        {/* KALENDER SEKTION  */}
-                        <div className="calendar-section">
+                        {/* 🛠️ NEU: Kompakte Info-Bar UNTER dem Fortschritt */}
+                        <div className="rpg-info-bar">
                           <button
-                            className="calendar-trigger"
+                            className="rpg-rune-btn"
                             onClick={() => setOffenerKalender(habit)}
                           >
-                            📅 Kalender
+                            <span>📅</span>
                           </button>
-
                           {apiKey && (
                             <button
-                              className="calendar-trigger tipps-trigger"
+                              className="rpg-rune-btn gold"
                               onClick={() => holeHabitTipps(habit)}
                             >
-                              💡 Tipps
+                              <span>💡</span>
                             </button>
                           )}
                         </div>
                       </div>
 
-                      {/* Zähler & Buttons (Rechts)  */}
+                      {/* ⚙️ Zähler & Buttons (Rechts) */}
                       <div
                         style={{
                           display: "flex",
@@ -1459,26 +1440,24 @@ function App() {
                           flexShrink: 0,
                         }}
                       >
-                        {/* Zähler */}
                         <div style={{ textAlign: "right", minWidth: "35px" }}>
                           <span
                             style={{
-                              fontSize: "1rem",
+                              fontSize: "1.2rem",
                               fontWeight: "700",
-                              color: istErledigt ? "#28a745" : "#fff",
+                              color: istErledigt ? "#2e7d32" : "#fff",
                             }}
                           >
                             {habit.days}
                           </span>
-
                           {zielGroeße > 0 && (
-                            <span style={{ fontSize: "0.7rem", color: "#444" }}>
+                            <span style={{ fontSize: "0.8rem", color: "#888" }}>
+                              {" "}
                               /{zielGroeße}
                             </span>
                           )}
                         </div>
 
-                        {/* Touch-Zonen */}
                         <div className="habit-row-actions">
                           <button
                             onClick={() => tagHinzufuegen(habit.id, index)}
@@ -1515,7 +1494,7 @@ function App() {
                     </li>
                   );
                 })}
-              </ReactSortable>
+              </ul>
               {apiKey && (
                 <button
                   className="fab-ki fade-effekt"
@@ -1527,7 +1506,11 @@ function App() {
                   }}
                   title="Gilden-Mentor um Rat fragen" // Titel angepasst
                 >
-                  🧙‍♂️ {/* Hier das neue Icon einfügen: Magier */}
+                  <img
+                    src="avatars/MaleHumanElveMage51.png"
+                    alt="Runenmeister"
+                    className="ki-coach-avatar"
+                  />
                 </button>
               )}
             </div>
@@ -1572,8 +1555,15 @@ function App() {
                 {habits.map((habit) => (
                   <div key={habit.id} className="stats-card">
                     <div className="stats-header">
-                      <span className="stats-icon">{habit.icon}</span>
-                      <h4>{habit.name}</h4>
+                      <h4
+                        style={{
+                          margin: "0 auto",
+                          color: "#b8860b",
+                          textShadow: "1px 1px 0 #000",
+                        }}
+                      >
+                        {habit.name}
+                      </h4>
                     </div>
 
                     <div className="stats-body">
@@ -1694,6 +1684,7 @@ function App() {
                         justifyContent: "space-between",
                         alignItems: "center",
                         marginBottom: "15px",
+                        position: "relative", // Wichtig für die Positionierung des Buttons
                       }}
                     >
                       <h3 className="selection-title" style={{ margin: 0 }}>
@@ -1701,11 +1692,11 @@ function App() {
                       </h3>
                       <button
                         onClick={() => setGalerieOffen(false)}
+                        className="close-modal" /* Nutzt jetzt unser tolles rotes Design */
                         style={{
-                          background: "none",
-                          border: "none",
-                          color: "#888",
-                          cursor: "pointer",
+                          display: "flex",
+                          position: "static", // Hebt die absolute Positionierung für diesen Fall auf
+                          transform: "none",
                         }}
                       >
                         ✕
@@ -2003,9 +1994,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h2>
-                {offenerKalender.icon} {offenerKalender.name}
-              </h2>
+              <h2>{offenerKalender.name}</h2>
               <button
                 className="close-modal"
                 onClick={() => setOffenerKalender(null)}
@@ -2059,7 +2048,7 @@ function App() {
           </div>
         </div>
       )}
-
+      {/* --- 🧙‍♂️ KI MENTOR MODAL (RUNENMEISTER) --- */}
       {isKiModalOpen && (
         <div className="modal-overlay" onClick={() => setIsKiModalOpen(false)}>
           <div
@@ -2067,81 +2056,79 @@ function App() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h2 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                🧙‍♂️ Rat des Gilden-Mentors
+              <h2 style={{ fontSize: "1.4rem", margin: 0 }}>
+                Rat des Runenmeisters
               </h2>
               <button
                 className="close-modal"
                 onClick={() => setIsKiModalOpen(false)}
+                style={{ display: "flex" }}
               >
                 ✕
               </button>
             </div>
 
-            <div className="ki-modal-body">
-              {/* HIER IST DER SPINNER-FIX */}
+            <div className="ki-coach-zone">
+              <img
+                src="avatars/MaleHumanElveMage51.png"
+                alt="Runenmeister"
+                className="ki-coach-avatar"
+              />
+
               {isKiLoading ? (
+                /* Der funktionierende Lade-Spinner in der Sprechblase */
                 <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    padding: "30px 0",
-                  }}
+                  className="ki-coach-speech-bubble"
+                  style={{ textAlign: "center", padding: "30px 10px" }}
                 >
-                  {/* Wir nutzen die gleiche Klasse wie bei den Tipps */}
-                  <div className="rpg-loader-diamond"></div>
-                  <p style={{ marginTop: "20px", color: "#aaa" }}>
-                    Der Mentor befragt die alten Runen...
+                  <div
+                    className="spinner"
+                    style={{ margin: "0 auto 15px auto" }}
+                  ></div>
+                  <p style={{ margin: 0, color: "#aaa", fontStyle: "italic" }}>
+                    Der Magier befragt die alten Schriften...
                   </p>
                 </div>
-              ) : kiMotivation ? (
-                <p
-                  className="ki-text"
-                  style={{
-                    fontSize: "1.1rem",
-                    marginBottom: 0,
-                    fontStyle: "italic",
-                  }}
-                >
-                  "{kiMotivation}"
-                </p>
               ) : (
-                <p className="ki-placeholder" style={{ marginBottom: 0 }}>
-                  Fordere den Rat deines Mentors an.
-                </p>
+                /* Die Text-Sprechblase */
+                <div className="ki-coach-speech-bubble">
+                  <p className="ki-text" style={{ margin: 0 }}>
+                    {kiMotivation ||
+                      "Tritt näher, Reisender. Befrage die Runen, um magischen Beistand für deine heutigen Quests zu erhalten."}
+                  </p>
+                </div>
               )}
-            </div>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-                marginTop: "25px",
-              }}
-            >
-              <button
-                onClick={holeKIMotivation}
-                className="ki-btn"
-                disabled={isKiLoading}
-                style={{ width: "100%" }}
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                  marginTop: "10px",
+                }}
               >
-                {isKiLoading ? "Befrage die Runen..." : "Neuen Rat einholen"}
-              </button>
+                <button
+                  onClick={holeKIMotivation}
+                  className="ki-coach-btn"
+                  disabled={isKiLoading}
+                  style={{ width: "100%" }}
+                >
+                  {isKiLoading ? "Mana wird gesammelt..." : "Befrage die Runen"}
+                </button>
 
-              <button
-                onClick={() => setIsKiModalOpen(false)}
-                className="modal-btn-close"
-                style={{ width: "100%", margin: 0 }}
-              >
-                Zurück zum Pfad
-              </button>
+                <button
+                  onClick={() => setIsKiModalOpen(false)}
+                  className="modal-btn-close"
+                  style={{ width: "100%", margin: 0 }}
+                >
+                  Zurück zum Pfad
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-
       {/* TIPP MODAL */}
       {tippModalOffen && (
         <div className="modal-overlay" onClick={() => setTippModalOffen(null)}>
@@ -2150,10 +2137,35 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={{ textAlign: "left" }}
           >
-            <div className="modal-header" style={{ marginBottom: "15px" }}>
-              <h2 style={{ fontSize: "1.2rem", textAlign: "left", padding: 0 }}>
-                📜 Strategie für:{" "}
-                <span style={{ color: "#ffc107" }}>{tippModalOffen.name}</span>
+            <div
+              className="modal-header"
+              style={{
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "5px",
+              }}
+            >
+              <span style={{ fontSize: "1.5rem" }}>📜</span>
+              <h2
+                style={{
+                  fontSize: "1.2rem",
+                  textAlign: "center",
+                  padding: "0 10px",
+                  margin: 0,
+                  lineHeight: "1.2",
+                }}
+              >
+                Strategie für:
+                <br />
+                <span
+                  style={{
+                    color: "#d4af37",
+                    display: "block",
+                    marginTop: "5px",
+                  }}
+                >
+                  {tippModalOffen.name}
+                </span>
               </h2>
             </div>
 
@@ -2176,13 +2188,14 @@ function App() {
                     padding: "20px 0",
                   }}
                 >
-                  {/* Hier ist dein goldener Diamant-Loader */}
-                  <div className="rpg-loader-diamond"></div>
+                  {/* Der funktionierende Gilden-Spinner */}
+                  <div className="spinner"></div>
                   <p
                     style={{
                       marginTop: "15px",
                       color: "#aaa",
                       fontSize: "0.9rem",
+                      fontStyle: "italic",
                     }}
                   >
                     Der Mentor studiert die alten Schriften...
@@ -2234,7 +2247,7 @@ function App() {
               <h2
                 style={{ fontSize: "1.3rem", margin: 0, textAlign: "center" }}
               >
-                📜 Neue Gilden-Quest
+                📜 Neue Quest
               </h2>
               <button
                 className="close-modal"
@@ -2373,36 +2386,6 @@ function App() {
                       placeholder="Wiederholungen pro Woche"
                       style={{ width: "100%", margin: 0 }}
                     />
-                  )}
-                </div>
-
-                <div className="emoji-dropdown-container">
-                  <button
-                    type="button"
-                    className={`emoji-selector-btn ${zeigePicker ? "active" : ""}`}
-                    onClick={() => setZeigePicker(!zeigePicker)}
-                  >
-                    <span className="selected-emoji">{icon}</span>
-                  </button>
-
-                  {zeigePicker && (
-                    <div className="emoji-picker-dropdown fade-effekt">
-                      <div className="emoji-grid">
-                        {emojiOptionen.map((e) => (
-                          <button
-                            key={e}
-                            type="button"
-                            className={`emoji-option ${icon === e ? "is-selected" : ""}`}
-                            onClick={() => {
-                              setIcon(e);
-                              setZeigePicker(false);
-                            }}
-                          >
-                            {e}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                   )}
                 </div>
               </div>
