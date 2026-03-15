@@ -5,7 +5,14 @@
 
 /* Habit-Row RPG/Quest Style */
 .habit-row {
-  background: #1e1e24 !important; /* Dunkler Stein-Hintergrund */
+  /* 🪨 HIER IST DER STEIN: Dunkles Overlay + Deine Textur */
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+
   margin-bottom: 18px;
   display: flex;
   align-items: center;
@@ -13,8 +20,8 @@
   gap: 12px;
 
   /* ⚔️ DAS RPG KARTEN DESIGN: Eckig, harte Ränder, 3D Block-Effekt */
-  border-radius: 0 !important; /* Weg mit den runden Ecken! */
-  border: 2px solid #000 !important; /* Harter, schwarzer Rahmen */
+  border-radius: 0 !important;
+  border: 2px solid #000 !important;
 
   /* Der 3D-Karten-Effekt: Licht von oben, Schatten unten, und ein harter Drop-Shadow */
   box-shadow:
@@ -203,15 +210,44 @@
   height: 100%;
 }
 
+/* --- DER MAGISCHE KOMBI-BUTTON (Zahlen & Plus) --- */
 .action-zone-main {
-  background-color: #3a3a45 !important;
-  border: 2px solid #000 !important;
-  border-radius: 0 !important; /* Eckiger Pixel-Look */
+  /* 💎 Das helle Bernstein-Gold-Herz im Inneren (radialer Verlauf) */
+  background: radial-gradient(
+    circle at center,
+    rgba(180, 120, 20, 0.3) 0%,
+    #3a3a45 120%
+  ) !important;
+
+  /* 💎 Der präzise, pixelartige Gold-Rahmen */
+  border: 2px solid #d4af37 !important;
+  border-radius: 0 !important; /* Gilden-Pflicht: Eckig! */
+  cursor: pointer;
+  position: relative;
+
+  /* 💎 Die vielschichtige Artefakt-Magie (Glow & Schatten) */
   box-shadow:
-    inset 0 2px 0 #555,
-    inset 0 -3px 0 #222 !important;
-  color: #fff !important;
-  transition: all 0.1s ease !important;
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    /* Feinere 3D-Lichtkante oben */ inset 0 -4px 0 rgba(0, 0, 0, 0.4),
+    /* Härterer Schatten unten */ inset 0 0 15px rgba(255, 170, 0, 0.2),
+    /* Magie drückt nach innen */ 0 0 22px rgba(255, 200, 0, 0.6) !important; /* Satter, weicher Gold-Schein nach außen */
+
+  /* 💎 Der "Artefakt-breathing" Glow-Effekt (Filter liegt außerhalb) */
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+  animation: artifact-breathing 3s infinite ease-in-out;
+
+  /* 🛠️ Strikte Maße für unzerstörbares Layout */
+  width: 75px !important;
+  min-width: 75px !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+
+  /* Flexbox zentriert Inhalt exakt */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease !important;
 }
 
 .action-zone-main:active {
@@ -219,8 +255,26 @@
   box-shadow: inset 0 3px 0 #222 !important;
 }
 
+/* Optional: Falls ganz große Zahlen (z.B. 365/365) noch quetschen, die Schrift minimal anpassen */
+.action-counter {
+  font-size: 1rem !important;
+  font-weight: bold;
+  line-height: 1;
+  margin-bottom: 2px;
+  text-shadow: 1px 1px 0 #000;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
 .action-zone-main:hover {
   color: #ffc107;
+}
+
+.text-goal {
+  font-size: 0.75rem !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  margin-left: 2px;
 }
 
 .action-side-column {
@@ -230,12 +284,21 @@
 }
 
 .action-zone-small {
+  /* Kleiner, dunkler Stein-Block */
   background-color: #2a2a35 !important;
   border: 2px solid #000 !important;
   border-radius: 0 !important;
+  cursor: pointer;
+
+  /* 💎 Der 3D-Karten-Effekt (Licht oben, Schatten unten) */
   box-shadow:
     inset 0 2px 0 #444,
     inset 0 -2px 0 #111 !important;
+
+  flex: 1; /* Teilt den Platz 50/50 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.1s ease !important;
 }
 
@@ -250,6 +313,21 @@
 .action-zone-small:active {
   transform: translateY(2px);
   box-shadow: inset 0 2px 0 #111 !important;
+}
+
+.action-zone-small:hover {
+  filter: brightness(1.2) !important;
+}
+
+/* Spezifisch für Reset-Icon */
+.action-zone-small.reset {
+  color: #888;
+}
+/* Spezifisch für Delete-Icon */
+
+.action-zone-small.delete:hover {
+  color: #fff;
+  background-color: #dc3545 !important;
 }
 
 /* Habit Typ-Farben (Abstinenz / täglich / Woche) */
@@ -466,9 +544,10 @@
 }
 
 .rpg-trigger {
-  background: #1a1a20 !important; /* Tiefer Slot-Grund */
+  /* Tiefer Slot-Grund, als wäre der Button in den Stein gemeißelt */
+  background: #1a1a20 !important;
   border: 1px solid #000 !important;
-  border-radius: 0 !important; /* Absolute Gilden-Pflicht: Eckig! */
+  border-radius: 0 !important; /* Gilden-Pflicht */
   color: #888 !important; /* Dezent graviert */
   padding: 6px 10px !important;
   font-size: 0.75rem !important;
@@ -479,9 +558,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
+  /* 💎 Tiefer Schatten-Effekt */
   box-shadow:
     inset 0 1px 3px rgba(0, 0, 0, 0.8),
     1px 1px 0 rgba(255, 255, 255, 0.05) !important;
+
   transition: all 0.2s ease;
 }
 
@@ -492,7 +574,7 @@
   transition: all 0.2s ease;
 }
 
-/* Magischer Leuchteffekt beim Hover */
+/* 💎 Magischer Leuchteffekt beim Hover (wie die großen Buttons) */
 .rpg-trigger:hover {
   border-color: #325d88 !important; /* Mana-Blau */
   color: #3391ff !important;
@@ -562,4 +644,262 @@
 }
 .rpg-rune-btn.gold:hover span {
   text-shadow: 0 0 8px #d4af37;
+}
+
+/* ========================================================================== */
+/* ✨ MAGISCHES ARTEFAKT-GLÜHEN (Viel intensiver!)                             */
+/* ========================================================================== */
+
+/* 1. Die pulsierende Aura (Breitet sich nach außen aus) */
+@keyframes artifact-pulse {
+  0% {
+    box-shadow:
+      inset 0 2px 2px rgba(255, 255, 255, 0.1),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.3),
+      0 0 10px rgba(212, 175, 55, 0.3),
+      /* Basis-Glühen */ 0 0 20px rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.5);
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 5px rgba(255, 255, 255, 0.2),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.3),
+      0 0 25px rgba(212, 175, 55, 0.8),
+      /* Intensives Herz-Glühen */ 0 0 40px rgba(212, 175, 55, 0.4); /* Weite Aura */
+    border-color: rgba(212, 175, 55, 1); /* Goldener Rand leuchtet auf */
+  }
+  100% {
+    box-shadow:
+      inset 0 2px 2px rgba(255, 255, 255, 0.1),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.3),
+      0 0 10px rgba(212, 175, 55, 0.3),
+      0 0 20px rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.5);
+  }
+}
+
+/* 2. Ein funkelnder Licht-Blitz, der über den Button rast */
+@keyframes magical-shimmer {
+  0% {
+    transform: translate(-150%, -150%) rotate(45deg);
+  }
+  30% {
+    transform: translate(-150%, -150%) rotate(45deg);
+  } /* Pause zwischen den Blitzen */
+  50% {
+    transform: translate(150%, 150%) rotate(45deg);
+  } /* Der Blitz saust durch */
+  100% {
+    transform: translate(150%, 150%) rotate(45deg);
+  }
+}
+
+.magische-quest {
+  background: radial-gradient(
+    circle at center,
+    rgba(180, 120, 20, 0.3) 0%,
+    #3a3a45 120%
+  ) !important;
+  border-color: #b8860b !important;
+  position: relative;
+  /* WICHTIG: Erlaubt der Aura, nach außen zu strahlen */
+  z-index: 1;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  animation: simple-glow 2.5s infinite alternate ease-in-out !important;
+}
+
+/* Die Keyframes für das reine Pulsieren */
+@keyframes gold-pulse {
+  0% {
+    box-shadow:
+      inset 0 2px 0 #555,
+      inset 0 -3px 0 #222,
+      0 0 10px rgba(212, 175, 55, 0.4); /* Sanftes Glühen */
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 0 #666,
+      inset 0 -3px 0 #222,
+      0 0 25px rgba(212, 175, 55, 0.9),
+      /* Starker Kern */ 0 0 45px rgba(212, 175, 55, 0.3); /* Weite Aura */
+    border-color: #ffe680 !important; /* Rand leuchtet hell auf */
+  }
+  100% {
+    box-shadow:
+      inset 0 2px 0 #555,
+      inset 0 -3px 0 #222,
+      0 0 10px rgba(212, 175, 55, 0.4);
+  }
+}
+
+@keyframes simple-glow {
+  0% {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.1),
+      /* Feinere 3D-Lichtkante oben */ inset 0 -3px 0 rgba(0, 0, 0, 0.6),
+      /* Härterer Schatten unten */ 0 0 5px rgba(212, 175, 55, 0.3) !important;
+    border-color: #b8860b !important;
+  }
+  100% {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.6),
+      inset 0 0 15px rgba(255, 170, 0, 0.2),
+      /* Die Magie drückt jetzt leicht nach innen */ 0 0 22px
+        rgba(255, 200, 0, 0.6) !important; /* Satterer, weicherer Schein nach außen */
+    border-color: #ffd700 !important; /* Helleres Reingold im Höhepunkt */
+  }
+}
+
+/* 2. Die pulsierende Aura (Pseudo-Element VOR dem Button) */
+.magische-quest::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px; /* Deckungsgleich mit dem Rand */
+  background: transparent;
+  z-index: -1; /* Hinter dem Button-Inhalt */
+  border-radius: 2px; /* Minimal abgerundet für die Aura */
+
+  /* Die vielschichtige Aura-Strahlung */
+  box-shadow:
+    0 0 15px rgba(212, 175, 55, 0.6),
+    /* Mittlere Aura */ 0 0 35px rgba(212, 175, 55, 0.3),
+    /* Weite Strahlung */ 0 0 60px rgba(212, 175, 55, 0.1); /* Äußerer Schein */
+
+  animation: pulse-aura 3s infinite ease-in-out;
+}
+
+/* 3. Der interne Lichtstrahl (Pseudo-Element NACH dem Button) */
+.magische-quest::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%; /* Weiter links starten */
+  width: 100%; /* Breiterer Strahl */
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: shine-swipe 4s infinite ease-in-out; /* Etwas schnellerer Zyklus */
+  z-index: 2;
+}
+
+.magische-quest .action-icon {
+  color: #fff !important;
+  /* Harter schwarzer Schatten für maximale Lesbarkeit + sanftes Gold-Glow */
+  text-shadow:
+    1px 1px 0 #000,
+    0 0 10px rgba(255, 170, 0, 0.6);
+  font-size: 1.6rem !important;
+  margin-top: -3px;
+}
+
+.magische-quest .action-counter {
+  color: #fff !important;
+  opacity: 1; /* Volle Deckkraft für die Zahl! */
+  font-size: 1rem !important;
+  text-shadow: 1px 1px 0 #000; /* Nur ein harter, schwarzer Schatten */
+  letter-spacing: 1px;
+}
+
+.magische-quest .text-goal {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Zustand: Quest bereits erledigt / gesperrt */
+/* Zustand: Quest bereits erledigt / gesperrt */
+.action-zone-main.is-locked {
+  background: #121216 !important; /* Erloschenes Eisen */
+  opacity: 0.4 !important;
+  filter: grayscale(100%) brightness(0.7) !important;
+  pointer-events: none !important;
+  border-color: #111 !important;
+  box-shadow: none !important;
+}
+
+/* Hilfsklassen für den Text innerhalb des Buttons */
+.text-success {
+  color: #2e7d32 !important;
+}
+
+/* --- ANIMATIONEN --- */
+
+@keyframes pulse-aura {
+  0% {
+    box-shadow:
+      0 0 15px rgba(212, 175, 55, 0.6),
+      0 0 30px rgba(212, 175, 55, 0.2),
+      0 0 50px rgba(212, 175, 55, 0.05);
+    opacity: 0.8;
+  }
+  50% {
+    box-shadow:
+      0 0 25px rgba(212, 175, 55, 0.9),
+      /* Stärkerer Kern */ 0 0 45px rgba(212, 175, 55, 0.4),
+      /* Weiterer Schein */ 0 0 80px rgba(212, 175, 55, 0.15); /* Maximale Aura */
+    opacity: 1;
+  }
+  100% {
+    box-shadow:
+      0 0 15px rgba(212, 175, 55, 0.6),
+      0 0 30px rgba(212, 175, 55, 0.2),
+      0 0 50px rgba(212, 175, 55, 0.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-30deg);
+  }
+  20% {
+    transform: translateX(150%) skewX(-30deg);
+  } /* Der Schimmer zieht durch */
+  100% {
+    transform: translateX(150%) skewX(-30deg);
+  } /* Lange Pause */
+}
+
+/* Hover-Effekt: Magie wird wilder & der Rand wird golden */
+.magische-quest:hover {
+  filter: brightness(1.2) !important;
+  border-color: rgba(212, 175, 55, 1) !important;
+  animation: pulse-aura 1s infinite ease-in-out !important; /* Sehr schnelles Pulsieren */
+}
+
+/* --- ANIMATIONEN --- */
+
+@keyframes shine-swipe {
+  0% {
+    left: -150%;
+  }
+  20% {
+    left: 150%;
+  } /* Saust schnell durch */
+  100% {
+    left: 150%;
+  } /* Lange Pause */
+}
+
+/* WICHTIG: Die Aura (::before) muss jetzt eventuell 
+   mit z-index: -1 hinter den Button, falls overflow: hidden Probleme macht */
+.magische-quest::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  z-index: -1;
+  background: transparent;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6); /* Aura als Schatten statt Blur */
+  animation: aura-expand 3s infinite ease-in-out;
 }

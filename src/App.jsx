@@ -91,6 +91,7 @@ function App() {
   const [avatarSeed, setAvatarSeed] = useState("MaleHelmetWarrior16");
   const [galerieOffen, setGalerieOffen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSortMode, setIsSortMode] = useState(false);
 
   // ---------------------------- Zeit speichern ---------------------------------- //
 
@@ -1347,6 +1348,27 @@ function App() {
                 ➕ Neue Quest starten
               </button>
 
+              {/* --- NEU: DER SORTIER-SCHALTER --- */}
+              {habits.length > 1 && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <button
+                    onClick={() => setIsSortMode(!isSortMode)}
+                    className="rpg-trigger"
+                    style={{ fontSize: "0.8rem", padding: "6px 12px" }}
+                  >
+                    {isSortMode
+                      ? "✅ Sortieren beenden"
+                      : "↕️ Quests sortieren"}
+                  </button>
+                </div>
+              )}
+
               {/* --- DIE MASSIVE STEIN-LISTE (OHNE DRAG & DROP) --- */}
               <ul className="habit-list">
                 {habits.map((habit, index) => {
@@ -1362,25 +1384,27 @@ function App() {
                       key={habit.id || index}
                       className={`habit-row fade-in-view habit-card-${habit.type} ${istErledigt ? "completed" : ""}`}
                     >
-                      {/* ⬆️⬇️ Rauf / Runter Buttons */}
-                      <div className="sort-buttons-container">
-                        <button
-                          onClick={() => bewegeHoch(index)}
-                          disabled={index === 0}
-                          className="sort-btn"
-                          title="Quest nach oben verschieben"
-                        >
-                          ▲
-                        </button>
-                        <button
-                          onClick={() => bewegeRunter(index)}
-                          disabled={index === habits.length - 1}
-                          className="sort-btn"
-                          title="Quest nach unten verschieben"
-                        >
-                          ▼
-                        </button>
-                      </div>
+                      {/* ⬆️⬇️ Rauf / Runter Buttons (NUR SICHTBAR WENN SORTIERMODUS AN IST) */}
+                      {isSortMode && (
+                        <div className="sort-buttons-container">
+                          <button
+                            onClick={() => bewegeHoch(index)}
+                            disabled={index === 0}
+                            className="sort-btn"
+                            title="Quest nach oben verschieben"
+                          >
+                            ▲
+                          </button>
+                          <button
+                            onClick={() => bewegeRunter(index)}
+                            disabled={index === habits.length - 1}
+                            className="sort-btn"
+                            title="Quest nach unten verschieben"
+                          >
+                            ▼
+                          </button>
+                        </div>
+                      )}
 
                       {/* 📜 Text-Bereich & Info-Bar */}
                       <div className="habit-text-container">
@@ -1431,60 +1455,49 @@ function App() {
                         </div>
                       </div>
 
-                      {/* ⚙️ Zähler & Buttons (Rechts) */}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <div style={{ textAlign: "right", minWidth: "35px" }}>
-                          <span
-                            style={{
-                              fontSize: "1.2rem",
-                              fontWeight: "700",
-                              color: istErledigt ? "#2e7d32" : "#fff",
-                            }}
-                          >
-                            {habit.days}
-                          </span>
-                          {zielGroeße > 0 && (
-                            <span style={{ fontSize: "0.8rem", color: "#888" }}>
-                              {" "}
-                              /{zielGroeße}
-                            </span>
-                          )}
-                        </div>
-
+                      {/* ⚙️ Zähler & Buttons (Rechts) - KOMBINIERT! */}
+                      <div className="habit-actions-wrapper">
                         <div className="habit-row-actions">
+                          {/* HAUPT-BUTTON (Zahlen & Plus in einem!) */}
                           <button
                             onClick={() => tagHinzufuegen(habit.id, index)}
-                            className="action-zone-main"
-                            title="Tag hinzufügen"
-                            style={{
-                              opacity:
+                            className={`action-zone-main ${
+                              !(
                                 (isWochenziel && istErledigt) ||
                                 (!isWochenziel &&
                                   habit.last_clicked === aktuellesdatum)
-                                  ? 0.3
-                                  : 1,
-                            }}
+                              )
+                                ? "magische-quest"
+                                : "is-locked"
+                            }`}
+                            title="Tag hinzufügen"
                           >
-                            +
+                            <div className="action-counter">
+                              <span
+                                className={istErledigt ? "text-success" : ""}
+                              >
+                                {habit.days}
+                              </span>
+                              {zielGroeße > 0 && (
+                                <span className="text-goal">/{zielGroeße}</span>
+                              )}
+                            </div>
+                            <div className="action-icon">+</div>
                           </button>
 
+                          {/* KLEINE BUTTONS */}
                           <div className="action-side-column">
                             <button
                               onClick={() => habitReset(habit.id, index)}
                               className="action-zone-small reset"
+                              title="Zurücksetzen"
                             >
                               🔄
                             </button>
                             <button
                               onClick={() => habitLoeschen(habit.id, index)}
                               className="action-zone-small delete"
+                              title="Löschen"
                             >
                               🗑️
                             </button>

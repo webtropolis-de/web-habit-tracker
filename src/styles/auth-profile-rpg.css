@@ -819,7 +819,12 @@
 /* Profil-Karten */
 .profile-card,
 .profile-view .rpg-card {
-  background-color: #2a2a35 !important;
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
   border: 2px solid #000 !important;
   border-radius: 0 !important;
   box-shadow:
@@ -866,6 +871,12 @@
 .rpg-button-secondary,
 .modal-btn-close {
   background-color: #3a3a45 !important;
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
   color: #fff !important;
   font-weight: bold !important;
   text-transform: uppercase !important;

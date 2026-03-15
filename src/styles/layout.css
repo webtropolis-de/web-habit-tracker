@@ -576,6 +576,12 @@
 
 /* Die Haupt-Charakterkarte */
 .rpg-card.dashboard-mini {
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
   background-color: #2a2a35 !important; /* Hellerer Stein, passend zum Button! */
   border: 2px solid #000 !important; /* Harter, schwarzer Rahmen */
   border-radius: 0 !important; /* Eckig! */
