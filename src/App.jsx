@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import logo from "./assets/logo.png"; // Logo importieren
+import wolf1 from "./assets/wolf_1.png"; // Korrekt (da .png im Ordner)
+import wolf2 from "./assets/wolf_2.png"; // Korrekt (da .png im Ordner)
+import wolf3 from "./assets/wolf_3.jpg"; // FIX: Hier muss .jpg stehen!
+
 import { supabase } from "./supabaseClient";
 import {
   berechnenWochen,
@@ -1282,24 +1286,120 @@ function App() {
             <div className="home-view fade-effekt" key="home-view">
               <h1>Schön, dass du da bist {user.user_metadata.display_name}!</h1>
               <p className="quote">{spruch}</p>
-
-              {/* RPG DASHBOARD AUF DEM HOME SCREEN */}
+              {/* NEUES RPG DASHBOARD MIT WOLF-BEGLEITER */}
               <div
-                className="rpg-card dashboard-mini fade-effekt"
-                style={{ margin: "20px auto", maxWidth: "500px" }}
+                className="rpg-card character-main fade-effekt"
+                style={{
+                  margin: "20px auto",
+                  maxWidth: "500px",
+                  padding: "15px",
+                }}
               >
-                <div className="rpg-card-header dashboard-header">
-                  <div className="avatar-frame mini">
-                    <img src={getAvatarUrl(avatarSeed)} alt="Held" />
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "15px",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  {/* Avatar & Wolf-Spalte */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <div className="avatar-frame mini">
+                      <img src={getAvatarUrl(avatarSeed)} alt="Held" />
+                    </div>
+
+                    {/* 🐺 WOLF BEGLEITER LOGIK */}
+                    {(() => {
+                      const abstinenzHabits = habits.filter(
+                        (h) => h.type === "abstinenz",
+                      );
+                      const streak =
+                        abstinenzHabits.length > 0
+                          ? Math.max(...abstinenzHabits.map((h) => h.days))
+                          : 0;
+
+                      let currentWolfImg = wolf1;
+                      let wolfTitle = "Welpe";
+                      if (streak >= 30) {
+                        currentWolfImg = wolf3;
+                        wolfTitle = "Alpha";
+                      } else if (streak >= 7) {
+                        currentWolfImg = wolf2;
+                        wolfTitle = "Jungwolf";
+                      }
+
+                      return (
+                        <div
+                          className="familiar-box"
+                          style={{ textAlign: "center" }}
+                        >
+                          <div
+                            className="avatar-frame mini"
+                            style={{
+                              width: "45px",
+                              height: "45px",
+                              border: "1px solid #444",
+                              background: "#1a1a20",
+                            }}
+                          >
+                            <img
+                              src={currentWolfImg}
+                              alt="Wolf"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                            />
+                          </div>
+                          <span
+                            style={{
+                              fontSize: "0.55rem",
+                              color: "#aaa",
+                              textTransform: "uppercase",
+                              display: "block",
+                              marginTop: "2px",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {wolfTitle}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
-                  <div className="char-info">
-                    <h2
-                      className="char-name mini"
-                      style={{ textAlign: "left" }}
+
+                  {/* Charakter-Info & Bindungs-Balken */}
+                  <div style={{ flexGrow: 1, textAlign: "left" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "baseline",
+                      }}
                     >
-                      {user.user_metadata.display_name}
-                    </h2>
-                    <div className="char-rank mini">
+                      <h2
+                        className="char-name mini"
+                        style={{ margin: 0, fontSize: "1.1rem" }}
+                      >
+                        {user.user_metadata.display_name}
+                      </h2>
+                      <div className="level-badge-compact">
+                        Lvl {levelInfo.level}
+                      </div>
+                    </div>
+
+                    <div
+                      className="char-rank mini"
+                      style={{ marginBottom: "10px", color: "#888" }}
+                    >
                       {levelInfo.level >= 50
                         ? "🏆 Legende"
                         : levelInfo.level >= 20
@@ -1308,31 +1408,88 @@ function App() {
                             ? "🛡️ Krieger"
                             : "🪵 Novize"}
                     </div>
-                  </div>
-                  <div className="level-badge-compact">
-                    Lvl {levelInfo.level}
-                  </div>
-                </div>
 
-                <div className="xp-progress-section dashboard-xp">
-                  <div className="xp-label-row">
-                    <span style={{ fontSize: "0.8rem", color: "#888" }}>
-                      Erfahrung
-                    </span>
-                    <span style={{ fontSize: "0.8rem", color: "#888" }}>
-                      {levelInfo.xpImAktuellenLevel} / {levelInfo.xpForNext} XP
-                    </span>
-                  </div>
-                  <div className="xp-bar-bg">
+                    {/* XP Bar */}
                     <div
-                      className="xp-bar-fill"
-                      style={{ width: `${levelInfo.progressProzent}%` }}
-                    ></div>
+                      className="xp-progress-section"
+                      style={{ padding: 0, marginBottom: "12px" }}
+                    >
+                      <div className="xp-label-row">
+                        <span style={{ fontSize: "0.65rem", color: "#888" }}>
+                          Erfahrung
+                        </span>
+                        <span style={{ fontSize: "0.65rem", color: "#888" }}>
+                          {levelInfo.xpImAktuellenLevel}/{levelInfo.xpForNext}
+                        </span>
+                      </div>
+                      <div className="xp-bar-bg" style={{ height: "6px" }}>
+                        <div
+                          className="xp-bar-fill"
+                          style={{ width: `${levelInfo.progressProzent}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* 🐺 WOLF-BINDUNG */}
+                    {(() => {
+                      const abstinenzHabits = habits.filter(
+                        (h) => h.type === "abstinenz",
+                      );
+                      const streak =
+                        abstinenzHabits.length > 0
+                          ? Math.max(...abstinenzHabits.map((h) => h.days))
+                          : 0;
+                      const nextGoal = streak < 7 ? 7 : 30;
+
+                      return (
+                        <div
+                          style={{
+                            background: "rgba(0,0,0,0.4)",
+                            padding: "8px",
+                            border: "1px solid #333",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              fontSize: "0.65rem",
+                              color: "#bbb",
+                              marginBottom: "4px",
+                            }}
+                          >
+                            <span style={{ fontWeight: "bold" }}>
+                              🐺 Wolfs-Bindung
+                            </span>
+                            {streak < 30 && (
+                              <span>Noch {nextGoal - streak} Tage</span>
+                            )}
+                          </div>
+                          <div
+                            className="mini-progress-bg"
+                            style={{
+                              height: "4px",
+                              background: "#111",
+                              marginTop: 0,
+                            }}
+                          >
+                            <div
+                              className="mini-progress-fill"
+                              style={{
+                                width: `${Math.min((streak / nextGoal) * 100, 100)}%`,
+                                background:
+                                  "linear-gradient(90deg, #9d71e8, #6a41b5)",
+                                boxShadow: "0 0 8px rgba(157, 113, 232, 0.4)",
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
-
-              <div className="xp-progress-section dashboard-xp"></div>
+              {/* WICHTIG: Hier endet die Charakterkarte. Danach kommt dein Button: */}
 
               {/* BUTTON  FORMULAR */}
               <button
@@ -1814,6 +1971,85 @@ function App() {
                     <span className="stat-value">{xp}</span>
                   </div>
                 </div>
+              </div>
+              {/* 🐺 DIE BEGLEITER-RUHMESHALLE (WOLF BOX) */}
+              <div className="rpg-card familiar-profile-card fade-effekt">
+                {(() => {
+                  const abstinenzHabits = habits.filter(
+                    (h) => h.type === "abstinenz",
+                  );
+                  const streak =
+                    abstinenzHabits.length > 0
+                      ? Math.max(...abstinenzHabits.map((h) => h.days))
+                      : 0;
+
+                  let currentWolfImg = wolf1;
+                  let wolfTitle = "Wolfswelpe";
+                  let statusBeschrieb =
+                    "Dein Begleiter ist noch jung und braucht deine eiserne Disziplin.";
+
+                  if (streak >= 30) {
+                    currentWolfImg = wolf3;
+                    wolfTitle = "Alpha Schattenwolf";
+                    statusBeschrieb =
+                      "Ein legendärer Anführer der Schatten. Er spiegelt deine unbezwingbare Willenskraft wider.";
+                  } else if (streak >= 7) {
+                    currentWolfImg = wolf2;
+                    wolfTitle = "Junger Schattenwolf";
+                    statusBeschrieb =
+                      "Die Jagd hat begonnen. Er ist kräftig geworden und weicht nicht von deiner Seite.";
+                  }
+
+                  const nextGoal = streak < 7 ? 7 : 30;
+                  const progressPercent = Math.min(
+                    (streak / nextGoal) * 100,
+                    100,
+                  );
+
+                  return (
+                    <div className="familiar-profile-content">
+                      {/* RPG-Card-Header: Bild links, Text rechts */}
+                      <div className="familiar-card-header">
+                        <div className="familiar-avatar-frame">
+                          <img
+                            src={currentWolfImg}
+                            alt="Wolf"
+                            className="familiar-img"
+                          />
+                        </div>
+                        <div className="familiar-text-zone">
+                          <h2 className="familiar-name-title">{wolfTitle}</h2>
+                          <p className="familiar-description">
+                            "{statusBeschrieb}"
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Fortschrittsbalken-Sektion (ganz unten) */}
+                      <div className="familiar-progress-section">
+                        <div className="familiar-label-row">
+                          <span>Fortschritt</span>
+                          {streak < 30 ? (
+                            <span>
+                              {streak} / {nextGoal} Tage
+                            </span>
+                          ) : (
+                            <span>MAXIMALE STUFE</span>
+                          )}
+                        </div>
+                        <div className="xp-bar-bg familiar-progress-bg">
+                          <div
+                            className="xp-bar-fill familiar-progress-fill"
+                            style={{ width: `${progressPercent}%` }}
+                          ></div>
+                        </div>
+                        <p className="familiar-footer-note">
+                          Gekoppelt an deinen höchsten Abstinenz-Streak
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
               <br></br>
               <div className="profile-card">
