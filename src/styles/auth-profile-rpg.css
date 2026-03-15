@@ -1126,9 +1126,7 @@
   box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* ========================================================================== */
-/* 🐾 WOLF BEGLEITER (GESPERRT / LEVEL 3 SYSTEM)                              */
-/* ========================================================================== */
+/* WOLF BEGLEITER (GESPERRT / LEVEL 3 SYSTEM)                              */
 
 /* --- HOME VIEW: Die kleine Wolf-Box links --- */
 .familiar-box-mini {
@@ -1248,4 +1246,118 @@
   color: #aaa;
   font-style: italic;
   text-align: left;
+}
+
+/* ========================================================================== */
+/* 🚪 TAVERNEN-LOGIN (Massiver Stein-Look)                                    */
+/* ========================================================================== */
+
+/* Das Formular-Fenster selbst */
+.login-form {
+  background-color: #1e1e24 !important;
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.8), rgba(20, 20, 26, 0.95)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+
+  border: 2px solid #000 !important;
+  border-radius: 0 !important; /* Harte, eckige Kanten */
+  padding: 30px 20px !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 30px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Eingabefelder (Tief eingraviert in den Stein) */
+.habit-input {
+  background-color: #0a0a0c !important; /* Sehr dunkles Loch */
+  border: 2px solid #222 !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  padding: 14px 15px !important;
+
+  /* Schatten nach innen für den "gravierten" Look */
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.8) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Wenn man in das Feld klickt: Magisches Gold-Leuchten */
+.habit-input:focus {
+  border-color: #d4af37 !important;
+  box-shadow:
+    inset 0 4px 8px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(212, 175, 55, 0.3) !important;
+  outline: none !important;
+}
+
+/* Der große Anmelden/Registrieren Button */
+button.login-button {
+  width: 100% !important;
+  padding: 16px !important;
+  margin-top: 10px !important;
+
+  background-color: #1e1e24 !important;
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+
+  color: #fff !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+
+  /* 3D-Lift Effekt exakt wie im Profil */
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 0 #000,
+    0 8px 15px rgba(0, 0, 0, 0.5) !important;
+
+  transition: all 0.1s ease !important;
+}
+
+button.login-button:hover:not(:disabled) {
+  filter: brightness(1.2) !important;
+  border-color: #444 !important;
+}
+
+button.login-button:active:not(:disabled) {
+  transform: translateY(0px) !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
+}
+
+button.login-button:disabled {
+  opacity: 0.5 !important;
+  transform: translateY(0px) !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
+  cursor: not-allowed;
+}
+
+/* Die Links unten ("Jetzt registrieren" etc.) */
+.toggle-auth {
+  color: #888 !important;
+  margin-top: 20px !important;
+}
+
+.toggle-auth span {
+  color: #d4af37 !important;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.toggle-auth span:hover {
+  color: #fff !important;
+  text-shadow: 0 0 10px #d4af37;
 }

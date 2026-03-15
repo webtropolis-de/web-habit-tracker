@@ -3,7 +3,6 @@ import logo from "./assets/logo.png"; // Logo importieren
 import wolf1 from "./assets/wolf_1.png"; // Korrekt (da .png im Ordner)
 import wolf2 from "./assets/wolf_2.png"; // Korrekt (da .png im Ordner)
 import wolf3 from "./assets/wolf_3.jpg"; // FIX: Hier muss .jpg stehen!
-
 import { supabase } from "./supabaseClient";
 import {
   berechnenWochen,
@@ -1103,7 +1102,7 @@ function App() {
               </div>
             )}
 
-            <div className="login-button" style={{ marginTop: "10px" }}>
+            <div>
               {isLoginMode ? (
                 <button type="submit" className="login-button">
                   Anmelden
@@ -1241,6 +1240,17 @@ function App() {
             ></div>
 
             <div className={`sidebar-menu ${isMenuOpen ? "open" : ""}`}>
+              <img
+                className="logo"
+                src={logo}
+                alt="Logo"
+                style={{
+                  width: "150px",
+                  display: "block" /* NEU: Macht das Bild zu einem Block */,
+                  margin:
+                    "0 auto 0px auto" /* NEU: Oben 0, Links/Rechts auto (zentriert), Unten 30px */,
+                }}
+              />
               <h2 className="sidebar-header">Menü</h2>
               <button
                 onClick={() => {

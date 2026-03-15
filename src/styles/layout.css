@@ -334,7 +334,12 @@
   left: 0;
   bottom: 0;
   width: 270px;
-  background-color: #16161c; /* Dunkler Stein/Eisen */
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
   border-right: 4px solid #000;
   padding: 25px 20px;
   z-index: 999;
