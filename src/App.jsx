@@ -96,6 +96,7 @@ function App() {
   const [galerieOffen, setGalerieOffen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSortMode, setIsSortMode] = useState(false);
+  const [showRoadmapModal, setShowRoadmapModal] = useState(false);
 
   // ---------------------------- Zeit speichern ---------------------------------- //
 
@@ -1317,6 +1318,7 @@ function App() {
 
                     {/* 🐺 WOLF BEGLEITER LOGIK */}
                     {(() => {
+                      const isLocked = levelInfo.level < 3;
                       const abstinenzHabits = habits.filter(
                         (h) => h.type === "abstinenz",
                       );
@@ -1337,39 +1339,25 @@ function App() {
 
                       return (
                         <div
-                          className="familiar-box"
-                          style={{ textAlign: "center" }}
+                          className={`familiar-box-mini ${isLocked ? "is-locked" : ""}`}
                         >
                           <div
-                            className="avatar-frame mini"
-                            style={{
-                              width: "45px",
-                              height: "45px",
-                              border: "1px solid #444",
-                              background: "#1a1a20",
-                            }}
+                            className={`familiar-avatar-mini ${isLocked ? "is-locked" : ""}`}
                           >
-                            <img
-                              src={currentWolfImg}
-                              alt="Wolf"
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "contain",
-                              }}
-                            />
+                            {isLocked ? (
+                              <span className="familiar-icon-locked">🐾</span>
+                            ) : (
+                              <img
+                                src={currentWolfImg}
+                                alt="Wolf"
+                                className="familiar-img-mini"
+                              />
+                            )}
                           </div>
                           <span
-                            style={{
-                              fontSize: "0.55rem",
-                              color: "#aaa",
-                              textTransform: "uppercase",
-                              display: "block",
-                              marginTop: "2px",
-                              fontWeight: "bold",
-                            }}
+                            className={`familiar-title-mini ${isLocked ? "is-locked" : ""}`}
                           >
-                            {wolfTitle}
+                            {isLocked ? "Spuren..." : wolfTitle}
                           </span>
                         </div>
                       );
@@ -1432,6 +1420,7 @@ function App() {
 
                     {/* 🐺 WOLF-BINDUNG */}
                     {(() => {
+                      const isLocked = levelInfo.level < 3;
                       const abstinenzHabits = habits.filter(
                         (h) => h.type === "abstinenz",
                       );
@@ -1440,46 +1429,42 @@ function App() {
                           ? Math.max(...abstinenzHabits.map((h) => h.days))
                           : 0;
                       const nextGoal = streak < 7 ? 7 : 30;
+                      const lockProgress = Math.min(
+                        (levelInfo.level / 3) * 100,
+                        100,
+                      );
 
                       return (
-                        <div
-                          style={{
-                            background: "rgba(0,0,0,0.4)",
-                            padding: "8px",
-                            border: "1px solid #333",
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              fontSize: "0.65rem",
-                              color: "#bbb",
-                              marginBottom: "4px",
-                            }}
-                          >
-                            <span style={{ fontWeight: "bold" }}>
-                              🐺 Wolfs-Bindung
+                        <div className="familiar-binding-container">
+                          <div className="familiar-binding-header">
+                            <span
+                              className={`familiar-binding-title ${isLocked ? "is-locked" : ""}`}
+                            >
+                              {isLocked
+                                ? "🐾 Spuren entdeckt..."
+                                : "🐺 Wolfs-Entwicklung"}
                             </span>
-                            {streak < 30 && (
-                              <span>Noch {nextGoal - streak} Tage</span>
+                            {isLocked ? (
+                              <span className="familiar-binding-status is-locked">
+                                Lvl 3 benötigt
+                              </span>
+                            ) : streak < 30 ? (
+                              <span className="familiar-binding-status">
+                                Noch {nextGoal - streak} Tage
+                              </span>
+                            ) : (
+                              <span className="familiar-binding-status is-max">
+                                MAX
+                              </span>
                             )}
                           </div>
-                          <div
-                            className="mini-progress-bg"
-                            style={{
-                              height: "4px",
-                              background: "#111",
-                              marginTop: 0,
-                            }}
-                          >
+                          <div className="mini-progress-bg">
                             <div
-                              className="mini-progress-fill"
+                              className={`mini-progress-fill ${isLocked ? "is-locked" : ""}`}
                               style={{
-                                width: `${Math.min((streak / nextGoal) * 100, 100)}%`,
-                                background:
-                                  "linear-gradient(90deg, #9d71e8, #6a41b5)",
-                                boxShadow: "0 0 8px rgba(157, 113, 232, 0.4)",
+                                width: isLocked
+                                  ? `${lockProgress}%`
+                                  : `${Math.min((streak / nextGoal) * 100, 100)}%`,
                               }}
                             ></div>
                           </div>
@@ -1505,15 +1490,19 @@ function App() {
                 ➕ Neue Quest starten
               </button>
 
-              {/* --- NEU: DER SORTIER-SCHALTER --- */}
-              {habits.length > 1 && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    marginBottom: "10px",
-                  }}
+              {/* --- TOOLBAR: BELOHNUNGEN & SORTIEREN --- */}
+              <div className="toolbar_start">
+                {/* LINKS: Belohnungen / Roadmap (immer sichtbar) */}
+                <button
+                  onClick={() => setShowRoadmapModal(true)}
+                  className="rpg-trigger"
+                  style={{ fontSize: "0.8rem", padding: "6px 12px" }}
                 >
+                  📜 Belohnungen
+                </button>
+
+                {/* RECHTS: Sortieren (nur sichtbar wenn mehr als 1 Habit existiert) */}
+                {habits.length > 1 && (
                   <button
                     onClick={() => setIsSortMode(!isSortMode)}
                     className={`rpg-trigger ${isSortMode ? "is-active" : ""}`}
@@ -1523,8 +1512,8 @@ function App() {
                       ? "✅ Sortieren beenden"
                       : "↕️ Quests sortieren"}
                   </button>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* --- DIE MASSIVE STEIN-LISTE (OHNE DRAG & DROP) --- */}
               <ul className="habit-list">
@@ -1571,10 +1560,10 @@ function App() {
                           <h3 className="habit-title">{habit.name}</h3>
                           <span className="habit-subtitle">
                             {habit.type === "wochenziel"
-                              ? "Wochen-Quest"
+                              ? " 🏰 Wochen-Quest"
                               : habit.type === "taeglich"
-                                ? "Tägliche Pflicht"
-                                : "Abstinenz"}
+                                ? "📅Tägliche Pflicht"
+                                : "🛡️ Abstinenz"}
                           </span>
                         </div>
 
@@ -1788,193 +1777,231 @@ function App() {
                 >
                   ⚠️ Developer Optionen
                 </h3>
-                <button
-                  onClick={datenbankLeeren}
-                  className="btn-delete"
-                  style={{
-                    width: "100%",
-                    height: "45px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                    fontSize: "0.95rem",
-                  }}
-                >
-                  🔥 Gesamte Datenbank leeren
-                </button>
+                <p> Coming soon</p>
               </div>
             </div>
           )}
 
-          {/*  PROFILE VIEW */}
+          {/* PROFILE VIEW */}
           {aktuelleAnsicht === "profile" && (
             <div className="profile-view fade-effekt" key="profile-view">
               <h1>Dein Account ⚙️</h1>
               <p className="quote">
                 Verwalte deine persönlichen Einstellungen.
               </p>
-              <div className="rpg-card">
-                <div className="rpg-card-header">
-                  <div className="avatar-frame">
-                    <img src={getAvatarUrl(avatarSeed)} alt="Held" />
-                  </div>
-
-                  <div className="char-info">
-                    <h2 className="char-name">
-                      {user.user_metadata.display_name}
-                    </h2>
-
-                    <div className="char-rank">
-                      {levelInfo.level >= 50
-                        ? "🏆 Legende"
-                        : levelInfo.level >= 20
-                          ? "⚔️ Ritter"
-                          : levelInfo.level >= 10
-                            ? "🛡️ Krieger"
-                            : "🪵 Novize"}
+              {/* DIE KOMPAKTE CHARAKTER-KARTE IM PROFIL */}
+              <div className="rpg-card profile-character-card fade-effekt">
+                <div className="profile-character-content">
+                  {/* Header: Avatar links, Texte bündig rechts daneben */}
+                  <div className="profile-card-header">
+                    <div className="profile-avatar-frame">
+                      <img
+                        src={getAvatarUrl(avatarSeed)}
+                        alt="Held"
+                        className="profile-img"
+                      />
+                    </div>
+                    <div className="profile-text-zone">
+                      <h2 className="profile-name-title">
+                        {user.user_metadata.display_name}
+                      </h2>
+                      <div className="profile-rank-title">
+                        {levelInfo.level >= 50
+                          ? "🏆 Legende"
+                          : levelInfo.level >= 20
+                            ? "⚔️ Ritter"
+                            : levelInfo.level >= 10
+                              ? "🛡️ Krieger"
+                              : "🪵 Novize"}
+                      </div>
                     </div>
                   </div>
-                </div>
-                {!galerieOffen ? (
-                  /* ZUGEKLAPPT: Zeigt nur den Button zum Ändern */
-                  <button
-                    className="rpg-button-secondary"
-                    onClick={() => setGalerieOffen(true)}
-                    style={{ width: "100%", marginTop: "10px" }}
-                  >
-                    🛡️ Klasse wechseln
-                  </button>
-                ) : (
-                  /* OFFEN: Die Galerie */
-                  <div className="fade-effekt">
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "15px",
-                        position: "relative", // Wichtig für die Positionierung des Buttons
-                      }}
-                    >
-                      <h3 className="selection-title" style={{ margin: 0 }}>
-                        Wähle deine Klasse
-                      </h3>
+
+                  {/* Fortschrittsbalken-Sektion */}
+                  <div className="profile-progress-section">
+                    <div className="profile-label-row">
+                      <span>ERFAHRUNG (LVL {levelInfo.level})</span>
+                      <span>
+                        {levelInfo.xpImAktuellenLevel} / {levelInfo.xpForNext}{" "}
+                        XP
+                      </span>
+                    </div>
+                    <div className="xp-bar-bg profile-progress-bg">
+                      <div
+                        className="xp-bar-fill profile-progress-fill"
+                        style={{ width: `${levelInfo.progressProzent}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* BUTTON GRUPPE: Eng zusammengefasst für einheitliche Optik */}
+                  <div className="profile-actions-group">
+                    {!galerieOffen ? (
                       <button
-                        onClick={() => setGalerieOffen(false)}
-                        className="close-modal" /* Nutzt jetzt unser tolles rotes Design */
+                        className="rpg-button-secondary"
+                        onClick={() => setGalerieOffen(true)}
+                      >
+                        🛡️ KLASSE WECHSELN
+                      </button>
+                    ) : (
+                      <div
+                        className="galerie-mini-box fade-effekt"
                         style={{
-                          display: "flex",
-                          position: "static", // Hebt die absolute Positionierung für diesen Fall auf
-                          transform: "none",
+                          padding: "15px",
+                          background: "rgba(0,0,0,0.3)",
+                          border: "1px solid #333",
+                          marginBottom: "8px",
                         }}
                       >
-                        ✕
-                      </button>
-                    </div>
-
-                    <div className="avatar-grid">
-                      {[
-                        {
-                          id: "MaleHelmetWarrior16",
-                          label: "Ritter",
-                          minLevel: 1,
-                        },
-                        {
-                          id: "FemaleWarrior13",
-                          label: "Kriegerin",
-                          minLevel: 1,
-                        },
-                        { id: "FemaleRouge7", label: "Schurkin", minLevel: 5 },
-                        {
-                          id: "FemaleElves2",
-                          label: "Waldläuferin",
-                          minLevel: 5,
-                        },
-                        { id: "Werwolfs41", label: "Werwolf", minLevel: 10 },
-                        { id: "Skeletons20", label: "Skelett", minLevel: 15 },
-                      ].map((char) => {
-                        const isLocked = levelInfo.level < char.minLevel;
-
-                        return (
-                          <div
-                            key={char.id}
-                            className={`avatar-card ${avatarSeed === char.id ? "active" : ""} ${isLocked ? "locked" : ""}`}
-                            onClick={async () => {
-                              // WICHTIG: Das 'async' wurde hinzugefügt
-                              if (isLocked) {
-                                zeigeToast(
-                                  `🔒 Erst ab Level ${char.minLevel} verfügbar!`,
-                                  "error",
-                                );
-                                return;
-                              }
-
-                              // Sofort das Bild in der UI ändern (fühlt sich schneller an)
-                              setAvatarSeed(char.id);
-                              setGalerieOffen(false);
-
-                              // 2. WICHTIG: Das 'await' zwingt die App, auf Supabase zu warten
-                              const { data, error } =
-                                await supabase.auth.updateUser({
-                                  data: { avatar_seed: char.id },
-                                });
-
-                              // 3. Fehler abfangen oder den Haupt-User aktualisieren
-                              if (error) {
-                                zeigeToast(
-                                  "Die Verwandlung schlug fehl: " +
-                                    error.message,
-                                  "error",
-                                );
-                              } else if (data?.user) {
-                                setUser(data.user); // HIER IST DER TRICK: Aktualisiert den Cache!
-                                zeigeToast(
-                                  `${char.label} ausgewählt!`,
-                                  "success",
-                                );
-                              }
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginBottom: "15px",
+                          }}
+                        >
+                          <h3 style={{ margin: 0, fontSize: "0.9rem" }}>
+                            Wähle deine Klasse
+                          </h3>
+                          <button
+                            onClick={() => setGalerieOffen(false)}
+                            className="close-modal"
+                            style={{
+                              position: "static",
+                              transform: "none",
+                              display: "flex",
                             }}
                           >
-                            <div className="avatar-preview-box">
-                              <img
-                                src={getAvatarUrl(char.id)} // Nutzt jetzt die korrigierte Funktion
-                                alt={char.label}
-                                style={{
-                                  filter: isLocked
-                                    ? "grayscale(1) brightness(0.4)"
-                                    : "none",
-                                  imageRendering: "pixelated",
-                                  width: "100%", // Sicherstellen, dass es den Container füllt
-                                  height: "100%",
-                                  display: "block",
+                            ✕
+                          </button>
+                        </div>
+                        <div className="avatar-grid">
+                          {[
+                            {
+                              id: "MaleHelmetWarrior16",
+                              label: "Ritter",
+                              minLevel: 1,
+                            },
+                            {
+                              id: "FemaleWarrior13",
+                              label: "Kriegerin",
+                              minLevel: 1,
+                            },
+                            {
+                              id: "FemaleRouge7",
+                              label: "Schurkin",
+                              minLevel: 5,
+                            },
+                            {
+                              id: "FemaleElves2",
+                              label: "Waldläuferin",
+                              minLevel: 5,
+                            },
+                            {
+                              id: "Werwolfs41",
+                              label: "Werwolf",
+                              minLevel: 10,
+                            },
+                            {
+                              id: "Skeletons20",
+                              label: "Skelett",
+                              minLevel: 15,
+                            },
+                          ].map((char) => {
+                            const isLocked = levelInfo.level < char.minLevel;
+                            return (
+                              <div
+                                key={char.id}
+                                className={`avatar-card ${avatarSeed === char.id ? "active" : ""} ${isLocked ? "locked" : ""}`}
+                                onClick={async () => {
+                                  if (isLocked) {
+                                    zeigeToast(
+                                      `🔒 Erst ab Level ${char.minLevel} verfügbar!`,
+                                      "error",
+                                    );
+                                    return;
+                                  }
+                                  setAvatarSeed(char.id);
+                                  setGalerieOffen(false);
+                                  const { data, error } =
+                                    await supabase.auth.updateUser({
+                                      data: { avatar_seed: char.id },
+                                    });
+                                  if (error) {
+                                    zeigeToast(
+                                      "Fehler: " + error.message,
+                                      "error",
+                                    );
+                                  } else if (data?.user) {
+                                    setUser(data.user);
+                                    zeigeToast(
+                                      `${char.label} ausgewählt!`,
+                                      "success",
+                                    );
+                                  }
                                 }}
-                              />
-                              {isLocked && <div className="lock-icon">🔒</div>}
-                            </div>
-                            <span className="avatar-label">
-                              {isLocked ? `Lvl ${char.minLevel}` : char.label}
-                            </span>
-                          </div>
-                        );
-                      })}
+                              >
+                                <div className="avatar-preview-box">
+                                  <img
+                                    src={getAvatarUrl(char.id)}
+                                    alt={char.label}
+                                    style={{
+                                      filter: isLocked
+                                        ? "grayscale(1) brightness(0.4)"
+                                        : "none",
+                                      imageRendering: "pixelated",
+                                      width: "100%",
+                                      height: "100%",
+                                      display: "block",
+                                    }}
+                                  />
+                                  {isLocked && (
+                                    <div className="lock-icon">🔒</div>
+                                  )}
+                                </div>
+                                <span className="avatar-label">
+                                  {isLocked
+                                    ? `Lvl ${char.minLevel}`
+                                    : char.label}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    <button
+                      className="rpg-button-secondary"
+                      onClick={() => setShowRoadmapModal(true)}
+                    >
+                      📜 KOMMENDE BELOHNUNGEN
+                    </button>
+                  </div>
+
+                  {/* STATS REIHE GANZ UNTEN */}
+                  <div className="rpg-stats-row">
+                    <div className="stat-item">
+                      <span className="stat-label">STUFE</span>
+                      <span className="stat-value">{levelInfo.level}</span>
                     </div>
-                  </div>
-                )}{" "}
-                <div className="rpg-stats-row">
-                  <div className="stat-item">
-                    <span className="stat-label">STUFE</span>
-                    <span className="stat-value">{levelInfo.level}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">GESAMT XP</span>
-                    <span className="stat-value">{xp}</span>
+                    <div className="stat-item">
+                      <span className="stat-label">LEVEL XP</span>
+                      <span className="stat-value" style={{ color: "#9d71e8" }}>
+                        {levelInfo.xpImAktuellenLevel} / {levelInfo.xpForNext}
+                      </span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">GESAMT XP</span>
+                      <span className="stat-value">{xp}</span>
+                    </div>
                   </div>
                 </div>
               </div>
               {/* 🐺 DIE BEGLEITER-RUHMESHALLE (WOLF BOX) */}
               <div className="rpg-card familiar-profile-card fade-effekt">
                 {(() => {
+                  const isLocked = levelInfo.level < 3;
                   const abstinenzHabits = habits.filter(
                     (h) => h.type === "abstinenz",
                   );
@@ -2005,31 +2032,51 @@ function App() {
                     (streak / nextGoal) * 100,
                     100,
                   );
+                  const lockProgress = Math.min(
+                    (levelInfo.level / 3) * 100,
+                    100,
+                  );
 
                   return (
                     <div className="familiar-profile-content">
-                      {/* RPG-Card-Header: Bild links, Text rechts */}
                       <div className="familiar-card-header">
-                        <div className="familiar-avatar-frame">
-                          <img
-                            src={currentWolfImg}
-                            alt="Wolf"
-                            className="familiar-img"
-                          />
+                        <div
+                          className={`familiar-avatar-frame ${isLocked ? "is-locked" : ""}`}
+                        >
+                          {isLocked ? (
+                            <span className="familiar-locked-icon-large">
+                              🐾
+                            </span>
+                          ) : (
+                            <img
+                              src={currentWolfImg}
+                              alt="Wolf"
+                              className="familiar-img"
+                            />
+                          )}
                         </div>
                         <div className="familiar-text-zone">
-                          <h2 className="familiar-name-title">{wolfTitle}</h2>
-                          <p className="familiar-description">
-                            "{statusBeschrieb}"
+                          <h2
+                            className={`familiar-name-title ${isLocked ? "is-locked" : ""}`}
+                          >
+                            {isLocked ? "Unbekannte Fährte" : wolfTitle}
+                          </h2>
+                          <p
+                            className={`familiar-description ${isLocked ? "is-locked" : ""}`}
+                          >
+                            {isLocked
+                              ? "Im Wald um die Gilde hast du Spuren gefunden. Erreiche Level 3, um das Wesen anzulocken."
+                              : `"${statusBeschrieb}"`}
                           </p>
                         </div>
                       </div>
 
-                      {/* Fortschrittsbalken-Sektion (ganz unten) */}
                       <div className="familiar-progress-section">
                         <div className="familiar-label-row">
-                          <span>Fortschritt</span>
-                          {streak < 30 ? (
+                          <span>{isLocked ? "Gilden-Ruf" : "Fortschritt"}</span>
+                          {isLocked ? (
+                            <span>Lvl {levelInfo.level} / 3</span>
+                          ) : streak < 30 ? (
                             <span>
                               {streak} / {nextGoal} Tage
                             </span>
@@ -2039,12 +2086,18 @@ function App() {
                         </div>
                         <div className="xp-bar-bg familiar-progress-bg">
                           <div
-                            className="xp-bar-fill familiar-progress-fill"
-                            style={{ width: `${progressPercent}%` }}
+                            className={`xp-bar-fill familiar-progress-fill ${isLocked ? "is-locked" : ""}`}
+                            style={{
+                              width: isLocked
+                                ? `${lockProgress}%`
+                                : `${progressPercent}%`,
+                            }}
                           ></div>
                         </div>
                         <p className="familiar-footer-note">
-                          Gekoppelt an deinen höchsten Abstinenz-Streak
+                          {isLocked
+                            ? "Wird ab Level 3 freigeschaltet"
+                            : "Gekoppelt an deinen höchsten Abstinenz-Streak"}
                         </p>
                       </div>
                     </div>
@@ -2162,7 +2215,7 @@ function App() {
                 <br></br>
               </p>
               <div className="profile-card">
-                <h3>🧙‍♂️ Gilden-Mentor aktivieren</h3>
+                <h3>Gilden-Mentor aktivieren</h3>
                 <p
                   className="modal-subtitle"
                   style={{ textAlign: "left", marginBottom: "15px" }}
@@ -2622,7 +2675,7 @@ function App() {
                       placeholder={
                         habitType === "taeglich"
                           ? "Ziel (Tage) – Leer für ♾️"
-                          : "Abstinent für (Tage)"
+                          : "Abstinent für (Tage)– Leer für ♾️"
                       }
                       style={{ width: "100%", margin: 0 }}
                     />
@@ -2647,6 +2700,67 @@ function App() {
                 Quest ins Logbuch eintragen
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showRoadmapModal && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowRoadmapModal(false)}
+        >
+          <div
+            className="modal-content roadmap-modal fade-effekt"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Gilden-Roadmap</h2>
+              <button
+                className="close-modal"
+                onClick={() => setShowRoadmapModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="modal-subtitle">Deine Reise zum legendären Helden</p>
+
+            <div className="roadmap-list">
+              {[
+                { lvl: 1, reward: "Ritter & Kriegerin", type: "Klasse" },
+                { lvl: 3, reward: "Wolfswelpe", type: "Begleiter" },
+                { lvl: 5, reward: "Schurkin & Waldläuferin", type: "Klasse" },
+                { lvl: 7, reward: "Junger Schattenwolf", type: "Begleiter" },
+                { lvl: 10, reward: "Werwolf", type: "Klasse" },
+                { lvl: 15, reward: "Skelett-Krieger", type: "Klasse" },
+                { lvl: 30, reward: "Alpha Schattenwolf", type: "Begleiter" },
+                { lvl: 50, reward: "Rang: Legende", type: "Titel" },
+              ].map((item, index) => {
+                const reached = levelInfo.level >= item.lvl;
+                return (
+                  <div
+                    key={index}
+                    className={`roadmap-item ${reached ? "reached" : "locked"}`}
+                  >
+                    <div className="roadmap-lvl">LVL {item.lvl}</div>
+                    <div className="roadmap-info">
+                      <div className="roadmap-reward">{item.reward}</div>
+                      <div className="roadmap-type">{item.type}</div>
+                    </div>
+                    <div className="roadmap-status">
+                      {reached ? "✅" : "🔒"}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              className="modal-btn-close"
+              onClick={() => setShowRoadmapModal(false)}
+            >
+              Zurück zum Pfad
+            </button>
           </div>
         </div>
       )}

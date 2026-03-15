@@ -497,28 +497,67 @@
   }
 }
 
-/* --- CUSTOM TOAST --- */
 .custom-toast {
   position: fixed;
-  bottom: 40px;
+  bottom: 30px;
   left: 50%;
-  transform: translateX(-50%);
-  width: 85%;
-  max-width: 380px;
-  background-color: rgba(30, 30, 36, 0.92);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid #007bff;
-  color: white;
-  padding: 16px 22px;
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-  z-index: 10000;
-  font-weight: 500;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 25px;
+  min-width: 300px;
+  justify-content: center;
+
+  /* 🪨 Exakt der Stein-Look deiner Buttons! */
+  background-color: #1e1e24 !important;
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+
+  /* ⚔️ Harte Kanten und dicker schwarzer Rand */
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+
+  /* 3D-Block-Effekt (Lift) wie bei deinen Action-Buttons */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 0 #000,
+    0 8px 15px rgba(0, 0, 0, 0.6) !important;
+
+  color: #fff;
+  font-weight: 800;
   font-size: 0.95rem;
-  text-align: center;
-  line-height: 1.4;
-  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px #000;
+
+  /* Zentrierung kombiniert mit der Animation */
+  animation: toast-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 🟢 Erfolgs-Nachricht: Dicker grüner Balken links (wie bei erledigten Quests) */
+.custom-toast.success {
+  border-left: 6px solid #2e7d32 !important; /* Waldläufer-Grün */
+}
+
+/* 🔴 Fehler-Nachricht: Dicker roter Balken links */
+.custom-toast.error {
+  border-left: 6px solid #8b2525 !important; /* Drachenblut-Rot */
+}
+
+/* Die Aufplopp-Animation (springt leicht nach oben) */
+@keyframes toast-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 /* --- iOS INSTALL PROMPT --- */
@@ -1014,4 +1053,13 @@ header button:active {
   letter-spacing: 1px;
   word-break: break-word; /* Verhindert das Rausrutschen bei extrem langen Wörtern */
   text-shadow: 0 0 8px rgba(212, 175, 55, 0.4) !important;
+}
+
+.toolbar_start {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Zentriert die Buttons auf gleicher Höhe */
+  margin-bottom: 15px;
+  gap: 10px; /* Zur Sicherheit, falls der Bildschirm ganz schmal wird */
+  width: 100%; /* Wichtig, damit sie sich komplett links und rechts anordnen */
 }

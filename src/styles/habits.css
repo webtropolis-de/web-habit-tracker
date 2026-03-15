@@ -1002,8 +1002,8 @@
 .familiar-card-header {
   display: flex;
   align-items: center; /* Zentriert Wolf und Text vertikal zueinander */
-  gap: 20px;
-  padding: 20px;
+  gap: 25px;
+  padding: 10px;
   background-size: cover;
 }
 
@@ -1022,14 +1022,17 @@
 .familiar-text-zone {
   flex-grow: 1;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 5px; /* Abstand zwischen Name und Spruch */
 }
 
 .familiar-name-title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }
 
 .familiar-description {
@@ -1037,4 +1040,40 @@
   font-size: 0.9rem;
   color: #aaa;
   font-style: italic;
+}
+
+.familiar-progress-section {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.familiar-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px; /* Wichtig: Abstand zum Balken */
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 3. Footer-Fix: Text "Gekoppelt an..." braucht Luft nach oben */
+.familiar-footer-note {
+  margin-top: 15px; /* Abstand unter dem Balken */
+  font-size: 0.7rem;
+  color: #555;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 4. Avatar-Rahmen: Sicherstellen, dass er nicht zu wuchtig ist */
+.familiar-avatar-frame {
+  flex-shrink: 0;
+  width: 85px;
+  height: 85px;
+  background: #1a1a20;
+  border: 2px solid #333;
+  box-shadow: inset 0 0 10px #000;
 }
