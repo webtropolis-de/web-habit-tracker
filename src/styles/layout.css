@@ -206,7 +206,13 @@
 }
 
 .modal-content {
-  background: #1e1e24;
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+
   width: 100%;
   max-width: 400px;
   border-radius: 24px;
@@ -367,6 +373,12 @@
 
 /* Standard Menü-Knöpfe (Steinblöcke) */
 .sidebar-link {
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
   background-color: #2a2a35;
   color: #ccc;
   border: 2px solid #000;
@@ -698,6 +710,12 @@ p.quote {
 /* Die Kopfzeile selbst (Überschreibt die Inline-Styles) */
 header {
   background-color: #16161c !important; /* Sehr dunkler, schwerer Stein */
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
   border-bottom: 3px solid #000 !important; /* Harter Abschluss nach unten */
   box-shadow:
     0 6px 15px rgba(0, 0, 0, 0.8),

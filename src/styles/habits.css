@@ -208,46 +208,40 @@
   display: flex;
   align-items: stretch;
   height: 100%;
+  gap: 4px;
 }
 
-/* --- DER MAGISCHE KOMBI-BUTTON (Zahlen & Plus) --- */
+/* --- DER HAUPT-BUTTON --- */
+/* --- DER HAUPT-BUTTON --- */
 .action-zone-main {
-  /* 💎 Das helle Bernstein-Gold-Herz im Inneren (radialer Verlauf) */
-  background: radial-gradient(
-    circle at center,
-    rgba(180, 120, 20, 0.3) 0%,
-    #3a3a45 120%
-  ) !important;
-
-  /* 💎 Der präzise, pixelartige Gold-Rahmen */
-  border: 2px solid #d4af37 !important;
-  border-radius: 0 !important; /* Gilden-Pflicht: Eckig! */
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  color: #fff !important;
   cursor: pointer;
-  position: relative;
 
-  /* 💎 Die vielschichtige Artefakt-Magie (Glow & Schatten) */
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.1),
-    /* Feinere 3D-Lichtkante oben */ inset 0 -4px 0 rgba(0, 0, 0, 0.4),
-    /* Härterer Schatten unten */ inset 0 0 15px rgba(255, 170, 0, 0.2),
-    /* Magie drückt nach innen */ 0 0 22px rgba(255, 200, 0, 0.6) !important; /* Satter, weicher Gold-Schein nach außen */
-
-  /* 💎 Der "Artefakt-breathing" Glow-Effekt (Filter liegt außerhalb) */
-  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
-  animation: artifact-breathing 3s infinite ease-in-out;
-
-  /* 🛠️ Strikte Maße für unzerstörbares Layout */
   width: 75px !important;
   min-width: 75px !important;
   flex-shrink: 0 !important;
   padding: 0 !important;
+  margin-bottom: 0 !important; /* WICHTIG: Kein Margin mehr! */
 
-  /* Flexbox zentriert Inhalt exakt */
+  /* ⬆️ EXAKTER LIFT: 4px hochziehen, 4px Schatten nach unten */
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 0 #000,
+    0 6px 10px rgba(0, 0, 0, 0.5) !important;
+
+  transition: all 0.1s ease !important;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease !important;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
 }
 
 .action-zone-main:active {
@@ -280,25 +274,32 @@
 .action-side-column {
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Abstand zwischen Reset und Delete */
+  gap: 6px; /* Mehr Platz für den 3D Effekt */
+  justify-content: center;
 }
 
 .action-zone-small {
-  /* Kleiner, dunkler Stein-Block */
-  background-color: #2a2a35 !important;
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
   border: 2px solid #000 !important;
   border-radius: 0 !important;
   cursor: pointer;
-
-  /* 💎 Der 3D-Karten-Effekt (Licht oben, Schatten unten) */
-  box-shadow:
-    inset 0 2px 0 #444,
-    inset 0 -2px 0 #111 !important;
-
-  flex: 1; /* Teilt den Platz 50/50 */
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* ⬆️ Gleicher 4px-Lift wie der Hauptbutton! */
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 0 #000,
+    0 4px 6px rgba(0, 0, 0, 0.4) !important;
+
   transition: all 0.1s ease !important;
 }
 
@@ -311,8 +312,10 @@
 }
 
 .action-zone-small:active {
-  transform: translateY(2px);
-  box-shadow: inset 0 2px 0 #111 !important;
+  transform: translateY(0px) !important;
+  box-shadow:
+    inset 0 3px 6px rgba(0, 0, 0, 0.8),
+    0 0 0 transparent !important;
 }
 
 .action-zone-small:hover {
@@ -327,7 +330,6 @@
 
 .action-zone-small.delete:hover {
   color: #fff;
-  background-color: #dc3545 !important;
 }
 
 /* Habit Typ-Farben (Abstinenz / täglich / Woche) */
@@ -360,6 +362,12 @@
 
 /* Kleine Stats-Karte (Home/Stats) */
 .stats-card {
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
   background-color: #1e1e24;
   border-radius: 12px;
   padding: 15px;
@@ -544,27 +552,32 @@
 }
 
 .rpg-trigger {
-  /* Tiefer Slot-Grund, als wäre der Button in den Stein gemeißelt */
-  background: #1a1a20 !important;
-  border: 1px solid #000 !important;
-  border-radius: 0 !important; /* Gilden-Pflicht */
-  color: #888 !important; /* Dezent graviert */
-  padding: 6px 10px !important;
-  font-size: 0.75rem !important;
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  color: #aaa !important;
   font-weight: 800 !important;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 
-  /* 💎 Tiefer Schatten-Effekt */
+  /* ⬆️ LIFT-EFFEKT: Hebt sich als 3D-Block ab */
+  transform: translateY(-3px);
   box-shadow:
-    inset 0 1px 3px rgba(0, 0, 0, 0.8),
-    1px 1px 0 rgba(255, 255, 255, 0.05) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 3px 0 #000,
+    0 4px 6px rgba(0, 0, 0, 0.4) !important;
 
-  transition: all 0.2s ease;
+  transition: all 0.1s ease !important;
 }
 
 /* Die Icons (Runen) innerhalb der Buttons */
@@ -576,10 +589,8 @@
 
 /* 💎 Magischer Leuchteffekt beim Hover (wie die großen Buttons) */
 .rpg-trigger:hover {
-  border-color: #325d88 !important; /* Mana-Blau */
-  color: #3391ff !important;
-  background-color: #22222a !important;
-  transform: translateY(-1px);
+  color: #fff !important;
+  filter: brightness(1.2) !important;
 }
 
 .rpg-trigger:hover .rune {
@@ -593,9 +604,14 @@
 }
 
 /* Aktiv-Zustand: Der Stein gibt nach */
-.rpg-trigger:active {
-  transform: translateY(1px);
-  box-shadow: inset 0 2px 5px #000 !important;
+.rpg-trigger:active,
+.rpg-trigger.is-active {
+  transform: translateY(0px) !important; /* Rastet in den Stein ein */
+  box-shadow:
+    inset 0 3px 6px rgba(0, 0, 0, 0.8),
+    0 0 0 transparent !important;
+  background-color: #1a1a20 !important;
+  color: #fff !important;
 }
 
 /* Die neue Leiste unter dem Balken */
@@ -695,18 +711,37 @@
 }
 
 .magische-quest {
-  background: radial-gradient(
-    circle at center,
-    rgba(180, 120, 20, 0.3) 0%,
-    #3a3a45 120%
-  ) !important;
-  border-color: #b8860b !important;
+  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  border-color: #000 !important; /* Gold-Rand entfernt */
   position: relative;
   /* WICHTIG: Erlaubt der Aura, nach außen zu strahlen */
   z-index: 1;
   overflow: hidden;
   transition: all 0.2s ease;
-  animation: simple-glow 2.5s infinite alternate ease-in-out !important;
+  animation: iron-glanz 2.5s infinite alternate ease-in-out !important;
+}
+
+@keyframes iron-glanz {
+  0% {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.15),
+      /* Harte Lichtkante oben */ inset 0 -4px 0 rgba(0, 0, 0, 0.6),
+      /* Massiver Schatten unten */ 0 0 4px rgba(255, 255, 255, 0.1) !important; /* Minimaler kühler Schein */
+    border-color: #000 !important;
+  }
+  100% {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.35),
+      /* Lichtkante wird heller (Metall-Reflexion) */ inset 0 -4px 0
+        rgba(0, 0, 0, 0.6),
+      0 0 15px rgba(255, 255, 255, 0.25) !important; /* Weißer/Silberner Glanz nach außen */
+    border-color: #555 !important; /* Rand wird ganz leicht metallisch heller */
+  }
 }
 
 /* Die Keyframes für das reine Pulsieren */
@@ -763,13 +798,6 @@
   background: transparent;
   z-index: -1; /* Hinter dem Button-Inhalt */
   border-radius: 2px; /* Minimal abgerundet für die Aura */
-
-  /* Die vielschichtige Aura-Strahlung */
-  box-shadow:
-    0 0 15px rgba(212, 175, 55, 0.6),
-    /* Mittlere Aura */ 0 0 35px rgba(212, 175, 55, 0.3),
-    /* Weite Strahlung */ 0 0 60px rgba(212, 175, 55, 0.1); /* Äußerer Schein */
-
   animation: pulse-aura 3s infinite ease-in-out;
 }
 
@@ -795,9 +823,7 @@
 .magische-quest .action-icon {
   color: #fff !important;
   /* Harter schwarzer Schatten für maximale Lesbarkeit + sanftes Gold-Glow */
-  text-shadow:
-    1px 1px 0 #000,
-    0 0 10px rgba(255, 170, 0, 0.6);
+
   font-size: 1.6rem !important;
   margin-top: -3px;
 }
@@ -871,8 +897,14 @@
 /* Hover-Effekt: Magie wird wilder & der Rand wird golden */
 .magische-quest:hover {
   filter: brightness(1.2) !important;
-  border-color: rgba(212, 175, 55, 1) !important;
-  animation: pulse-aura 1s infinite ease-in-out !important; /* Sehr schnelles Pulsieren */
+  color: #888;
+  animation: pulse-aura 2s infinite ease-in-out !important; /* Sehr schnelles Pulsieren */
+  background-color: #4a4a55 !important; /* Etwas helleres Eisen beim Hover */
+  /* Hover-Effekt: Magie wird wilder */
+  filter: brightness(1.2) !important;
+
+  background-color: #888 !important;
+  /* Etwas helleres Eisen beim Hover */
 }
 
 /* --- ANIMATIONEN --- */
@@ -900,6 +932,45 @@
   bottom: -2px;
   z-index: -1;
   background: transparent;
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6); /* Aura als Schatten statt Blur */
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); /* Weißer/Silberner Glow statt Gold */
   animation: aura-expand 3s infinite ease-in-out;
+}
+
+.magische-quest:active {
+  transform: translateY(2px) !important;
+  box-shadow:
+    inset 0 3px 0 rgba(0, 0, 0, 0.7),
+    /* Reingedrückt */ 0 0 5px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Klick: Block drückt sich physisch rein */
+.action-zone-main:active:not(.is-locked) {
+  transform: translateY(1px) !important; /* Geht nach unten */
+  box-shadow:
+    inset 0 3px 6px rgba(0, 0, 0, 0.8),
+    /* Wird innen dunkel */ 0 0 0 #000,
+    /* Äußerer Block verschwindet */ 0 0 0 transparent !important;
+}
+
+.action-zone-main:hover:not(.is-locked) {
+  filter: brightness(1.2) !important;
+  /* (Das vorherige background-color: #353542 !important; hier einfach löschen!) */
+}
+
+/* WICHTIG: Da die Animation die Box-Shadows steuert, müssen wir die auch anpassen! */
+@keyframes iron-glanz {
+  0% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 4px 0 #000,
+      /* Muss zum Lift-Effekt passen */ 0 6px 10px rgba(0, 0, 0, 0.5) !important;
+    border-color: #000 !important;
+  }
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      /* Reflektiert stärker */ 0 4px 0 #000,
+      0 6px 15px rgba(255, 255, 255, 0.15) !important; /* Kühles Glimmen auf dem Boden */
+    border-color: #555 !important;
+  }
 }

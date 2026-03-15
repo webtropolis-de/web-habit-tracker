@@ -1359,7 +1359,7 @@ function App() {
                 >
                   <button
                     onClick={() => setIsSortMode(!isSortMode)}
-                    className="rpg-trigger"
+                    className={`rpg-trigger ${isSortMode ? "is-active" : ""}`}
                     style={{ fontSize: "0.8rem", padding: "6px 12px" }}
                   >
                     {isSortMode
