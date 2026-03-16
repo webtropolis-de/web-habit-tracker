@@ -3,6 +3,7 @@ import logo from "./assets/logo.png"; // Logo importieren
 import wolf1 from "./assets/wolf_1.png"; // Korrekt (da .png im Ordner)
 import wolf2 from "./assets/wolf_2.png"; // Korrekt (da .png im Ordner)
 import wolf3 from "./assets/wolf_3.jpg"; // FIX: Hier muss .jpg stehen!
+
 import { supabase } from "./supabaseClient";
 import {
   berechnenWochen,
@@ -1102,7 +1103,7 @@ function App() {
               </div>
             )}
 
-            <div>
+            <div className="login-button" style={{ marginTop: "10px" }}>
               {isLoginMode ? (
                 <button type="submit" className="login-button">
                   Anmelden
@@ -1240,17 +1241,6 @@ function App() {
             ></div>
 
             <div className={`sidebar-menu ${isMenuOpen ? "open" : ""}`}>
-              <img
-                className="logo"
-                src={logo}
-                alt="Logo"
-                style={{
-                  width: "150px",
-                  display: "block" /* NEU: Macht das Bild zu einem Block */,
-                  margin:
-                    "0 auto 0px auto" /* NEU: Oben 0, Links/Rechts auto (zentriert), Unten 30px */,
-                }}
-              />
               <h2 className="sidebar-header">Menü</h2>
               <button
                 onClick={() => {
@@ -1328,7 +1318,6 @@ function App() {
 
                     {/* 🐺 WOLF BEGLEITER LOGIK */}
                     {(() => {
-                      const isLocked = levelInfo.level < 3;
                       const abstinenzHabits = habits.filter(
                         (h) => h.type === "abstinenz",
                       );
@@ -1349,25 +1338,39 @@ function App() {
 
                       return (
                         <div
-                          className={`familiar-box-mini ${isLocked ? "is-locked" : ""}`}
+                          className="familiar-box"
+                          style={{ textAlign: "center" }}
                         >
                           <div
-                            className={`familiar-avatar-mini ${isLocked ? "is-locked" : ""}`}
+                            className="avatar-frame mini"
+                            style={{
+                              width: "45px",
+                              height: "45px",
+                              border: "1px solid #444",
+                              background: "#1a1a20",
+                            }}
                           >
-                            {isLocked ? (
-                              <span className="familiar-icon-locked">🐾</span>
-                            ) : (
-                              <img
-                                src={currentWolfImg}
-                                alt="Wolf"
-                                className="familiar-img-mini"
-                              />
-                            )}
+                            <img
+                              src={currentWolfImg}
+                              alt="Wolf"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                            />
                           </div>
                           <span
-                            className={`familiar-title-mini ${isLocked ? "is-locked" : ""}`}
+                            style={{
+                              fontSize: "0.55rem",
+                              color: "#aaa",
+                              textTransform: "uppercase",
+                              display: "block",
+                              marginTop: "2px",
+                              fontWeight: "bold",
+                            }}
                           >
-                            {isLocked ? "Spuren..." : wolfTitle}
+                            {wolfTitle}
                           </span>
                         </div>
                       );
@@ -1430,7 +1433,6 @@ function App() {
 
                     {/* 🐺 WOLF-BINDUNG */}
                     {(() => {
-                      const isLocked = levelInfo.level < 3;
                       const abstinenzHabits = habits.filter(
                         (h) => h.type === "abstinenz",
                       );
@@ -1439,42 +1441,46 @@ function App() {
                           ? Math.max(...abstinenzHabits.map((h) => h.days))
                           : 0;
                       const nextGoal = streak < 7 ? 7 : 30;
-                      const lockProgress = Math.min(
-                        (levelInfo.level / 3) * 100,
-                        100,
-                      );
 
                       return (
-                        <div className="familiar-binding-container">
-                          <div className="familiar-binding-header">
-                            <span
-                              className={`familiar-binding-title ${isLocked ? "is-locked" : ""}`}
-                            >
-                              {isLocked
-                                ? "🐾 Spuren entdeckt..."
-                                : "🐺 Wolfs-Entwicklung"}
+                        <div
+                          style={{
+                            background: "rgba(0,0,0,0.4)",
+                            padding: "8px",
+                            border: "1px solid #333",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              fontSize: "0.65rem",
+                              color: "#bbb",
+                              marginBottom: "4px",
+                            }}
+                          >
+                            <span style={{ fontWeight: "bold" }}>
+                              🐺 Wolfs-Entwicklung
                             </span>
-                            {isLocked ? (
-                              <span className="familiar-binding-status is-locked">
-                                Lvl 3 benötigt
-                              </span>
-                            ) : streak < 30 ? (
-                              <span className="familiar-binding-status">
-                                Noch {nextGoal - streak} Tage
-                              </span>
-                            ) : (
-                              <span className="familiar-binding-status is-max">
-                                MAX
-                              </span>
+                            {streak < 30 && (
+                              <span>Noch {nextGoal - streak} Tage</span>
                             )}
                           </div>
-                          <div className="mini-progress-bg">
+                          <div
+                            className="mini-progress-bg"
+                            style={{
+                              height: "4px",
+                              background: "#111",
+                              marginTop: 0,
+                            }}
+                          >
                             <div
-                              className={`mini-progress-fill ${isLocked ? "is-locked" : ""}`}
+                              className="mini-progress-fill"
                               style={{
-                                width: isLocked
-                                  ? `${lockProgress}%`
-                                  : `${Math.min((streak / nextGoal) * 100, 100)}%`,
+                                width: `${Math.min((streak / nextGoal) * 100, 100)}%`,
+                                background:
+                                  "linear-gradient(90deg, #9d71e8, #6a41b5)",
+                                boxShadow: "0 0 8px rgba(157, 113, 232, 0.4)",
                               }}
                             ></div>
                           </div>
@@ -1500,19 +1506,15 @@ function App() {
                 ➕ Neue Quest starten
               </button>
 
-              {/* --- TOOLBAR: BELOHNUNGEN & SORTIEREN --- */}
-              <div className="toolbar_start">
-                {/* LINKS: Belohnungen / Roadmap (immer sichtbar) */}
-                <button
-                  onClick={() => setShowRoadmapModal(true)}
-                  className="rpg-trigger"
-                  style={{ fontSize: "0.8rem", padding: "6px 12px" }}
+              {/* --- NEU: DER SORTIER-SCHALTER --- */}
+              {habits.length > 1 && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    marginBottom: "10px",
+                  }}
                 >
-                  📜 Belohnungen
-                </button>
-
-                {/* RECHTS: Sortieren (nur sichtbar wenn mehr als 1 Habit existiert) */}
-                {habits.length > 1 && (
                   <button
                     onClick={() => setIsSortMode(!isSortMode)}
                     className={`rpg-trigger ${isSortMode ? "is-active" : ""}`}
@@ -1522,8 +1524,8 @@ function App() {
                       ? "✅ Sortieren beenden"
                       : "↕️ Quests sortieren"}
                   </button>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* --- DIE MASSIVE STEIN-LISTE (OHNE DRAG & DROP) --- */}
               <ul className="habit-list">
@@ -1570,10 +1572,10 @@ function App() {
                           <h3 className="habit-title">{habit.name}</h3>
                           <span className="habit-subtitle">
                             {habit.type === "wochenziel"
-                              ? " 🏰 Wochen-Quest"
+                              ? "Wochen-Quest"
                               : habit.type === "taeglich"
-                                ? "📅Tägliche Pflicht"
-                                : "🛡️ Abstinenz"}
+                                ? "Tägliche Pflicht"
+                                : "Abstinenz"}
                           </span>
                         </div>
 
@@ -1787,7 +1789,21 @@ function App() {
                 >
                   ⚠️ Developer Optionen
                 </h3>
-                <p> Coming soon</p>
+                <button
+                  onClick={datenbankLeeren}
+                  className="btn-delete"
+                  style={{
+                    width: "100%",
+                    height: "45px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  🔥 Gesamte Datenbank leeren
+                </button>
               </div>
             </div>
           )}
@@ -2011,7 +2027,6 @@ function App() {
               {/* 🐺 DIE BEGLEITER-RUHMESHALLE (WOLF BOX) */}
               <div className="rpg-card familiar-profile-card fade-effekt">
                 {(() => {
-                  const isLocked = levelInfo.level < 3;
                   const abstinenzHabits = habits.filter(
                     (h) => h.type === "abstinenz",
                   );
@@ -2042,51 +2057,31 @@ function App() {
                     (streak / nextGoal) * 100,
                     100,
                   );
-                  const lockProgress = Math.min(
-                    (levelInfo.level / 3) * 100,
-                    100,
-                  );
 
                   return (
                     <div className="familiar-profile-content">
+                      {/* RPG-Card-Header: Bild links, Text rechts */}
                       <div className="familiar-card-header">
-                        <div
-                          className={`familiar-avatar-frame ${isLocked ? "is-locked" : ""}`}
-                        >
-                          {isLocked ? (
-                            <span className="familiar-locked-icon-large">
-                              🐾
-                            </span>
-                          ) : (
-                            <img
-                              src={currentWolfImg}
-                              alt="Wolf"
-                              className="familiar-img"
-                            />
-                          )}
+                        <div className="familiar-avatar-frame">
+                          <img
+                            src={currentWolfImg}
+                            alt="Wolf"
+                            className="familiar-img"
+                          />
                         </div>
                         <div className="familiar-text-zone">
-                          <h2
-                            className={`familiar-name-title ${isLocked ? "is-locked" : ""}`}
-                          >
-                            {isLocked ? "Unbekannte Fährte" : wolfTitle}
-                          </h2>
-                          <p
-                            className={`familiar-description ${isLocked ? "is-locked" : ""}`}
-                          >
-                            {isLocked
-                              ? "Im Wald um die Gilde hast du Spuren gefunden. Erreiche Level 3, um das Wesen anzulocken."
-                              : `"${statusBeschrieb}"`}
+                          <h2 className="familiar-name-title">{wolfTitle}</h2>
+                          <p className="familiar-description">
+                            "{statusBeschrieb}"
                           </p>
                         </div>
                       </div>
 
+                      {/* Fortschrittsbalken-Sektion (ganz unten) */}
                       <div className="familiar-progress-section">
                         <div className="familiar-label-row">
-                          <span>{isLocked ? "Gilden-Ruf" : "Fortschritt"}</span>
-                          {isLocked ? (
-                            <span>Lvl {levelInfo.level} / 3</span>
-                          ) : streak < 30 ? (
+                          <span>Fortschritt</span>
+                          {streak < 30 ? (
                             <span>
                               {streak} / {nextGoal} Tage
                             </span>
@@ -2096,18 +2091,12 @@ function App() {
                         </div>
                         <div className="xp-bar-bg familiar-progress-bg">
                           <div
-                            className={`xp-bar-fill familiar-progress-fill ${isLocked ? "is-locked" : ""}`}
-                            style={{
-                              width: isLocked
-                                ? `${lockProgress}%`
-                                : `${progressPercent}%`,
-                            }}
+                            className="xp-bar-fill familiar-progress-fill"
+                            style={{ width: `${progressPercent}%` }}
                           ></div>
                         </div>
                         <p className="familiar-footer-note">
-                          {isLocked
-                            ? "Wird ab Level 3 freigeschaltet"
-                            : "Gekoppelt an deinen höchsten Abstinenz-Streak"}
+                          Gekoppelt an deinen höchsten Abstinenz-Streak
                         </p>
                       </div>
                     </div>
@@ -2225,7 +2214,7 @@ function App() {
                 <br></br>
               </p>
               <div className="profile-card">
-                <h3>Gilden-Mentor aktivieren</h3>
+                <h3>🧙‍♂️ Gilden-Mentor aktivieren</h3>
                 <p
                   className="modal-subtitle"
                   style={{ textAlign: "left", marginBottom: "15px" }}
@@ -2685,7 +2674,7 @@ function App() {
                       placeholder={
                         habitType === "taeglich"
                           ? "Ziel (Tage) – Leer für ♾️"
-                          : "Abstinent für (Tage)– Leer für ♾️"
+                          : "Abstinent für (Tage)"
                       }
                       style={{ width: "100%", margin: 0 }}
                     />
@@ -2738,7 +2727,6 @@ function App() {
             <div className="roadmap-list">
               {[
                 { lvl: 1, reward: "Ritter & Kriegerin", type: "Klasse" },
-                { lvl: 3, reward: "Wolfswelpe", type: "Begleiter" },
                 { lvl: 5, reward: "Schurkin & Waldläuferin", type: "Klasse" },
                 { lvl: 7, reward: "Junger Schattenwolf", type: "Begleiter" },
                 { lvl: 10, reward: "Werwolf", type: "Klasse" },
