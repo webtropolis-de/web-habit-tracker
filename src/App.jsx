@@ -17,6 +17,7 @@ import "./styles/base.css";
 import "./styles/layout.css";
 import "./styles/habits.css";
 import "./styles/auth-profile-rpg.css";
+import QuestSchmiede from "./QuestSchmiede";
 
 // -Level Rechner ---------------------------------------------------------------
 const berechneLevelInfo = (aktuelleXp) => {
@@ -97,6 +98,31 @@ function App() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSortMode, setIsSortMode] = useState(false);
   const [showRoadmapModal, setShowRoadmapModal] = useState(false);
+  const [aktuelleSeite, setAktuelleSeite] = useState(1);
+  const [questsProSeite, setQuestsProSeite] = useState(
+    Number(localStorage.getItem("quests_per_page")) || 5,
+  );
+
+  // Funktion zum Speichern der neuen Einstellung
+  const speicherePagination = (wert) => {
+    const zahl = Number(wert);
+    setQuestsProSeite(zahl);
+    localStorage.setItem("quests_per_page", zahl);
+    setAktuelleSeite(1); // Springt sicherheitshalber auf Seite 1 zurück
+    zeigeToast(
+      `Logbuch zeigt nun ${zahl > 100 ? "alle" : zahl} Quests pro Seite! 📜`,
+    );
+  };
+  const indexLetzteQuest = aktuelleSeite * questsProSeite;
+  const indexErsteQuest = indexLetzteQuest - questsProSeite;
+  const aktuelleQuests = isSortMode
+    ? habits
+    : habits.slice(indexErsteQuest, indexLetzteQuest);
+  const gesamtSeiten = Math.ceil(habits.length / questsProSeite);
+  const seiteWechseln = (seitenNummer) => {
+    setAktuelleSeite(seitenNummer);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // ---------------------------- Zeit speichern ---------------------------------- //
 
@@ -411,9 +437,56 @@ function App() {
     setLoading(false);
   };
 
+  // --- NEUE SCHMIEDE SPEICHER-LOGIK ---
+  const neueQuestSpeichern = async (questDaten) => {
+    setLoadingText("Meißle Quest in Stein...");
+    setLoading(true);
+
+    const neuesHabit = {
+      name: questDaten.title,
+      days: 0,
+      goal: Number(questDaten.goal) || 0, // <-- Nimmt jetzt den Zielwert
+      type: questDaten.type, // <-- Übernimmt 'abstinenz', 'taeglich' oder 'wochenziel'
+      frequency: Number(questDaten.frequency) || 0,
+      target_days: questDaten.target_days,
+      motivation: questDaten.motivation,
+      aura_color: questDaten.aura_color,
+    };
+
+    const { data, error } = await habitService.habbithinzufuegen(neuesHabit);
+
+    if (!error && data) {
+      setHabits([...habits, data[0]]);
+      setIsAddModalOpen(false);
+      zeigeToast("Quest erfolgreich ins Logbuch gemeißelt!", "success");
+    } else {
+      console.error("Supabase Error:", error);
+      zeigeToast("Die Runen verweigern den Dienst (DB Error)!", "error");
+    }
+    setLoading(false);
+  };
+
   // ---------------------+1 Funktion-------------------------------------//
   const tagHinzufuegen = async (idVonDatenbank, indexInListe) => {
     const aktuellesHabit = habits[indexInListe];
+
+    // --- NEU: RITUAL-TAGE PRÜFEN (Schutzwall) ---
+    if (
+      aktuellesHabit.type === "wochenziel" &&
+      aktuellesHabit.target_days &&
+      aktuellesHabit.target_days.length > 0
+    ) {
+      // JS getDay() gibt 0 für Sonntag, 1 für Montag. Unsere Schmiede nutzt 0 für Montag, 6 für Sonntag.
+      const todayIndex = (new Date().getDay() + 6) % 7;
+
+      if (!aktuellesHabit.target_days.includes(todayIndex)) {
+        zeigeToast(
+          "Die Runen blockieren! Heute ist kein Ritual-Tag für diese Quest. 🛡️",
+          "error",
+        );
+        return;
+      }
+    }
 
     //  Datum
     const heuteString = new Date().toLocaleDateString("de-DE", {
@@ -435,10 +508,11 @@ function App() {
       return;
     }
 
-    // Sperre für tägliche Abstinenz
-    if (!isWochenziel && aktuellesHabit.last_clicked === heuteString) {
+    // Sperre für ALLE Quests (Maximal 1x pro Tag)
+    if (aktuellesHabit.last_clicked === heuteString) {
       zeigeToast(
-        "Stark geblieben! Du hast für heute schon einen Tag eingetragen. Mach morgen weiter! 💪",
+        "Du hast diese Quest für heute schon gemeistert. Ruh dich aus! 🛡️",
+        "error",
       );
       return;
     }
@@ -1526,145 +1600,258 @@ function App() {
                 )}
               </div>
 
-              {/* --- DIE MASSIVE STEIN-LISTE (OHNE DRAG & DROP) --- */}
-              <ul className="habit-list">
-                {habits.map((habit, index) => {
-                  const isWochenziel = habit.type === "wochenziel";
-                  const zielGroeße = isWochenziel
-                    ? habit.frequency
-                    : habit.goal;
-                  const istErledigt =
-                    habit.days >= zielGroeße && zielGroeße > 0;
+              {/* --- DIE MASSIVE STEIN-LISTE (PAGINIERT) --- */}
+              {/* --- DIE MASSIVE STEIN-LISTE (PAGINIERT & ANIMIERT) --- */}
+              {/* Dieser Wrapper erzeugt den magischen Umblätter-Effekt */}
+              <div key={aktuelleSeite} className="page-turn-effect">
+                {/* --- DIE MASSIVE STEIN-LISTE (PAGINIERT & ANIMIERT) --- */}
+                {/* Dieser Wrapper erzeugt den magischen Umblätter-Effekt */}
+                <div key={aktuelleSeite} className="page-turn-effect">
+                  <ul className="habit-list">
+                    {aktuelleQuests.map((habit) => {
+                      // WICHTIG: Echter Index für die Datenbank
+                      const echterIndex = habits.findIndex(
+                        (h) => h.id === habit.id,
+                      );
 
-                  return (
-                    <li
-                      key={habit.id || index}
-                      className={`habit-row fade-in-view habit-card-${habit.type} ${istErledigt ? "completed" : ""}`}
-                    >
-                      {/* ⬆️⬇️ Rauf / Runter Buttons (NUR SICHTBAR WENN SORTIERMODUS AN IST) */}
-                      {isSortMode && (
-                        <div className="sort-buttons-container">
-                          <button
-                            onClick={() => bewegeHoch(index)}
-                            disabled={index === 0}
-                            className="sort-btn"
-                            title="Quest nach oben verschieben"
-                          >
-                            ▲
-                          </button>
-                          <button
-                            onClick={() => bewegeRunter(index)}
-                            disabled={index === habits.length - 1}
-                            className="sort-btn"
-                            title="Quest nach unten verschieben"
-                          >
-                            ▼
-                          </button>
-                        </div>
-                      )}
+                      const isWochenziel = habit.type === "wochenziel";
+                      const zielGroeße = isWochenziel
+                        ? habit.frequency
+                        : habit.goal;
+                      const istErledigt =
+                        habit.days >= zielGroeße && zielGroeße > 0;
 
-                      {/* 📜 Text-Bereich & Info-Bar */}
-                      <div className="habit-text-container">
-                        <div
-                          style={{ display: "flex", flexDirection: "column" }}
+                      // Prüfen, ob heute ein Ritual-Tag ist (für den Button)
+                      const heuteIndex = (new Date().getDay() + 6) % 7;
+                      const istRitualTag =
+                        isWochenziel &&
+                        habit.target_days &&
+                        habit.target_days.length > 0
+                          ? habit.target_days.includes(heuteIndex)
+                          : true;
+
+                      return (
+                        <li
+                          key={habit.id}
+                          className={`habit-row fade-in-view habit-card-${habit.type} ${istErledigt ? "completed" : ""}`}
+                          style={{
+                            borderLeft: habit.aura_color
+                              ? `4px solid ${habit.aura_color}`
+                              : "2px solid #000",
+                          }}
                         >
-                          <h3 className="habit-title">{habit.name}</h3>
-                          <span className="habit-subtitle">
-                            {habit.type === "wochenziel"
-                              ? "Wochen-Quest"
-                              : habit.type === "taeglich"
-                                ? "Tägliche Pflicht"
-                                : "Abstinenz"}
-                          </span>
-                        </div>
-
-                        {/* Progress Bar */}
-                        {zielGroeße > 0 && (
-                          <div
-                            className="habit-progress-container"
-                            style={{ margin: "10px 0" }}
-                          >
-                            <div
-                              className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
-                              style={{
-                                width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%`,
-                              }}
-                            ></div>
-                          </div>
-                        )}
-
-                        {/* 🛠️ NEU: Kompakte Info-Bar UNTER dem Fortschritt */}
-                        <div className="rpg-info-bar">
-                          <button
-                            className="rpg-rune-btn"
-                            onClick={() => setOffenerKalender(habit)}
-                          >
-                            <span>📅</span>
-                          </button>
-                          {apiKey && (
-                            <button
-                              className="rpg-rune-btn gold"
-                              onClick={() => holeHabitTipps(habit)}
-                            >
-                              <span>💡</span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* ⚙️ Zähler & Buttons (Rechts) - KOMBINIERT! */}
-                      <div className="habit-actions-wrapper">
-                        <div className="habit-row-actions">
-                          {/* HAUPT-BUTTON (Zahlen & Plus in einem!) */}
-                          <button
-                            onClick={() => tagHinzufuegen(habit.id, index)}
-                            className={`action-zone-main ${
-                              !(
-                                (isWochenziel && istErledigt) ||
-                                (!isWochenziel &&
-                                  habit.last_clicked === aktuellesdatum)
-                              )
-                                ? "magische-quest"
-                                : "is-locked"
-                            }`}
-                            title="Tag hinzufügen"
-                          >
-                            <div className="action-counter">
-                              <span
-                                className={istErledigt ? "text-success" : ""}
+                          {/* ⬆️⬇️ Rauf / Runter Buttons */}
+                          {isSortMode && (
+                            <div className="sort-buttons-container">
+                              <button
+                                onClick={() => bewegeHoch(echterIndex)}
+                                disabled={echterIndex === 0}
+                                className="sort-btn"
+                                title="Quest nach oben verschieben"
                               >
-                                {habit.days}
+                                ▲
+                              </button>
+                              <button
+                                onClick={() => bewegeRunter(echterIndex)}
+                                disabled={echterIndex === habits.length - 1}
+                                className="sort-btn"
+                                title="Quest nach unten verschieben"
+                              >
+                                ▼
+                              </button>
+                            </div>
+                          )}
+
+                          {/* 📜 Text-Bereich & Info-Bar */}
+                          <div className="habit-text-container">
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                              }}
+                            >
+                              <h3
+                                className="habit-title"
+                                style={{ color: habit.aura_color || "#d4af37" }}
+                              >
+                                {habit.name}
+                              </h3>
+                              <span className="habit-subtitle">
+                                {habit.type === "wochenziel"
+                                  ? "Wochen-Quest"
+                                  : habit.type === "taeglich"
+                                    ? "Tägliche Pflicht"
+                                    : "Abstinenz"}
                               </span>
-                              {zielGroeße > 0 && (
-                                <span className="text-goal">/{zielGroeße}</span>
+
+                              {/* --- ANZEIGE DER RITUAL-TAGE MIT HEUTE-LEUCHTEN --- */}
+                              {habit.type === "wochenziel" &&
+                                habit.target_days &&
+                                habit.target_days.length > 0 && (
+                                  <div className="ritual-days-display">
+                                    <span className="rune-icon">📜</span>
+                                    {habit.target_days.map((dayIndex) => {
+                                      const istHeute = dayIndex === heuteIndex;
+
+                                      return (
+                                        <span
+                                          key={dayIndex}
+                                          className={`day-rune ${istHeute ? "rune-today" : ""}`}
+                                        >
+                                          {
+                                            [
+                                              "Mo",
+                                              "Di",
+                                              "Mi",
+                                              "Do",
+                                              "Fr",
+                                              "Sa",
+                                              "So",
+                                            ][dayIndex]
+                                          }
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                              {/* Dein Schwur (Motivation) */}
+                              {habit.motivation && (
+                                <span className="habit-motivation-text">
+                                  "{habit.motivation}"
+                                </span>
                               )}
                             </div>
-                            <div className="action-icon">+</div>
-                          </button>
 
-                          {/* KLEINE BUTTONS */}
-                          <div className="action-side-column">
-                            <button
-                              onClick={() => habitReset(habit.id, index)}
-                              className="action-zone-small reset"
-                              title="Zurücksetzen"
-                            >
-                              🔄
-                            </button>
-                            <button
-                              onClick={() => habitLoeschen(habit.id, index)}
-                              className="action-zone-small delete"
-                              title="Löschen"
-                            >
-                              🗑️
-                            </button>
+                            {/* Progress Bar */}
+                            {zielGroeße > 0 && (
+                              <div
+                                className="habit-progress-container"
+                                style={{ margin: "10px 0" }}
+                              >
+                                <div
+                                  className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
+                                  style={{
+                                    width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%`,
+                                  }}
+                                ></div>
+                              </div>
+                            )}
+
+                            {/* 🛠️ Kompakte Info-Bar UNTER dem Fortschritt */}
+                            <div className="rpg-info-bar">
+                              <button
+                                className="rpg-rune-btn"
+                                onClick={() => setOffenerKalender(habit)}
+                              >
+                                <span>📅</span>
+                              </button>
+                              {apiKey && (
+                                <button
+                                  className="rpg-rune-btn gold"
+                                  onClick={() => holeHabitTipps(habit)}
+                                >
+                                  <span>💡</span>
+                                </button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+
+                          {/* ⚙️ Zähler & Buttons (Rechts) */}
+                          <div className="habit-actions-wrapper">
+                            <div className="habit-row-actions">
+                              {/* HAUPT-BUTTON */}
+                              <button
+                                onClick={() =>
+                                  tagHinzufuegen(habit.id, echterIndex)
+                                }
+                                className={`action-zone-main ${
+                                  (isWochenziel &&
+                                    (istErledigt || !istRitualTag)) ||
+                                  habit.last_clicked === aktuellesdatum
+                                    ? "is-locked"
+                                    : "magische-quest"
+                                }`}
+                                title="Tag hinzufügen"
+                              >
+                                <div className="action-counter">
+                                  <span
+                                    className={
+                                      istErledigt ? "text-success" : ""
+                                    }
+                                  >
+                                    {habit.days}
+                                  </span>
+                                  {zielGroeße > 0 && (
+                                    <span className="text-goal">
+                                      /{zielGroeße}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="action-icon">+</div>
+                              </button>
+
+                              {/* KLEINE BUTTONS */}
+                              <div className="action-side-column">
+                                <button
+                                  onClick={() =>
+                                    habitReset(habit.id, echterIndex)
+                                  }
+                                  className="action-zone-small reset"
+                                  title="Zurücksetzen"
+                                >
+                                  🔄
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    habitLoeschen(habit.id, echterIndex)
+                                  }
+                                  className="action-zone-small delete"
+                                  title="Löschen"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+                {/* --- ENDE DER LISTE --- */}
+              </div>
+
+              {/* --- HIER DIE PAGINATION EINBAUEN --- */}
+              {!isSortMode && gesamtSeiten > 1 && (
+                <div className="pagination-container">
+                  <button
+                    className="pag-btn"
+                    onClick={() => seiteWechseln(aktuelleSeite - 1)}
+                    disabled={aktuelleSeite === 1}
+                  >
+                    ◀
+                  </button>
+
+                  {[...Array(gesamtSeiten)].map((_, i) => (
+                    <button
+                      key={i}
+                      className={`pag-btn ${aktuelleSeite === i + 1 ? "active" : ""}`}
+                      onClick={() => seiteWechseln(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className="pag-btn"
+                    onClick={() => seiteWechseln(aktuelleSeite + 1)}
+                    disabled={aktuelleSeite === gesamtSeiten}
+                  >
+                    ▶
+                  </button>
+                </div>
+              )}
               {apiKey && (
                 <button
                   className="fab-ki fade-effekt"
@@ -2130,6 +2317,29 @@ function App() {
                 })()}
               </div>
               <br></br>
+              <div className="profile-card" style={{ marginBottom: "25px" }}>
+                <h3>Logbuch-Ansicht 📖</h3>
+                <p
+                  className="modal-subtitle"
+                  style={{ textAlign: "left", marginBottom: "15px" }}
+                >
+                  Wie viele Quests sollen pro Seite gemeißelt werden?
+                </p>
+                <div className="form-group">
+                  <select
+                    value={questsProSeite}
+                    onChange={(e) => speicherePagination(e.target.value)}
+                    className="habit-input"
+                    style={{ margin: 0, cursor: "pointer", appearance: "auto" }}
+                  >
+                    <option value="3">Kompakt (3 Quests)</option>
+                    <option value="5">Standard (5 Quests)</option>
+                    <option value="8">Erweitert (8 Quests)</option>
+                    <option value="10">Groß (10 Quests)</option>
+                    <option value="999">Papyrus-Rolle (Alle anzeigen)</option>
+                  </select>
+                </div>
+              </div>
               <div className="profile-card">
                 <h3>Daily Reminder 🔔</h3>
                 <p
@@ -2562,169 +2772,14 @@ function App() {
         </div>
       )}
 
-      {/* NEUE QUEST MODAL */}
+      {/* --- DIE NEUE QUEST-SCHMIEDE --- */}
       {isAddModalOpen && (
         <div className="modal-overlay" onClick={() => setIsAddModalOpen(false)}>
-          <div
-            className="modal-content fade-effekt"
-            onClick={(e) => e.stopPropagation()}
-            style={{ padding: "25px 20px" }}
-          >
-            <div className="modal-header" style={{ marginBottom: "20px" }}>
-              <h2
-                style={{ fontSize: "1.3rem", margin: 0, textAlign: "center" }}
-              >
-                📜 Neue Quest
-              </h2>
-              <button
-                className="close-modal"
-                onClick={() => setIsAddModalOpen(false)}
-                style={{ display: "flex" }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Hier ist dein altes Formular, leicht angepasst für das Modal */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "15px",
-                textAlign: "left",
-              }}
-            >
-              {/* Typ-Auswahl */}
-              <div style={{ display: "flex", gap: "8px" }}>
-                <button
-                  type="button"
-                  onClick={() => setHabitType("abstinenz")}
-                  style={{
-                    flex: 1,
-                    padding: "10px 5px",
-                    borderRadius: "0",
-                    border:
-                      habitType === "abstinenz"
-                        ? "2px solid #cc3300"
-                        : "1px solid #444",
-                    backgroundColor:
-                      habitType === "abstinenz"
-                        ? "rgba(204, 51, 0, 0.15)"
-                        : "#2a2a35",
-                    color: habitType === "abstinenz" ? "#fff" : "#aaa",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    fontSize: "0.75rem",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  🛡️ Abstinenz
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setHabitType("taeglich")}
-                  style={{
-                    flex: 1,
-                    padding: "10px 5px",
-                    borderRadius: "0",
-                    border:
-                      habitType === "taeglich"
-                        ? "2px solid #007bff"
-                        : "1px solid #444",
-                    backgroundColor:
-                      habitType === "taeglich"
-                        ? "rgba(0, 123, 255, 0.15)"
-                        : "#2a2a35",
-                    color: habitType === "taeglich" ? "#fff" : "#aaa",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    fontSize: "0.75rem",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  💧 Täglich
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setHabitType("wochenziel")}
-                  style={{
-                    flex: 1,
-                    padding: "10px 5px",
-                    borderRadius: "0",
-                    border:
-                      habitType === "wochenziel"
-                        ? "2px solid #ffc107"
-                        : "1px solid #444",
-                    backgroundColor:
-                      habitType === "wochenziel"
-                        ? "rgba(255, 193, 7, 0.15)"
-                        : "#2a2a35",
-                    color: habitType === "wochenziel" ? "#fff" : "#aaa",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    fontSize: "0.75rem",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  📅 Woche
-                </button>
-              </div>
-
-              {/* Eingabefelder */}
-              <input
-                className="habit-input"
-                type="text"
-                placeholder={
-                  habitType === "abstinenz"
-                    ? "Welchem Laster entsagst du?"
-                    : habitType === "taeglich"
-                      ? "Welche tägliche Quest trittst du an?"
-                      : "Welches Wochen-Abenteuer planst du?"
-                }
-                value={eingabeWert}
-                required
-                onChange={(e) => setInputValue(e.target.value)}
-                style={{ width: "100%", margin: 0 }}
-              />
-
-              <div
-                style={{ display: "flex", gap: "10px", alignItems: "center" }}
-              >
-                <div style={{ flex: 1 }}>
-                  {habitType === "abstinenz" || habitType === "taeglich" ? (
-                    <input
-                      className="goal-input"
-                      type="number"
-                      value={zielWert}
-                      onChange={(e) => setZielWert(e.target.value)}
-                      placeholder={
-                        habitType === "taeglich"
-                          ? "Ziel (Tage) – Leer für ♾️"
-                          : "Abstinent für (Tage)"
-                      }
-                      style={{ width: "100%", margin: 0 }}
-                    />
-                  ) : (
-                    <input
-                      className="goal-input"
-                      type="number"
-                      value={frequency}
-                      onChange={(e) => setFrequency(e.target.value)}
-                      placeholder="Wiederholungen pro Woche"
-                      style={{ width: "100%", margin: 0 }}
-                    />
-                  )}
-                </div>
-              </div>
-
-              <button
-                onClick={habbithinzufuegen}
-                className="add-button"
-                style={{ width: "100%", marginTop: "10px" }}
-              >
-                Quest ins Logbuch eintragen
-              </button>
-            </div>
+          <div onClick={(e) => e.stopPropagation()}>
+            <QuestSchmiede
+              onSave={neueQuestSpeichern}
+              onCancel={() => setIsAddModalOpen(false)}
+            />
           </div>
         </div>
       )}

@@ -1068,6 +1068,19 @@
   letter-spacing: 1px;
 }
 
+/* Der Schwur (Motivation) auf der Karte */
+.habit-motivation-text {
+  font-size: 0.75rem;
+  color: #999;
+  font-style: italic;
+  margin-top: 6px;
+  line-height: 1.3;
+  border-left: 2px solid #444;
+  padding-left: 8px;
+  font-family:
+    "Fondamento", cursive, serif; /* Gibt dem ganzen einen alten Touch */
+}
+
 /* 4. Avatar-Rahmen: Sicherstellen, dass er nicht zu wuchtig ist */
 .familiar-avatar-frame {
   flex-shrink: 0;
@@ -1076,4 +1089,175 @@
   background: #1a1a20;
   border: 2px solid #333;
   box-shadow: inset 0 0 10px #000;
+}
+
+/* Die Runen für die Wochentage */
+.rune-selector {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.rune-stone {
+  width: 35px;
+  height: 35px;
+  background: #3d3d3d;
+  border: 2px solid #555;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: "Cinzel", serif; /* Falls du eine RPG Font hast */
+  transition: all 0.2s;
+  color: #888;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.rune-stone.active {
+  background: #8b4513; /* Lederbraun oder Gold */
+  color: #fff;
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Der Stein-Container für das Modal */
+.stone-modal {
+  background: url("path-to-stone-texture.jpg"), #222;
+  border: 8px solid #333;
+  border-image: url("border-stone.png") 30 stretch;
+  padding: 20px;
+  color: #e0e0e0;
+}
+
+/* Anzeige der Ritual-Tage auf der Karte */
+.ritual-days-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+  align-items: center;
+}
+
+.rune-icon {
+  font-size: 0.7rem;
+  margin-right: 2px;
+  opacity: 0.7;
+}
+
+.day-rune {
+  font-size: 0.65rem;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #b8860b; /* Dein Aged Gold */
+  padding: 2px 5px;
+  border: 1px solid #333;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  /* Kleiner Leuchteffekt für aktive Tage */
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Optional: Den heutigen Tag besonders hervorheben */
+/* (Dafür müssten wir in React prüfen, welcher Tag heute ist) */
+
+/* Die Standard-Rune (Stein-Look) */
+.day-rune {
+  font-size: 0.65rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #666; /* Inaktive Tage sind etwas blasser */
+  padding: 2px 6px;
+  border: 1px solid #333;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+/* Die leuchtende Rune für HEUTE */
+.day-rune.rune-today {
+  color: #fff;
+  background-color: rgba(184, 134, 11, 0.3); /* Goldener Schimmer */
+  border: 1px solid #d4af37; /* Aged Gold Rand */
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4); /* Goldene Aura */
+  position: relative;
+  z-index: 1;
+}
+
+/* Optional: Ein ganz dezentes Pulsieren für die heutige Rune */
+.rune-today {
+  animation: rune-pulse 2s infinite ease-in-out;
+}
+
+@keyframes rune-pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+  }
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+  padding-bottom: 100px; /* Platz für den FAB Coach unten */
+}
+
+.pag-btn {
+  background-color: #1e1e24 !important;
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover;
+  border: 2px solid #000 !important;
+  color: #888 !important;
+  font-family: "Fondamento", cursive;
+  font-weight: bold;
+  padding: 8px 12px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  transition: all 0.1s ease;
+}
+
+.pag-btn.active {
+  color: #d4af37 !important;
+  border-color: #b8860b !important;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000;
+  background-color: rgba(184, 134, 11, 0.1) !important;
+}
+
+.pag-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* --- MAGISCHER UMBLÄTTER-EFFEKT (PAGINATION) --- */
+.page-turn-effect {
+  animation: questPageTurn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  width: 100%;
+}
+
+@keyframes questPageTurn {
+  0% {
+    opacity: 0;
+    /* Leichtes Rausziehen nach rechts und minimal kleiner */
+    transform: translateX(30px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    /* Gleitet sanft an den finalen Platz */
+    transform: translateX(0) scale(1);
+  }
 }

@@ -1,0 +1,258 @@
+/* QuestSchmiede.css - Angepasst an dein massives RPG Stein-Theme */
+
+/* Der Haupt-Block des Modals (Steintafel) - Nutzt exakt deine Hintergrund-Logik */
+.stone-modal {
+  background-color: #1e1e24 !important;
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("./assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+
+  border: 2px solid #000 !important;
+  border-radius: 0 !important; /* Harte Kanten wie im Rest der App */
+
+  /* Dein massiver 3D-Block-Schatten */
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.4),
+    8px 8px 0 rgba(0, 0, 0, 0.7) !important;
+
+  padding: 24px;
+  color: #e0e0e0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Modal Überschrift */
+.stone-modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #000 !important;
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.05) !important;
+  padding-bottom: 15px;
+}
+
+.stone-header {
+  font-family: "Fondamento", cursive, sans-serif !important;
+  color: #d4af37 !important; /* Edles Gold */
+  text-shadow: 2px 2px 0 #000 !important;
+  margin: 0;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* --- EINGABEFELDER (Stein-Kerben) --- */
+.quest-field {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.quest-field label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+/* Exakt deine .habit-input Logik */
+.quest-field input,
+.quest-field textarea {
+  background-color: #0d0d12 !important; /* Tiefe, schwarze Stein-Kerbe */
+  border: 2px solid #000 !important;
+  border-radius: 0 !important; /* Eckig! */
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.9) !important; /* Innerer Schatten */
+  color: #fff !important;
+  padding: 15px !important;
+  font-family: inherit !important;
+  transition: border-color 0.2s ease !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.quest-field input::placeholder,
+.quest-field textarea::placeholder {
+  color: #555;
+}
+
+.quest-field input:focus,
+.quest-field textarea:focus {
+  border-color: #b8860b !important;
+  outline: none !important;
+}
+
+/* --- DIE 3 TYP-BUTTONS (Als kleine Steintasten) --- */
+.type-button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.type-btn {
+  flex: 1;
+  background-color: #2a2a35 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+
+  /* Lift-Effekt */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 0 #000,
+    0 4px 6px rgba(0, 0, 0, 0.4) !important;
+
+  color: #888;
+  padding: 12px 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.type-btn .icon {
+  font-size: 1.2rem;
+  filter: grayscale(1) brightness(0.8); /* Icon steinern machen */
+}
+
+/* Hover-Zustand */
+.type-btn:hover {
+  background-color: #3a3a45 !important;
+  color: #fff;
+}
+
+.type-btn:hover .icon {
+  filter: grayscale(0) brightness(1.2);
+}
+
+/* Aktiver Zustand (Eingedrückter Stein) */
+.type-btn.active {
+  transform: translateY(4px) !important; /* Knopf geht runter */
+  box-shadow:
+    inset 0 3px 6px rgba(0, 0, 0, 0.8),
+    0 0 0 transparent !important;
+  color: #fff;
+}
+
+/* Die spezifischen Farben der eingedrückten Knöpfe */
+.type-btn.abstinenz.active {
+  background-color: rgba(139, 37, 37, 0.2) !important; /* Dunkles Rot */
+  border-color: #8b2525 !important;
+}
+.type-btn.abstinenz.active .icon {
+  filter: none;
+}
+
+.type-btn.taeglich.active {
+  background-color: rgba(50, 93, 136, 0.2) !important; /* Mystisches Blau */
+  border-color: #325d88 !important;
+}
+.type-btn.taeglich.active .icon {
+  filter: none;
+}
+
+.type-btn.wochenziel.active {
+  background-color: rgba(184, 134, 11, 0.2) !important; /* Gold */
+  border-color: #b8860b !important;
+}
+.type-btn.wochenziel.active .icon {
+  filter: none;
+}
+
+/* --- WOCHENTAG RUNEN (Tasten) --- */
+.rune-selector {
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+}
+
+.rune-stone {
+  width: 38px;
+  height: 38px;
+  background-color: #2a2a35 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 3px 0 #000 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: "Fondamento", cursive, sans-serif !important;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #666;
+  transition: all 0.1s ease;
+}
+
+.rune-stone.active {
+  background-color: rgba(184, 134, 11, 0.2) !important;
+  color: #d4af37 !important; /* Gold */
+  border-color: #b8860b !important;
+  transform: translateY(3px) !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* --- ACTION BUTTONS GANZ UNTEN --- */
+.stone-modal-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+/* Nutzt exakt deine Standard-Button-Klasse (.add-button) aus der App */
+.btn-cancel,
+.btn-save {
+  flex: 1;
+  background-color: #3a3a45 !important;
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+
+  color: #fff !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+
+  /* 3D Lift */
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.5),
+    2px 2px 0 rgba(0, 0, 0, 0.5) !important;
+
+  cursor: pointer !important;
+  transition: all 0.1s ease !important;
+  padding: 15px !important;
+}
+
+.btn-cancel {
+  background-image: none !important;
+  background-color: #222 !important;
+  color: #888 !important;
+}
+
+.btn-cancel:hover {
+  background-color: #333 !important;
+  color: #fff !important;
+}
+
+.btn-cancel:active,
+.btn-save:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.5),
+    0px 0px 0 rgba(0, 0, 0, 0.5) !important;
+}
