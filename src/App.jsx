@@ -18,6 +18,7 @@ import "./styles/layout.css";
 import "./styles/habits.css";
 import "./styles/auth-profile-rpg.css";
 import QuestSchmiede from "./QuestSchmiede";
+import Onboarding from "./Onboarding";
 
 // -Level Rechner ---------------------------------------------------------------
 const berechneLevelInfo = (aktuelleXp) => {
@@ -91,6 +92,7 @@ function App() {
   const [apiKey, setApiKey] = useState(
     localStorage.getItem("gemini_api_key") || "",
   );
+  const [onboardingErledigt, setOnboardingErledigt] = useState(false);
   const [kiMotivation, setKiMotivation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [avatarSeed, setAvatarSeed] = useState("MaleHelmetWarrior16");
@@ -139,7 +141,32 @@ function App() {
     }
   };
 
+  // ----------------------------------------- On Boarding ----------------------
+  const handleOnboardingComplete = async (chosenAvatar) => {
+    setLoadingText("Initialisiere Helden-Profil...");
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.updateUser({
+      data: { avatar_seed: chosenAvatar },
+    });
+
+    if (!error) {
+      setAvatarSeed(chosenAvatar);
+
+      // --- DAS HIER STOPPT DIE ZEITSCHLEIFE ---
+      setOnboardingErledigt(true);
+
+      setIsAddModalOpen(true);
+      zeigeToast("Profil geweiht! Schmiede nun deine erste Quest. ⚔️");
+    } else {
+      zeigeToast("Fehler beim Weihen des Avatars!", "error");
+    }
+
+    setLoading(false);
+  };
+
   // --------------------------------------------------KARTEN SORTIEREN --- //
+
   const bewegeHoch = (index) => {
     if (index === 0) return; // Ist schon ganz oben
     const neueListe = [...habits];
@@ -1235,6 +1262,12 @@ function App() {
       ) : (
         /* --- EINGELOGGT-BEREICH --- */
         <>
+          {/* --- PUNKT 3: ONBOARDING CHECK --- */}
+          {habits.length === 0 &&
+            !onboardingErledigt &&
+            aktuelleAnsicht === "home" && (
+              <Onboarding user={user} onComplete={handleOnboardingComplete} />
+            )}
           <header
             style={{
               display: "flex",
@@ -1601,226 +1634,219 @@ function App() {
               </div>
 
               {/* --- DIE MASSIVE STEIN-LISTE (PAGINIERT) --- */}
-              {/* --- DIE MASSIVE STEIN-LISTE (PAGINIERT & ANIMIERT) --- */}
               {/* Dieser Wrapper erzeugt den magischen Umblätter-Effekt */}
               <div key={aktuelleSeite} className="page-turn-effect">
-                {/* --- DIE MASSIVE STEIN-LISTE (PAGINIERT & ANIMIERT) --- */}
-                {/* Dieser Wrapper erzeugt den magischen Umblätter-Effekt */}
-                <div key={aktuelleSeite} className="page-turn-effect">
-                  <ul className="habit-list">
-                    {aktuelleQuests.map((habit) => {
-                      // WICHTIG: Echter Index für die Datenbank
-                      const echterIndex = habits.findIndex(
-                        (h) => h.id === habit.id,
-                      );
+                <ul className="habit-list">
+                  {aktuelleQuests.map((habit) => {
+                    // WICHTIG: Echter Index für die Datenbank
+                    const echterIndex = habits.findIndex(
+                      (h) => h.id === habit.id,
+                    );
 
-                      const isWochenziel = habit.type === "wochenziel";
-                      const zielGroeße = isWochenziel
-                        ? habit.frequency
-                        : habit.goal;
-                      const istErledigt =
-                        habit.days >= zielGroeße && zielGroeße > 0;
+                    const isWochenziel = habit.type === "wochenziel";
+                    const zielGroeße = isWochenziel
+                      ? habit.frequency
+                      : habit.goal;
+                    const istErledigt =
+                      habit.days >= zielGroeße && zielGroeße > 0;
 
-                      // Prüfen, ob heute ein Ritual-Tag ist (für den Button)
-                      const heuteIndex = (new Date().getDay() + 6) % 7;
-                      const istRitualTag =
-                        isWochenziel &&
-                        habit.target_days &&
-                        habit.target_days.length > 0
-                          ? habit.target_days.includes(heuteIndex)
-                          : true;
+                    // Prüfen, ob heute ein Ritual-Tag ist (für den Button)
+                    const heuteIndex = (new Date().getDay() + 6) % 7;
+                    const istRitualTag =
+                      isWochenziel &&
+                      habit.target_days &&
+                      habit.target_days.length > 0
+                        ? habit.target_days.includes(heuteIndex)
+                        : true;
 
-                      return (
-                        <li
-                          key={habit.id}
-                          className={`habit-row fade-in-view habit-card-${habit.type} ${istErledigt ? "completed" : ""}`}
-                          style={{
-                            borderLeft: habit.aura_color
-                              ? `4px solid ${habit.aura_color}`
-                              : "2px solid #000",
-                          }}
-                        >
-                          {/* ⬆️⬇️ Rauf / Runter Buttons */}
-                          {isSortMode && (
-                            <div className="sort-buttons-container">
-                              <button
-                                onClick={() => bewegeHoch(echterIndex)}
-                                disabled={echterIndex === 0}
-                                className="sort-btn"
-                                title="Quest nach oben verschieben"
-                              >
-                                ▲
-                              </button>
-                              <button
-                                onClick={() => bewegeRunter(echterIndex)}
-                                disabled={echterIndex === habits.length - 1}
-                                className="sort-btn"
-                                title="Quest nach unten verschieben"
-                              >
-                                ▼
-                              </button>
+                    return (
+                      <li
+                        key={habit.id}
+                        className={`habit-row fade-in-view habit-card-${habit.type} ${istErledigt ? "completed" : ""}`}
+                        style={{
+                          borderLeft: habit.aura_color
+                            ? `4px solid ${habit.aura_color}`
+                            : "2px solid #000",
+                        }}
+                      >
+                        {/* ⬆️⬇️ Rauf / Runter Buttons */}
+                        {isSortMode && (
+                          <div className="sort-buttons-container">
+                            <button
+                              onClick={() => bewegeHoch(echterIndex)}
+                              disabled={echterIndex === 0}
+                              className="sort-btn"
+                              title="Quest nach oben verschieben"
+                            >
+                              ▲
+                            </button>
+                            <button
+                              onClick={() => bewegeRunter(echterIndex)}
+                              disabled={echterIndex === habits.length - 1}
+                              className="sort-btn"
+                              title="Quest nach unten verschieben"
+                            >
+                              ▼
+                            </button>
+                          </div>
+                        )}
+
+                        {/* 📜 Text-Bereich & Info-Bar */}
+                        <div className="habit-text-container">
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                            }}
+                          >
+                            <h3
+                              className="habit-title"
+                              style={{ color: habit.aura_color || "#d4af37" }}
+                            >
+                              {habit.name}
+                            </h3>
+                            <span className="habit-subtitle">
+                              {habit.type === "wochenziel"
+                                ? "Wochen-Quest"
+                                : habit.type === "taeglich"
+                                  ? "Tägliche Pflicht"
+                                  : "Abstinenz"}
+                            </span>
+
+                            {/* --- ANZEIGE DER RITUAL-TAGE MIT HEUTE-LEUCHTEN --- */}
+                            {habit.type === "wochenziel" &&
+                              habit.target_days &&
+                              habit.target_days.length > 0 && (
+                                <div className="ritual-days-display">
+                                  <span className="rune-icon">📜</span>
+                                  {habit.target_days.map((dayIndex) => {
+                                    const istHeute = dayIndex === heuteIndex;
+
+                                    return (
+                                      <span
+                                        key={dayIndex}
+                                        className={`day-rune ${istHeute ? "rune-today" : ""}`}
+                                      >
+                                        {
+                                          [
+                                            "Mo",
+                                            "Di",
+                                            "Mi",
+                                            "Do",
+                                            "Fr",
+                                            "Sa",
+                                            "So",
+                                          ][dayIndex]
+                                        }
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                            {/* Dein Schwur (Motivation) */}
+                            {habit.motivation && (
+                              <span className="habit-motivation-text">
+                                "{habit.motivation}"
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Progress Bar */}
+                          {zielGroeße > 0 && (
+                            <div
+                              className="habit-progress-container"
+                              style={{ margin: "10px 0" }}
+                            >
+                              <div
+                                className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
+                                style={{
+                                  width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%`,
+                                }}
+                              ></div>
                             </div>
                           )}
 
-                          {/* 📜 Text-Bereich & Info-Bar */}
-                          <div className="habit-text-container">
-                            <div
-                              style={{
-                                display: "flex",
-                                flexDirection: "column",
-                              }}
+                          {/* 🛠️ Kompakte Info-Bar UNTER dem Fortschritt */}
+                          <div className="rpg-info-bar">
+                            <button
+                              className="rpg-rune-btn"
+                              onClick={() => setOffenerKalender(habit)}
                             >
-                              <h3
-                                className="habit-title"
-                                style={{ color: habit.aura_color || "#d4af37" }}
-                              >
-                                {habit.name}
-                              </h3>
-                              <span className="habit-subtitle">
-                                {habit.type === "wochenziel"
-                                  ? "Wochen-Quest"
-                                  : habit.type === "taeglich"
-                                    ? "Tägliche Pflicht"
-                                    : "Abstinenz"}
-                              </span>
-
-                              {/* --- ANZEIGE DER RITUAL-TAGE MIT HEUTE-LEUCHTEN --- */}
-                              {habit.type === "wochenziel" &&
-                                habit.target_days &&
-                                habit.target_days.length > 0 && (
-                                  <div className="ritual-days-display">
-                                    <span className="rune-icon">📜</span>
-                                    {habit.target_days.map((dayIndex) => {
-                                      const istHeute = dayIndex === heuteIndex;
-
-                                      return (
-                                        <span
-                                          key={dayIndex}
-                                          className={`day-rune ${istHeute ? "rune-today" : ""}`}
-                                        >
-                                          {
-                                            [
-                                              "Mo",
-                                              "Di",
-                                              "Mi",
-                                              "Do",
-                                              "Fr",
-                                              "Sa",
-                                              "So",
-                                            ][dayIndex]
-                                          }
-                                        </span>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-
-                              {/* Dein Schwur (Motivation) */}
-                              {habit.motivation && (
-                                <span className="habit-motivation-text">
-                                  "{habit.motivation}"
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Progress Bar */}
-                            {zielGroeße > 0 && (
-                              <div
-                                className="habit-progress-container"
-                                style={{ margin: "10px 0" }}
-                              >
-                                <div
-                                  className={`habit-progress-bar ${istErledigt ? "completed" : ""}`}
-                                  style={{
-                                    width: `${Math.min((habit.days / zielGroeße) * 100, 100)}%`,
-                                  }}
-                                ></div>
-                              </div>
-                            )}
-
-                            {/* 🛠️ Kompakte Info-Bar UNTER dem Fortschritt */}
-                            <div className="rpg-info-bar">
+                              <span>📅</span>
+                            </button>
+                            {apiKey && (
                               <button
-                                className="rpg-rune-btn"
-                                onClick={() => setOffenerKalender(habit)}
+                                className="rpg-rune-btn gold"
+                                onClick={() => holeHabitTipps(habit)}
                               >
-                                <span>📅</span>
+                                <span>💡</span>
                               </button>
-                              {apiKey && (
-                                <button
-                                  className="rpg-rune-btn gold"
-                                  onClick={() => holeHabitTipps(habit)}
-                                >
-                                  <span>💡</span>
-                                </button>
-                              )}
-                            </div>
+                            )}
                           </div>
+                        </div>
 
-                          {/* ⚙️ Zähler & Buttons (Rechts) */}
-                          <div className="habit-actions-wrapper">
-                            <div className="habit-row-actions">
-                              {/* HAUPT-BUTTON */}
+                        {/* ⚙️ Zähler & Buttons (Rechts) */}
+                        <div className="habit-actions-wrapper">
+                          <div className="habit-row-actions">
+                            {/* HAUPT-BUTTON */}
+                            <button
+                              onClick={() =>
+                                tagHinzufuegen(habit.id, echterIndex)
+                              }
+                              className={`action-zone-main ${
+                                (isWochenziel &&
+                                  (istErledigt || !istRitualTag)) ||
+                                habit.last_clicked === aktuellesdatum
+                                  ? "is-locked"
+                                  : "magische-quest"
+                              }`}
+                              title="Tag hinzufügen"
+                            >
+                              <div className="action-counter">
+                                <span
+                                  className={istErledigt ? "text-success" : ""}
+                                >
+                                  {habit.days}
+                                </span>
+                                {zielGroeße > 0 && (
+                                  <span className="text-goal">
+                                    /{zielGroeße}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="action-icon">+</div>
+                            </button>
+
+                            {/* KLEINE BUTTONS */}
+                            <div className="action-side-column">
                               <button
                                 onClick={() =>
-                                  tagHinzufuegen(habit.id, echterIndex)
+                                  habitReset(habit.id, echterIndex)
                                 }
-                                className={`action-zone-main ${
-                                  (isWochenziel &&
-                                    (istErledigt || !istRitualTag)) ||
-                                  habit.last_clicked === aktuellesdatum
-                                    ? "is-locked"
-                                    : "magische-quest"
-                                }`}
-                                title="Tag hinzufügen"
+                                className="action-zone-small reset"
+                                title="Zurücksetzen"
                               >
-                                <div className="action-counter">
-                                  <span
-                                    className={
-                                      istErledigt ? "text-success" : ""
-                                    }
-                                  >
-                                    {habit.days}
-                                  </span>
-                                  {zielGroeße > 0 && (
-                                    <span className="text-goal">
-                                      /{zielGroeße}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="action-icon">+</div>
+                                🔄
                               </button>
-
-                              {/* KLEINE BUTTONS */}
-                              <div className="action-side-column">
-                                <button
-                                  onClick={() =>
-                                    habitReset(habit.id, echterIndex)
-                                  }
-                                  className="action-zone-small reset"
-                                  title="Zurücksetzen"
-                                >
-                                  🔄
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    habitLoeschen(habit.id, echterIndex)
-                                  }
-                                  className="action-zone-small delete"
-                                  title="Löschen"
-                                >
-                                  🗑️
-                                </button>
-                              </div>
+                              <button
+                                onClick={() =>
+                                  habitLoeschen(habit.id, echterIndex)
+                                }
+                                className="action-zone-small delete"
+                                title="Löschen"
+                              >
+                                🗑️
+                              </button>
                             </div>
                           </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-                {/* --- ENDE DER LISTE --- */}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
+              {/* --- ENDE DER LISTE --- */}
 
               {/* --- HIER DIE PAGINATION EINBAUEN --- */}
               {!isSortMode && gesamtSeiten > 1 && (
@@ -1975,21 +2001,7 @@ function App() {
                 >
                   ⚠️ Developer Optionen
                 </h3>
-                <button
-                  onClick={datenbankLeeren}
-                  className="btn-delete"
-                  style={{
-                    width: "100%",
-                    height: "45px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                    fontSize: "0.95rem",
-                  }}
-                >
-                  🔥 Gesamte Datenbank leeren
-                </button>
+                <p> Coming soon</p>
               </div>
             </div>
           )}

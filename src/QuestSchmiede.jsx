@@ -45,9 +45,24 @@ const QuestSchmiede = ({ onSave, onCancel }) => {
   };
 
   return (
-    <div className="stone-modal">
+    <div className="stone-modal" style={{ position: "relative" }}>
+      {/* --- DER X-BUTTON: Fest verankert in der oberen rechten Ecke --- */}
+      <button
+        className="close-modal"
+        onClick={onCancel}
+        style={{
+          top: "22px",
+          right: "15px",
+          margin: 0,
+          transform: "none",
+          zIndex: 10,
+        }}
+      >
+        ✕
+      </button>
+
       <div className="stone-modal-header">
-        <h2 className="stone-header">Neue Quest schmieden</h2>
+        <h2 className="stone-header">Quest schmieden</h2>
       </div>
 
       <div className="quest-field">

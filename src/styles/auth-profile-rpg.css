@@ -1540,3 +1540,14 @@ button.login-button {
   width: 100% !important;
   /* ... restlicher Code für Button ... */
 }
+
+/* Überall dort, wo der RPG-Look sein soll */
+.stone-header,
+.modal-header h2,
+.sidebar-header,
+.habit-title,
+.habit-motivation-text,
+.pag-btn {
+  font-family: "Fondamento", serif !important;
+  -webkit-font-smoothing: antialiased; /* Macht die Schrift auf dem iPhone schärfer */
+}

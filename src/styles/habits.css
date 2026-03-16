@@ -1261,3 +1261,14 @@
     transform: translateX(0) scale(1);
   }
 }
+
+/* Überall dort, wo der RPG-Look sein soll */
+.stone-header,
+.modal-header h2,
+.sidebar-header,
+.habit-title,
+.habit-motivation-text,
+.pag-btn {
+  font-family: "Fondamento", serif !important;
+  -webkit-font-smoothing: antialiased; /* Macht die Schrift auf dem iPhone schärfer */
+}
