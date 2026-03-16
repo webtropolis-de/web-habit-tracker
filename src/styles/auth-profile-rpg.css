@@ -1361,3 +1361,182 @@ button.login-button:disabled {
   color: #fff !important;
   text-shadow: 0 0 10px #d4af37;
 }
+
+/* ========================================================================== */
+/* 🐾 WOLF BEGLEITER (GESPERRT / LEVEL 3 SYSTEM)                              */
+/* ========================================================================== */
+
+/* --- HOME VIEW: Die kleine Wolf-Box links --- */
+.familiar-box-mini {
+  text-align: center;
+  transition: opacity 0.3s ease;
+}
+.familiar-box-mini.is-locked {
+  opacity: 0.6;
+}
+
+.familiar-avatar-mini {
+  width: 45px;
+  height: 45px;
+  border: 1px solid #444;
+  background: #1a1a20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+.familiar-avatar-mini.is-locked {
+  border: 1px dashed #555;
+}
+
+.familiar-icon-locked {
+  font-size: 1.4rem;
+  filter: grayscale(1) brightness(0.6);
+}
+
+.familiar-img-mini {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.familiar-title-mini {
+  font-size: 0.55rem;
+  color: #aaa;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 2px;
+  font-weight: bold;
+}
+.familiar-title-mini.is-locked {
+  color: #666;
+}
+
+/* --- HOME VIEW: Der Wolf-Fortschrittsbalken rechts daneben --- */
+.familiar-binding-container {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px;
+  border: 1px solid #333;
+}
+
+.familiar-binding-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  margin-bottom: 4px;
+}
+
+.familiar-binding-title {
+  font-weight: bold;
+  color: #bbb;
+}
+.familiar-binding-title.is-locked {
+  color: #777;
+}
+
+.familiar-binding-status {
+  color: #bbb;
+}
+.familiar-binding-status.is-locked {
+  color: #888;
+}
+.familiar-binding-status.is-max {
+  color: #d4af37;
+}
+
+/* --- PROFILE VIEW: Das große Artefakt --- */
+.familiar-avatar-frame.is-locked {
+  border: 2px dashed #444 !important;
+}
+
+.familiar-locked-icon-large {
+  font-size: 3rem;
+  filter: grayscale(1) opacity(0.5);
+}
+
+.familiar-name-title.is-locked {
+  color: #666 !important;
+}
+
+.familiar-description.is-locked {
+  color: #555 !important;
+}
+
+/* --- ALLGEMEIN: Gesperrte Balken-Füllung (Grau statt Lila) --- */
+.mini-progress-fill.is-locked,
+.familiar-progress-fill.is-locked {
+  background: linear-gradient(90deg, #444, #666) !important;
+  box-shadow: none !important;
+}
+
+.toolbar_start {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Zentriert die Buttons auf gleicher Höhe */
+  margin-bottom: 15px;
+  gap: 10px; /* Zur Sicherheit, falls der Bildschirm ganz schmal wird */
+  width: 100%; /* Wichtig, damit sie sich komplett links und rechts anordnen */
+}
+
+/* ========================================================================== */
+/* 🚪 TAVERNEN-LOGIN (Stil-Anpassung, nur Eingabefelder)                        */
+/* ========================================================================== */
+
+/* Das Formular-Fenster selbst */
+.login-form {
+  background-color: #1e1e24 !important;
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.8), rgba(20, 20, 26, 0.95)),
+    url("../assets/stonetexture.jpg") !important;
+  background-size: cover !important;
+
+  border: 2px solid #000 !important;
+  border-radius: 0 !important; /* Harte, eckige Kanten */
+  padding: 30px 20px !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 30px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Neue, gemeißelte Steinkanäle für die Eingabefelder */
+.habit-input {
+  background-color: #0a0a0c !important; /* Sehr dunkles Loch */
+  background-image: none !important; /* Entfernt die Stein-Textur aus dem Eingabefeld */
+  border: 2px solid #222 !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  padding: 14px 15px !important;
+  font-family:
+    "AgedGoldGameFont", serif; /* Verwendet die weathered gold Schriftart */
+
+  /* Schatten nach innen für den "gravierten" Look */
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.8) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Placeholder-Text-Farbe (unbedingt Aged Gold) */
+.habit-input::placeholder {
+  color: #d4af37 !important;
+  opacity: 0.7;
+}
+
+/* Wenn man in das Feld klickt: Magisches Gold-Leuchten */
+.habit-input:focus {
+  border-color: #d4af37 !important;
+  box-shadow:
+    inset 0 4px 8px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(212, 175, 55, 0.3) !important;
+  outline: none !important;
+}
+
+/* Auge-Symbol für Passwort (stilisiert) */
+.password-toggle-icon {
+  color: #d4af37 !important;
+}
+
+/* Der große Anmelden-Button (unverändert, da er bereits passt) */
+button.login-button {
+  width: 100% !important;
+  /* ... restlicher Code für Button ... */
+}
