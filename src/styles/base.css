@@ -231,21 +231,3 @@ input::-webkit-credentials-auto-fill-button {
     transform: translateY(0px);
   }
 }
-
-/* Schriftart lokal einbinden */
-@font-face {
-  font-family: "Fondamento";
-  src: url("./assets/Fondamento-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap; /* Sorgt dafür, dass Text sofort sichtbar ist */
-}
-
-/* Falls du das Italic auch geladen hast: */
-@font-face {
-  font-family: "Fondamento";
-  src: url("./assets/Fondamento-Italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}

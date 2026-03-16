@@ -793,8 +793,7 @@ header {
 
 /* Die Überschrift im Header ("Today", "Statistik", "Profil") */
 header h2 {
-  font-family:
-    "Fondamento", cursive, sans-serif !important; /* Rustikale Schrift */
+  font-family: "MedievalSharp", sans-serif !important;
   color: #d4af37 !important; /* Altes Gold */
   text-shadow: 2px 2px 0 #000 !important; /* In den Stein graviert */
   letter-spacing: 1px !important;
@@ -854,7 +853,7 @@ header button:active {
   color: #000 !important;
   border: 2px solid #000 !important; /* Harter Rand */
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7) !important;
-  font-family: "Fondamento", cursive, sans-serif !important;
+  font-family: "MedievalSharp", sans-serif !important;
   right: -5px !important;
   bottom: -5px !important;
   padding: 2px 4px !important;
@@ -879,7 +878,7 @@ header button:active {
 
 /* Modal Überschriften */
 .modal-header h2 {
-  font-family: "Fondamento", cursive, sans-serif !important;
+  font-family: "MedievalSharp", sans-serif !important;
   color: #d4af37 !important; /* Edles Gold */
   text-shadow: 2px 2px 0 #000 !important;
 }
@@ -917,7 +916,7 @@ header button:active {
 /* Wochentage (M, D, M, D, F, S, S) */
 .calendar-weekday-label {
   color: #b8860b !important; /* Dunkles Gold statt App-Blau */
-  font-family: "Fondamento", cursive, sans-serif !important;
+  font-family: "MedievalSharp", sans-serif !important;
   font-size: 1rem !important;
   text-shadow: 1px 1px 0 #000 !important;
 }
@@ -968,7 +967,7 @@ header button:active {
 .ki-text,
 .ki-placeholder {
   color: #c0a080 !important; /* Pergament */
-  font-family: "Fondamento", cursive, sans-serif !important;
+  font-family: "MedievalSharp", sans-serif !important;
   font-size: 1.1rem !important;
   text-shadow: 1px 1px 0 #000 !important;
 }
@@ -1057,7 +1056,7 @@ header button:active {
 
 /* Der Quest-Name im Titel bekommt einen extra Gold-Glow */
 .modal-content h2 span {
-  font-family: "Fondamento", cursive, sans-serif !important;
+  font-family: "MedievalSharp", sans-serif !important;
   text-transform: uppercase;
   letter-spacing: 1px;
   word-break: break-word; /* Verhindert das Rausrutschen bei extrem langen Wörtern */
@@ -1080,6 +1079,6 @@ header button:active {
 .habit-title,
 .habit-motivation-text,
 .pag-btn {
-  font-family: "Fondamento", serif !important;
+  font-family: "MedievalSharp", sans-serif !important;
   -webkit-font-smoothing: antialiased; /* Macht die Schrift auf dem iPhone schärfer */
 }

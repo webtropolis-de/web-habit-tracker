@@ -34,13 +34,13 @@
 }
 
 .stone-header {
-  font-family: "Fondamento", cursive, sans-serif !important;
-  color: #d4af37 !important; /* Edles Gold */
-  text-shadow: 2px 2px 0 #000 !important;
-  margin: 0;
-  font-size: 1.3rem;
+  font-family:
+    "MedievalSharp", serif !important; /* 'serif' statt 'cursive' als Fallback! */
+  font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
+  /* iPhone Fix: Schatten etwas härter machen für bessere Lesbarkeit */
+  text-shadow: 2px 2px 0px #000 !important;
 }
 
 /* --- EINGABEFELDER (Stein-Kerben) --- */
@@ -186,7 +186,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-family: "Fondamento", cursive, sans-serif !important;
+  font-family: "MedievalSharp", cursive, sans-serif !important;
   font-size: 1rem;
   font-weight: bold;
   color: #666;
