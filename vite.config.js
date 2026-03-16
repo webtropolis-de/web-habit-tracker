@@ -4,7 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   // EXAKT der Name deines Repositories auf GitHub
-  base: "/web-habit-tracker/",
+  base: "/",
   plugins: [
     react(),
     VitePWA({
@@ -23,8 +23,8 @@ export default defineConfig({
         theme_color: "#1a1a1a",
         background_color: "#1a1a1a",
         display: "standalone",
-        scope: "/web-habit-tracker/",
-        start_url: "/web-habit-tracker/",
+        scope: "/",
+        start_url: "/",
         icons: [
           {
             src: "android-chrome-192x192.png",

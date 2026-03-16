@@ -2,6 +2,8 @@
 
 "Your habits write your epic saga. Level up daily."
 
+[![Play HabitTale](https://img.shields.io/badge/PLAY-HabitTale-d4af37?style=for-the-badge&logo=adventure&logoColor=white)](https://habittale.app)
+
 **HabitTale** ist ein gamifizierter, cloud-basierter Habit-Tracker im epischen Retro-RPG-Design. Er wurde speziell für die Unterstützung bei Abstinenz (Streaks) und persönlicher Weiterentwicklung (Wochenziele) entwickelt. Verwandle deinen Alltag in eine Quest: Sammle Erfahrung, steige im Level auf und lass dich von deinem KI-Mentor auf dem Pfad der Disziplin begleiten.
 
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)

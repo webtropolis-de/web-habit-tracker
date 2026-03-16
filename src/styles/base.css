@@ -1,3 +1,12 @@
+@font-face {
+  font-family: "MedievalSharp";
+  /* Wir laden NUR die .ttf Datei aus dem public-Ordner */
+  src: url("/fonts/MedievalSharp.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* --- GRUNDLAYOUT & DARK MODE --- */
 * {
   box-sizing: border-box;
@@ -31,7 +40,7 @@ h1,
 h2 {
   color: #ffffff;
   text-align: center;
-  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-size: clamp(1.2rem, 5vw, 2rem);
   max-width: 100%;
   word-wrap: break-word;
 }

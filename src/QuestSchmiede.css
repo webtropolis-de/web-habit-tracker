@@ -43,6 +43,9 @@
   text-shadow: 2px 2px 0px #000 !important;
 }
 
+.stone-header h2 {
+}
+
 /* --- EINGABEFELDER (Stein-Kerben) --- */
 .quest-field {
   margin-bottom: 20px;
