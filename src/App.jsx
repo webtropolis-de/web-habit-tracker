@@ -128,18 +128,22 @@ function App() {
 
   // ---------------------------- Zeit speichern ---------------------------------- //
 
-  // Wird aufgerufen, wenn der User die Uhrzeit ändert
   const speichereZeit = (neueZeit) => {
-    setErinnerungZeit(neueZeit);
-    localStorage.setItem("reminder_time", neueZeit); // Speichert es lokal
+  setErinnerungZeit(neueZeit);
+  localStorage.setItem("reminder_time", neueZeit);
 
-    // Wenn OneSignal da ist, aktualisieren wir das Etikett sofort lautlos im Hintergrund
-    if (window.OneSignalDeferred) {
-      window.OneSignalDeferred.push(function (OneSignal) {
-        OneSignal.User.addTag("weckzeit", neueZeit);
-      });
-    }
-  };
+  if (window.OneSignalDeferred) {
+    window.OneSignalDeferred.push(async function(OneSignal) {
+      // erzwingt  Apple-Erlaubnis-Fenster!
+      await OneSignal.Notifications.requestPermission();
+      
+      // setzen  Tag
+      OneSignal.User.addTag("weckzeit", neueZeit);
+    });
+    
+    zeigeToast(`Weckruf auf ${neueZeit} Uhr gestellt! 🔔`);
+  }
+};
 
   // ----------------------------------------- On Boarding ----------------------
   const handleOnboardingComplete = async (chosenAvatar) => {
