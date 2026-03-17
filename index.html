@@ -1,71 +1,51 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>🏆 HabitTale – Forge Your Legend</title>
+
     <link
       rel="icon"
       type="image/png"
-      href="/web-habit-tracker/favicon-32x32.png?v=2"
+      href="/favicon-32x32.png?v=2"
       sizes="32x32"
     />
-    <link
-      rel="icon"
-      type="image/png"
-      href="/web-habit-tracker/favicon-16x16.png"
-      sizes="16x16"
-    />
-    <link rel="shortcut icon" href="/web-habit-tracker/favicon.ico" />
-    <link
-      rel="apple-touch-icon"
-      href="/web-habit-tracker/apple-touch-icon.png"
-    />
-    <link rel="manifest" href="/web-habit-tracker/manifest.webmanifest" />
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
     <meta name="theme-color" content="#1a1a1a" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta charset="UTF-8" />
-
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Tracker" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script
-      src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-      defer
-    ></script>
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="HabitTale" />
+
     <script
       src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
       defer
     ></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.OneSignalDeferred.push(async function (OneSignal) {
+      OneSignalDeferred.push(async function (OneSignal) {
         await OneSignal.init({
-          appId: "6c1ce5a5-411f-4893-b98b-938cc2efcd6d",
+          appId: "8778b3ef-aaa5-44ac-b5d0-1c382d9b3134",
           safari_web_id:
-            "web.onesignal.auto.3c5e9739-5d2f-4f69-94b2-78aed3043174",
+            "web.onesignal.auto.3431b9a6-8377-4186-9b23-bf65dbb4a731",
           notifyButton: {
-            enable: false,
+            enable: true,
           },
-          allowLocalhostAsSecureOrigin: true,
-
-          // Das ist der offizielle Weg für Version 16 in Unterordnern!
-          serviceWorkerParam: { scope: "/web-habit-tracker/" },
-          serviceWorkerPath: "web-habit-tracker/OneSignalSDKWorker.js",
         });
-
-        OneSignal.Slidedown.promptPush();
       });
     </script>
-    <title>
-      🏆 HabitTale – Forge Your Legend "Your habits write your epic saga. Level
-      up daily."
-    </title>
-
-    <meta name="theme-color" content="#1a1a1a" />
-    <script type="module" crossorigin src="/web-habit-tracker/assets/index-BNPcpWL3.js"></script>
-    <link rel="stylesheet" crossorigin href="/web-habit-tracker/assets/index-wSWRCqla.css">
-  <link rel="manifest" href="/web-habit-tracker/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/web-habit-tracker/registerSW.js"></script></head>
+    <script type="module" crossorigin src="/assets/index-B4JBHsSe.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DwC2q1SZ.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
   <body>
     <div id="root"></div>
   </body>
