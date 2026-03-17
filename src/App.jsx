@@ -128,21 +128,29 @@ function App() {
 
   // ---------------------------- Zeit speichern ---------------------------------- //
 
-  const speichereZeit = (neueZeit) => {
+
+const speichereZeit = async (neueZeit) => {
   setErinnerungZeit(neueZeit);
   localStorage.setItem("reminder_time", neueZeit);
 
-  if (window.OneSignalDeferred) {
-    window.OneSignalDeferred.push(async function(OneSignal) {
-      // erzwingt  Apple-Erlaubnis-Fenster!
-      await OneSignal.Notifications.requestPermission();
-      
-      // setzen  Tag
-      OneSignal.User.addTag("weckzeit", neueZeit);
-    });
-    
-    zeigeToast(`Weckruf auf ${neueZeit} Uhr gestellt! 🔔`);
+  try {
+    // Direkter Zugriff (Das liebt das iPhone)
+    if (window.OneSignal) {
+      await window.OneSignal.Notifications.requestPermission();
+      window.OneSignal.User.addTag("weckzeit", neueZeit);
+    } 
+    // Fallback, falls es noch lädt
+    else if (window.OneSignalDeferred) {
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.Notifications.requestPermission();
+        OneSignal.User.addTag("weckzeit", neueZeit);
+      });
+    }
+  } catch (error) {
+    console.error("OneSignal Fehler:", error);
   }
+
+  zeigeToast(`Weckruf auf ${neueZeit} Uhr gestellt! 🔔`);
 };
 
   // ----------------------------------------- On Boarding ----------------------
