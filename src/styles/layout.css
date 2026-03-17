@@ -658,9 +658,7 @@
 
 .rpg-card {
   background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
-  background-image:
-    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
-    url("../assets/stonetexture.jpg") !important;
+  background-image: linear-gradient(rgba(30, 30, 36, 0.7), rgb(20 20 26 / 0%)), url(/src/assets/stonetexture.jpg) !important;
   background-size: cover !important;
   background-position: center !important;
   background-color: #2a2a35 !important; /* Hellerer Stein, passend zum Button! */
@@ -1079,6 +1077,6 @@ header button:active {
 .habit-title,
 .habit-motivation-text,
 .pag-btn {
-  font-family: "MedievalSharp", sans-serif !important;
+
   -webkit-font-smoothing: antialiased; /* Macht die Schrift auf dem iPhone schärfer */
 }
