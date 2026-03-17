@@ -128,30 +128,29 @@ function App() {
 
   // ---------------------------- Zeit speichern ---------------------------------- //
 
+  const speichereZeit = async (neueZeit) => {
+    setErinnerungZeit(neueZeit);
+    localStorage.setItem("reminder_time", neueZeit);
 
-const speichereZeit = async (neueZeit) => {
-  setErinnerungZeit(neueZeit);
-  localStorage.setItem("reminder_time", neueZeit);
-
-  try {
-    // Direkter Zugriff (Das liebt das iPhone)
-    if (window.OneSignal) {
-      await window.OneSignal.Notifications.requestPermission();
-      window.OneSignal.User.addTag("weckzeit", neueZeit);
-    } 
-    // Fallback, falls es noch lädt
-    else if (window.OneSignalDeferred) {
-      window.OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.Notifications.requestPermission();
-        OneSignal.User.addTag("weckzeit", neueZeit);
-      });
+    try {
+      // Direkter Zugriff (Das liebt das iPhone)
+      if (window.OneSignal) {
+        await window.OneSignal.Notifications.requestPermission();
+        window.OneSignal.User.addTag("weckzeit", neueZeit);
+      }
+      // Fallback, falls es noch lädt
+      else if (window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(async function (OneSignal) {
+          await OneSignal.Notifications.requestPermission();
+          OneSignal.User.addTag("weckzeit", neueZeit);
+        });
+      }
+    } catch (error) {
+      console.error("OneSignal Fehler:", error);
     }
-  } catch (error) {
-    console.error("OneSignal Fehler:", error);
-  }
 
-  zeigeToast(`Weckruf auf ${neueZeit} Uhr gestellt! 🔔`);
-};
+    zeigeToast(`Weckruf auf ${neueZeit} Uhr gestellt! 🔔`);
+  };
 
   // ----------------------------------------- On Boarding ----------------------
   const handleOnboardingComplete = async (chosenAvatar) => {
@@ -1609,15 +1608,9 @@ const speichereZeit = async (neueZeit) => {
               {/* BUTTON  FORMULAR */}
               <button
                 onClick={() => setIsAddModalOpen(true)}
-                className="add-button"
-                style={{
-                  width: "100%",
-                  marginBottom: "25px",
-                  padding: "16px",
-                  fontSize: "1.1rem",
-                }}
+                className="add-button quest-button"
               >
-                ➕ Neue Quest starten
+                ➕ NEUE QUEST STARTEN
               </button>
 
               {/* --- TOOLBAR: BELOHNUNGEN & SORTIEREN --- */}
@@ -2209,7 +2202,7 @@ const speichereZeit = async (neueZeit) => {
                       className="rpg-button-secondary"
                       onClick={() => setShowRoadmapModal(true)}
                     >
-                      📜 KOMMENDE BELOHNUNGEN
+                      📜 BELOHNUNGEN
                     </button>
                   </div>
 
@@ -2380,21 +2373,19 @@ const speichereZeit = async (neueZeit) => {
                   }}
                 >
                   <input
-  type="time"
-  value={erinnerungZeit}
-  
-  onChange={(e) => setErinnerungZeit(e.target.value)} 
-  className="time-input"
-/>
+                    type="time"
+                    value={erinnerungZeit}
+                    onChange={(e) => setErinnerungZeit(e.target.value)}
+                    className="time-input"
+                  />
 
-<button
-  
-  onClick={() => speichereZeit(erinnerungZeit)} 
-  className="btn-checkin"
-  style={{ marginTop: 0 }}
->
-  Aktivieren
-</button>
+                  <button
+                    onClick={() => speichereZeit(erinnerungZeit)}
+                    className="btn-checkin"
+                    style={{ marginTop: 0 }}
+                  >
+                    Aktivieren
+                  </button>
                 </div>
               </div>{" "}
               <br></br>
@@ -2431,7 +2422,7 @@ const speichereZeit = async (neueZeit) => {
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
                     <button onClick={updatePassword} className="add-button">
-                      Passwort aktualisieren
+                      Speichern
                     </button>
                   </div>
                 </div>

@@ -3,11 +3,21 @@
   transform: translateY(-3px);
 }
 
+.habit-card {
+  /* Ein tiefes, dunkles Grau (nicht Pechschwarz) */
+  background-color: #242528;
+  /* Ein ganz dezenter heller Rand oben, gibt der Karte 3D-Tiefe */
+  border-top: 1px solid #3a3a40;
+  /* Lass dein Hintergrundbild/Textur drin, wenn du eine hast! */
+}
+
 /* Habit-Row RPG/Quest Style */
 .habit-row {
   /* 🪨 HIER IST DER STEIN: Dunkles Overlay + Deine Textur */
-  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
-  background-image: linear-gradient(rgba(30, 30, 36, 0.7), rgb(20 20 26 / 0%)), url(/src/assets/stonetexture.jpg) !important;
+  background-color: #2a2a35 !important;
+  background-image:
+    linear-gradient(rgba(42, 42, 53, 0.85), rgba(30, 30, 36, 0.9)),
+    url(/src/assets/stonetexture.jpg) !important;
   background-size: cover !important;
   background-position: center !important;
 
@@ -18,14 +28,17 @@
   gap: 12px;
 
   /* ⚔️ DAS RPG KARTEN DESIGN: Eckig, harte Ränder, 3D Block-Effekt */
-  border-radius: 0 !important;
-  border: 2px solid #000 !important;
+  border-radius: 2px;
+  border: 1px solid #000 !important;
 
   /* Der 3D-Karten-Effekt: Licht von oben, Schatten unten, und ein harter Drop-Shadow */
+  transform: translateY(-2px);
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -4px 0 rgba(0, 0, 0, 0.4),
-    4px 4px 0 rgba(0, 0, 0, 0.5) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #0d0d12,
+    0 8px 12px rgba(0, 0, 0, 0.6) !important;
+
+  transition: all 0.1s ease !important;
 
   /* WICHTIG für Drag & Drop: Erlaubt dem Skript die Bewegung */
   transition:
@@ -62,12 +75,13 @@
 /* --- 📊 FORTSCHRITTSBALKEN RPG STYLE --- */
 
 .habit-progress-container {
-  background-color: #0d0d12 !important; /* Sehr tiefer, dunkler Stein-Schlitz */
-  border: 2px solid #000 !important; /* Harter schwarzer Rand */
-  border-radius: 0 !important;
-  height: 14px !important;
-  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.9) !important; /* Tiefer Innenschatten */
-  overflow: hidden; /* Verhindert, dass die Füllung über den Rand schwappt */
+  /* Ein dunkles Grau, das sich vom restlichen Stein abhebt */
+  background-color: #1a1a20 !important;
+  border: 1px solid #000 !important;
+  border-radius: 3px !important;
+  height: 12px !important; /* Minimal schlanker wirkt eleganter */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+  overflow: hidden;
 }
 
 .habit-progress-bar {
@@ -109,6 +123,10 @@
   font-weight: bold;
   font-size: 1rem;
   transition: background-color 0.2s;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #111,
+    0 6px 8px rgba(0, 0, 0, 0.5) !important;
 }
 
 .plus-button:hover:not(:disabled) {
@@ -212,33 +230,34 @@
 /* --- DER HAUPT-BUTTON --- */
 /* --- DER HAUPT-BUTTON --- */
 .action-zone-main {
-  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
-  border: 2px solid #000 !important;
-  border-radius: 0 !important;
-  color: #fff !important;
+  background-color: #2a2a35 !important; /* Ein klarer, edler Anthrazit-Stein */
+  background-image: none !important; /* Entfernt störende Texturen */
+  border: 1px solid #111 !important;
+  border-radius: 2px !important; /* Minimal abgerundet wirkt hochwertiger */
+  color: #ffffff !important;
   cursor: pointer;
 
   width: 75px !important;
   min-width: 75px !important;
   flex-shrink: 0 !important;
   padding: 0 !important;
-  margin-bottom: 0 !important; /* WICHTIG: Kein Margin mehr! */
+  margin: 0 !important;
 
-  /* ⬆️ EXAKTER LIFT: 4px hochziehen, 4px Schatten nach unten */
-  transform: translateY(-4px);
+  /* Sauberer 3D-Lift */
+  transform: translateY(-2px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 4px 0 #000,
-    0 6px 10px rgba(0, 0, 0, 0.5) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #0d0d12,
+    0 2px 12px rgba(0, 0, 0, 0.6) !important;
 
   transition: all 0.1s ease !important;
 
+  transition: all 0.1s ease !important;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
   z-index: 1;
 }
 
@@ -277,26 +296,26 @@
 }
 
 .action-zone-small {
-  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-color: #2a2a35 !important;
   background-image:
-    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
-    url("../assets/stonetexture.jpg") !important;
+    linear-gradient(rgba(42, 42, 53, 0.8), rgba(30, 30, 36, 0.9)),
+    url(/src/assets/stonetexture.jpg) !important;
   background-size: cover !important;
   background-position: center !important;
-  border: 2px solid #000 !important;
-  border-radius: 0 !important;
+  border: 1px solid #000 !important;
+  border-radius: 2px !important;
   cursor: pointer;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  /* ⬆️ Gleicher 4px-Lift wie der Hauptbutton! */
-  transform: translateY(-4px);
+  /* EXAKT gleicher 3D-Lift wie der Hauptbutton */
+  transform: translateY(-2px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 4px 0 #000,
-    0 4px 6px rgba(0, 0, 0, 0.4) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #111,
+    0 1px 8px rgba(0, 0, 0, 0.5) !important;
 
   transition: all 0.1s ease !important;
 }
@@ -361,7 +380,9 @@
 /* Kleine Stats-Karte (Home/Stats) */
 .stats-card {
   background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
-  background-image: linear-gradient(rgba(30, 30, 36, 0.7), rgb(20 20 26 / 0%)), url(/src/assets/stonetexture.jpg) !important;
+  background-image:
+    linear-gradient(rgba(30, 30, 36, 0.7), rgb(20 20 26 / 0%)),
+    url(/src/assets/stonetexture.jpg) !important;
   background-size: cover !important;
   background-position: center !important;
   background-color: #1e1e24;
@@ -466,30 +487,30 @@
 }
 
 .habit-title {
-  /* Wir nutzen MedievalSharp massiv */
-
-  font-size: 1rem !important;
-  font-weight: 500 !important; /* Maximale Dicke für das iPhone */
+  /* Klare Serifen statt MedievalSharp für kleine Texte */
+  font-family: "Georgia", "Merriweather", serif !important;
+  font-size: 1rem !important; /* Minimal größer */
+  font-weight: bold !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
-  margin: 0 !important;
-  
-  /* Gold-Effekt */
-  color: #dfdfdf !important;
- 
+  margin: 0 0 4px 0 !important;
 
-
-  
+  /* Ein helleres, leuchtenderes Gold für extremen Kontrast zum dunklen Stein */
+  color: #e6c27a !important;
+  /* Ein dezenter Schatten, damit die Schrift sich vom Stein abhebt */
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8) !important;
 }
 
 .habit-subtitle {
-  font-size: 0.7rem !important;
+  font-family: sans-serif; /* Für Meta-Infos ist Sans-Serif am besten lesbar */
+  font-size: 0.75rem !important;
   text-transform: uppercase;
+  font-weight: 700;
   letter-spacing: 1px;
-  color: #888;
-  font-weight: bold;
-  margin-bottom: 4px;
+  /* Helleres Grau statt dem alten, sehr dunklen #a0aab5 */
+  color: #c4c9d0 !important;
   display: block;
+  margin-bottom: 6px;
 }
 
 /* 🛡️ Typ-Farben: Entsättigte, edle RPG-Töne statt greller Web-Farben */
@@ -556,10 +577,10 @@
 }
 
 .rpg-trigger {
-  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-color: #2a2a35 !important;
   background-image:
-    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
-    url("../assets/stonetexture.jpg") !important;
+    linear-gradient(rgba(42, 42, 53, 0.85), rgba(30, 30, 36, 0.9)),
+    url(/src/assets/stonetexture.jpg) !important;
   background-size: cover !important;
   background-position: center !important;
   border: 2px solid #000 !important;
@@ -632,7 +653,7 @@
   background: none !important;
   border: none !important;
   color: #666 !important;
-  font-size: 0.7rem !important;
+  font-size: 0.9rem !important;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -647,7 +668,7 @@
 
 .rpg-rune-btn span {
   filter: grayscale(1) opacity(0.5);
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
 /* Hover-Effekte: Die Runen fangen an zu glühen */
@@ -715,10 +736,10 @@
 }
 
 .magische-quest {
-  background-color: #1e1e24 !important; /* Fallback, falls das Bild lädt */
+  background-color: #2a2a35 !important;
   background-image:
-    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
-    url("../assets/stonetexture.jpg") !important;
+    linear-gradient(rgba(42, 42, 53, 0.8), rgba(30, 30, 36, 0.9)),
+    url(/src/assets/stonetexture.jpg) !important;
   background-size: cover !important;
   background-position: center !important;
   border-color: #000 !important; /* Gold-Rand entfernt */
@@ -740,10 +761,11 @@
   }
   100% {
     box-shadow:
-      inset 0 2px 0 rgba(255, 255, 255, 0.35),
-      /* Lichtkante wird heller (Metall-Reflexion) */ inset 0 -4px 0
-        rgba(0, 0, 0, 0.6),
-      0 0 15px rgba(255, 255, 255, 0.25) !important; /* Weißer/Silberner Glanz nach außen */
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 4px 0 #0d0d12,
+      0 2px 12px rgba(0, 0, 0, 0.6) !important;
+
+    transition: all 0.1s ease !important; /* Weißer/Silberner Glanz nach außen */
     border-color: #555 !important; /* Rand wird ganz leicht metallisch heller */
   }
 }
@@ -835,13 +857,15 @@
 .magische-quest .action-counter {
   color: #fff !important;
   opacity: 1; /* Volle Deckkraft für die Zahl! */
-  font-size: 1rem !important;
-  text-shadow: 1px 1px 0 #000; /* Nur ein harter, schwarzer Schatten */
+  font-size: 1.1rem !important;
+  text-shadow: 1px 1px 2px #000 !important; /* Nur ein harter, schwarzer Schatten */
   letter-spacing: 1px;
+  font-weight: 900 !important;
 }
 
 .magische-quest .text-goal {
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: #a0aab5 !important; /* Hellgrau statt fast unsichtbar */
+  font-size: 0.8rem !important;
 }
 
 /* Zustand: Quest bereits erledigt / gesperrt */
@@ -958,6 +982,8 @@
 
 .action-zone-main:hover:not(.is-locked) {
   filter: brightness(1.2) !important;
+  background-color: #323240 !important;
+  border-color: #b8860b !important;
   /* (Das vorherige background-color: #353542 !important; hier einfach löschen!) */
 }
 
@@ -1074,14 +1100,15 @@
 
 /* Der Schwur (Motivation) auf der Karte */
 .habit-motivation-text {
-  font-size: 0.75rem;
-  color: #999;
+  font-family: "Georgia", serif !important; /* Wieder Lesbarkeit vor Style */
+  font-size: 0.8rem;
+  /* Ein helles Pergament-Weiß */
+  color: #d1d5db;
   font-style: italic;
   margin-top: 6px;
-  line-height: 1.3;
-  border-left: 2px solid #444;
+  line-height: 1.4;
+  border-left: 2px solid #555; /* Etwas hellerer Rahmen */
   padding-left: 8px;
-  font-family: "MedievalSharp", sans-serif !important;
 }
 
 /* 4. Avatar-Rahmen: Sicherstellen, dass er nicht zu wuchtig ist */
@@ -1210,9 +1237,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-top: 30px;
-  padding-bottom: 100px; /* Platz für den FAB Coach unten */
+  padding-bottom: 50px;
 }
 
 .pag-btn {
@@ -1229,21 +1256,21 @@
   cursor: pointer;
   box-shadow: 4px 4px 0 #000;
   transition: all 0.1s ease;
+  border-radius: 4px;
 }
 
 .pag-btn.active {
-  color: #d4af37 !important;
-  border-color: #b8860b !important;
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #000;
-  background-color: rgba(184, 134, 11, 0.1) !important;
+  color: #e6c27a !important;
+  border-color: #e6c27a !important;
+  background-color: #323240 !important;
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8) !important;
 }
 
 .pag-btn:disabled {
   opacity: 0.3;
-  cursor: not-allowed;
-  box-shadow: none;
   transform: none;
+  box-shadow: none;
 }
 
 /* --- MAGISCHER UMBLÄTTER-EFFEKT (PAGINATION) --- */
@@ -1272,6 +1299,5 @@
 .habit-title,
 .habit-motivation-text,
 .pag-btn {
-  
   -webkit-font-smoothing: antialiased; /* Macht die Schrift auf dem iPhone schärfer */
 }

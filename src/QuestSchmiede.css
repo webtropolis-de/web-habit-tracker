@@ -4,24 +4,15 @@
 .stone-modal {
   background-color: #1e1e24 !important;
   background-image:
-    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
-    url("./assets/stonetexture.jpg") !important;
+    linear-gradient(rgba(30, 30, 36, 0.85), rgba(20, 20, 26, 0.95)),
+    url(/src/assets/stonetexture.jpg) !important;
   background-size: cover !important;
-  background-position: center !important;
-
   border: 2px solid #000 !important;
-  border-radius: 0 !important; /* Harte Kanten wie im Rest der App */
-
-  /* Dein massiver 3D-Block-Schatten */
+  border-radius: 0 !important; /* Weg mit den runden Ecken */
+  padding: 25px !important;
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -4px 0 rgba(0, 0, 0, 0.4),
-    8px 8px 0 rgba(0, 0, 0, 0.7) !important;
-
-  padding: 24px;
-  color: #e0e0e0;
-  width: 100%;
-  box-sizing: border-box;
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 20px 50px rgba(0, 0, 0, 0.9) !important;
 }
 
 /* Modal Überschrift */
@@ -35,15 +26,21 @@
 
 .stone-header {
   font-family:
-    "MedievalSharp", serif !important; /* 'serif' statt 'cursive' als Fallback! */
-  font-weight: bold;
+    "Georgia", serif !important; /* 'serif' statt 'cursive' als Fallback! */
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 1px;
   /* iPhone Fix: Schatten etwas härter machen für bessere Lesbarkeit */
   text-shadow: 2px 2px 0px #000 !important;
+  font-size: 1.3rem;
 }
 
 .stone-header h2 {
+  font-family: "MedievalSharp", sans-serif !important;
+  color: #e6c27a !important; /* Strahlendes Gold */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000 !important;
 }
 
 /* --- EINGABEFELDER (Stein-Kerben) --- */
@@ -98,16 +95,23 @@
 .type-btn {
   flex: 1;
   background-color: #2a2a35 !important;
-  border: 2px solid #000 !important;
-  border-radius: 0 !important;
+  background-image:
+    linear-gradient(rgba(42, 42, 53, 0.8), rgba(30, 30, 36, 0.9)),
+    url(/src/assets/stonetexture.jpg) !important;
+  background-size: cover !important;
+  background-position: center !important;
 
   /* Lift-Effekt */
+  transform: translateY(-2px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 4px 0 #000,
-    0 4px 6px rgba(0, 0, 0, 0.4) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #0d0d12,
+    0 2px 12px rgba(0, 0, 0, 0.6) !important;
 
-  color: #888;
+  transition: all 0.1s ease !important;
+
+  color: #e6c27a !important;
+  border: 1px solid #111 !important;
   padding: 12px 5px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -118,6 +122,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  border-radius: 4px;
 }
 
 .type-btn .icon {
@@ -180,20 +185,25 @@
   width: 38px;
   height: 38px;
   background-color: #2a2a35 !important;
-  border: 2px solid #000 !important;
-  border-radius: 0 !important;
+  background-image:
+    linear-gradient(rgba(42, 42, 53, 0.8), rgba(30, 30, 36, 0.9)),
+    url(/src/assets/stonetexture.jpg) !important;
+  background-size: cover !important;
+  background-position: center !important;
+
+  /* Goldene Schrift für die wichtigste Aktion */
+  color: #cfcfcf !important;
+  border: 1px solid #111 !important;
+
+  /* Der massive 3D-Effekt passend zu den Quest-Karten */
+  transform: translateY(-2px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 3px 0 #000 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-family: "MedievalSharp", cursive, sans-serif !important;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #666;
-  transition: all 0.1s ease;
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #0d0d12,
+    0 2px 12px rgba(0, 0, 0, 0.6) !important;
+
+  transition: all 0.1s ease !important;
+  border-radius: 4px;
 }
 
 .rune-stone.active {
@@ -214,36 +224,71 @@
 /* Nutzt exakt deine Standard-Button-Klasse (.add-button) aus der App */
 .btn-cancel,
 .btn-save {
-  flex: 1;
-  background-color: #3a3a45 !important;
+  width: 100%;
+  margin-bottom: 25px;
+  padding: 16px !important;
+  font-size: 1.1rem !important;
+  font-family: "Georgia", sans-serif !important;
+  font-weight: bold !important;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+
+  /* Der edle dunkle Stein-Look */
+  background-color: #2a2a35 !important;
   background-image:
-    linear-gradient(rgba(30, 30, 36, 0.7), rgba(20, 20, 26, 0.9)),
-    url("../assets/stonetexture.jpg") !important;
+    linear-gradient(rgba(42, 42, 53, 0.8), rgba(30, 30, 36, 0.9)),
+    url(/src/assets/stonetexture.jpg) !important;
   background-size: cover !important;
   background-position: center !important;
 
-  color: #fff !important;
-  font-weight: bold !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1px !important;
-  border: 2px solid #000 !important;
-  border-radius: 0 !important;
+  /* Goldene Schrift für die wichtigste Aktion */
+  color: #e6c27a !important;
+  border: 1px solid #111 !important;
 
-  /* 3D Lift */
+  /* Der massive 3D-Effekt passend zu den Quest-Karten */
+  transform: translateY(-2px);
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -4px 0 rgba(0, 0, 0, 0.5),
-    2px 2px 0 rgba(0, 0, 0, 0.5) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #0d0d12,
+    0 2px 12px rgba(0, 0, 0, 0.6) !important;
 
-  cursor: pointer !important;
   transition: all 0.1s ease !important;
-  padding: 15px !important;
+  border-radius: 4px;
 }
 
 .btn-cancel {
-  background-image: none !important;
-  background-color: #222 !important;
-  color: #888 !important;
+  width: 100%;
+  margin-bottom: 25px;
+  padding: 16px !important;
+  font-size: 1.1rem !important;
+  font-family: "Georgia", sans-serif !important;
+  font-weight: bold !important;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+
+  /* Der edle dunkle Stein-Look */
+  background-color: #2a2a35 !important;
+  background-image:
+    linear-gradient(rgba(42, 42, 53, 0.8), rgba(30, 30, 36, 0.9)),
+    url(/src/assets/stonetexture.jpg) !important;
+  background-size: cover !important;
+  background-position: center !important;
+
+  /* Goldene Schrift für die wichtigste Aktion */
+  color: #cfcfcf !important;
+  border: 1px solid #111 !important;
+
+  /* Der massive 3D-Effekt passend zu den Quest-Karten */
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #0d0d12,
+    0 2px 12px rgba(0, 0, 0, 0.6) !important;
+
+  transition: all 0.1s ease !important;
+  border-radius: 4px;
 }
 
 .btn-cancel:hover {

@@ -169,7 +169,7 @@ const QuestSchmiede = ({ onSave, onCancel }) => {
           Abbrechen
         </button>
         <button type="button" className="btn-save" onClick={handleCreate}>
-          In Stein meißeln
+          Beginnen
         </button>
       </div>
     </div>
