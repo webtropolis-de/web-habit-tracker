@@ -2380,18 +2380,21 @@ const speichereZeit = async (neueZeit) => {
                   }}
                 >
                   <input
-                    type="time"
-                    value={erinnerungZeit}
-                    onChange={(e) => speichereZeit(e.target.value)}
-                    className="time-input"
-                  />
-                  <button
-                    onClick={aktiviereNotifications}
-                    className="btn-checkin"
-                    style={{ marginTop: 0 }}
-                  >
-                    Aktivieren
-                  </button>
+  type="time"
+  value={erinnerungZeit}
+  
+  onChange={(e) => setErinnerungZeit(e.target.value)} 
+  className="time-input"
+/>
+
+<button
+  
+  onClick={() => speichereZeit(erinnerungZeit)} 
+  className="btn-checkin"
+  style={{ marginTop: 0 }}
+>
+  Aktivieren
+</button>
                 </div>
               </div>{" "}
               <br></br>
