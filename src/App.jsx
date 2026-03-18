@@ -19,6 +19,7 @@ import "./styles/habits.css";
 import "./styles/auth-profile-rpg.css";
 import QuestSchmiede from "./QuestSchmiede";
 import Onboarding from "./Onboarding";
+import { ImpressumModal, DatenschutzModal } from "./LegalModals";
 
 // -Level Rechner ---------------------------------------------------------------
 const berechneLevelInfo = (aktuelleXp) => {
@@ -124,7 +125,12 @@ function App() {
   const seiteWechseln = (seitenNummer) => {
     setAktuelleSeite(seitenNummer);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  
   };
+
+ // ----------------------------- Impressum Modals --------------- // 
+    const [showImpressum, setShowImpressum] = useState(false);
+    const [showDatenschutz, setShowDatenschutz] = useState(false);
 
   // ---------------------------- Zeit speichern ---------------------------------- //
 
@@ -1269,6 +1275,10 @@ function App() {
               )}
             </div>
           </form>
+          <div className="sidebar-footer">
+                <button onClick={() => setShowImpressum(true)} className="legal-link">Impressum</button>
+                  <button onClick={() => setShowDatenschutz(true)} className="legal-link">Datenschutz</button>
+</div>
         </div>
       ) : (
         /* --- EINGELOGGT-BEREICH --- */
@@ -1408,6 +1418,10 @@ function App() {
               >
                 🚪 Logout
               </button>
+              <div className="sidebar-footer">
+                <button onClick={() => setShowImpressum(true)} className="legal-link">Impressum</button>
+                  <button onClick={() => setShowDatenschutz(true)} className="legal-link">Datenschutz</button>
+</div>
             </div>
           </>
 
@@ -2860,6 +2874,9 @@ function App() {
           </div>
         </div>
       )}
+      {/*  Legal-Modals */}
+{showImpressum && <ImpressumModal onClose={() => setShowImpressum(false)} />}
+{showDatenschutz && <DatenschutzModal onClose={() => setShowDatenschutz(false)} />}
     </div>
   );
 }

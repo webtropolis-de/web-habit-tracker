@@ -1095,3 +1095,38 @@ header button:active {
   padding: "16px";
   font-size: "1.1rem";
 }
+
+
+.sidebar-footer {
+  margin-top: auto; /* Schiebt alles nach unten */
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  border-top: 1px solid #222;
+}
+
+.legal-link {
+  background: none !important;
+  border: none !important;
+  color: #949494 !important;
+  font-size: 0.7rem !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 5px !important;
+  transition: color 0.2s;
+  box-shadow: none !important; /* Keine 3D-Schatten hier */
+  transform: none !important;
+}
+
+.legal-link:hover {
+  color: #e6c27a !important; /* Gold beim Hover */
+}
+
+/* Fix für den Text im Modal */
+.habit-description {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
